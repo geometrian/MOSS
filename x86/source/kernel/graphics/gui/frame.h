@@ -2,28 +2,35 @@
 
 #include "../../../mosst/string.h"
 
+#include "component.h"
 
-namespace MOSS { namespace Graphics {
-	namespace VESA {
-		class FrameBuffer;
-	}
+
+namespace MOSS {
+	namespace Input { namespace Mouse {
+		class EventMove;
+	}}
+	namespace Graphics {
+		namespace VESA {
+			class Framebuffer;
+		}
 namespace GUI {
+	namespace Buttons {
+		class ButtonClose;
+	}
 
 
-class Rect { public:
-	int x,y, w,h;
-};
-
-class Frame {
+class Frame : public ComponentBase {
 	private:
-		Rect params_window;
-		Rect params_client;
 		MOSST::String title;
 		bool visible;
 
+		Buttons::ButtonClose* button_close;
+
 	public:
-		Frame(int x,int y, int w,int h);
+		Frame(ComponentBase* parent, int x,int y, int w,int h);
 		~Frame(void);
+
+		bool handle_mouse(const Input::Mouse::EventMove& event);
 
 		void set_position(int x, int y);
 		void set_size(int width, int height);
@@ -32,7 +39,7 @@ class Frame {
 
 		void set_visible(bool visible);
 
-		void draw(VESA::FrameBuffer* framebuffer) const;
+		void draw(VESA::Framebuffer* framebuffer) const;
 };
 
 

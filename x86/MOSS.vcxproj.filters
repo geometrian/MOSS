@@ -176,6 +176,15 @@
     <ClCompile Include="source\kernel\graphics\vesa\framebuffer.cpp">
       <Filter>kernel\graphics\vesa</Filter>
     </ClCompile>
+    <ClCompile Include="source\kernel\graphics\gui\mouse.cpp">
+      <Filter>kernel\graphics\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="source\kernel\graphics\gui\button.cpp">
+      <Filter>kernel\graphics\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="source\kernel\graphics\gui\component.cpp">
+      <Filter>kernel\graphics\gui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\kernel\text_mode_terminal.h">
@@ -306,6 +315,15 @@
       <Filter>kernel\graphics\vesa</Filter>
     </ClInclude>
     <ClInclude Include="source\kernel\graphics\gui\mouse.h">
+      <Filter>kernel\graphics\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="source\kernel\graphics\gui\button.h">
+      <Filter>kernel\graphics\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="source\kernel\graphics\gui\component.h">
+      <Filter>kernel\graphics\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="source\kernel\graphics\gui\rect.h">
       <Filter>kernel\graphics\gui</Filter>
     </ClInclude>
   </ItemGroup>

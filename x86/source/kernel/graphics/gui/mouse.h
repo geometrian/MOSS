@@ -3,12 +3,10 @@
 
 namespace MOSS { namespace Graphics {
 	namespace VESA {
-		class FrameBuffer;
+		class Framebuffer;
 	}
 namespace GUI {
 
-
-class FrameBuffer;
 
 class Mouse {
 	public:
@@ -18,7 +16,7 @@ class Mouse {
 		Mouse(void);
 		~Mouse(void);
 
-		void draw(VESA::FrameBuffer* framebuffer) const;
+		void draw(VESA::Framebuffer* framebuffer) const;
 };
 
 

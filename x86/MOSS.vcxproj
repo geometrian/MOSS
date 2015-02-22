@@ -34,8 +34,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\includes.cpp" />
+    <ClCompile Include="source\kernel\graphics\gui\button.cpp" />
+    <ClCompile Include="source\kernel\graphics\gui\component.cpp" />
     <ClCompile Include="source\kernel\graphics\gui\frame.cpp" />
     <ClCompile Include="source\kernel\graphics\gui\manager.cpp" />
+    <ClCompile Include="source\kernel\graphics\gui\mouse.cpp" />
     <ClCompile Include="source\kernel\graphics\vesa\framebuffer.cpp" />
     <ClCompile Include="source\kernel\graphics\vesa\mode.cpp" />
     <ClCompile Include="source\kernel\graphics\vesa\controller.cpp" />
@@ -71,9 +74,12 @@
     <ClInclude Include="source\kernel\boot\multiboot.h" />
     <ClInclude Include="source\kernel\graphics\color.h" />
     <ClInclude Include="source\kernel\graphics\font.h" />
+    <ClInclude Include="source\kernel\graphics\gui\button.h" />
+    <ClInclude Include="source\kernel\graphics\gui\component.h" />
     <ClInclude Include="source\kernel\graphics\gui\frame.h" />
     <ClInclude Include="source\kernel\graphics\gui\manager.h" />
     <ClInclude Include="source\kernel\graphics\gui\mouse.h" />
+    <ClInclude Include="source\kernel\graphics\gui\rect.h" />
     <ClInclude Include="source\kernel\graphics\vesa\framebuffer.h" />
     <ClInclude Include="source\kernel\graphics\vesa\mode.h" />
     <ClInclude Include="source\kernel\graphics\vesa\controller.h" />

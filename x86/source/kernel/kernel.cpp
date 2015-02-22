@@ -51,7 +51,7 @@ void handle_mouse_move(const Input::Mouse::EventMove& event) {
 
 	graphics->draw_text(50,50, buffer, Graphics::Color(0u,255u,255u),Graphics::Color(32u,32u,32u));
 	//graphics->draw_text(50,50, "Hello World!", Graphics::Color(0u,255u,255u));*/
-	gui->set_mouse_position(event.x,event.y);
+	gui->handle_mouse(event);
 }
 
 void kernel_main(void) {

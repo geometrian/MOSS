@@ -150,8 +150,8 @@ bool Controller::set_mode(Mode* mode) {
 
 	if (framebuffers[0]!=NULL) delete framebuffers[0];
 	if (framebuffers[1]!=NULL) delete framebuffers[1];
-	framebuffers[0] = new FrameBuffer(current_mode);
-	framebuffers[1] = new FrameBuffer(current_mode);
+	framebuffers[0] = new Framebuffer(current_mode);
+	framebuffers[1] = new Framebuffer(current_mode);
 
 	return true;
 }

@@ -3,6 +3,7 @@
 #include "../../../mossc/cstdio"
 #include "../../../mossc/cstdlib"
 #include "../../../mossc/cstring"
+#include "../../../mossc/cmath"
 
 #include "../color.h"
 #include "../font.h"
@@ -85,13 +86,7 @@ class Pixel32 { public:
 } __attribute__((packed));
 #undef CHANNEL_SCALE
 
-static void* get_address(VESA::FrameBuffer* framebuffer, int x,int y) {
-	#ifdef MOSS_DEBUG
-	//Trying to access out of bounds causes the screen to be filled with magenta
-	if (x<0 || x>=framebuffer->mode->info.XResolution) { framebuffer->draw_fill(Color(255u,0u,255u,255u)); return NULL; }
-	if (y<0 || y>=framebuffer->mode->info.YResolution) { framebuffer->draw_fill(Color(255u,0u,255u,255u)); return NULL; }
-	#endif
-
+static void* get_address(VESA::Framebuffer* framebuffer, int x,int y) {
 	y = framebuffer->mode->info.YResolution - y - 1;
 
 	int bytes_per_pixel;
@@ -114,7 +109,7 @@ static void* get_address(VESA::FrameBuffer* framebuffer, int x,int y) {
 	}
 	return (void*)( (unsigned long)(framebuffer->buffer) + y*framebuffer->mode->info.BytesPerScanLine + x*bytes_per_pixel );
 }
-static Color get_at(VESA::FrameBuffer* framebuffer, int x,int y) {
+static Color get_at(VESA::Framebuffer* framebuffer, int x,int y) {
 	const void* addr = get_address(framebuffer, x,y);
 	switch (framebuffer->mode->info.BitsPerPixel) {
 		case 4:
@@ -127,7 +122,7 @@ static Color get_at(VESA::FrameBuffer* framebuffer, int x,int y) {
 	}
 	return Color(255u,0u,255u,255u); //Error color is magenta
 }
-static void set_at(VESA::FrameBuffer* framebuffer, int x,int y, const Color& color) {
+static void set_at(VESA::Framebuffer* framebuffer, int x,int y, const Color& color) {
 	void* addr = get_address(framebuffer, x,y);
 	switch (framebuffer->mode->info.BitsPerPixel) {
 		case 4:
@@ -144,7 +139,7 @@ static void set_at(VESA::FrameBuffer* framebuffer, int x,int y, const Color& col
 } namespace VESA {
 
 
-FrameBuffer::FrameBuffer(Mode* mode) : mode(mode),size(mode->info.BytesPerScanLine*mode->info.YResolution) {
+Framebuffer::Framebuffer(Mode* mode) : mode(mode),size(mode->info.BytesPerScanLine*mode->info.YResolution) {
 	#ifdef MOSS_DEBUG
 	#define MUST_SIZE(TYPE,SIZE)\
 		if (sizeof(PixelUtil::TYPE)!=SIZE) {\
@@ -164,7 +159,7 @@ FrameBuffer::FrameBuffer(Mode* mode) : mode(mode),size(mode->info.BytesPerScanLi
 
 	complete = false;
 }
-FrameBuffer::~FrameBuffer(void) {
+Framebuffer::~Framebuffer(void) {
 	MOSSC::free(buffer);
 }
 
@@ -175,10 +170,10 @@ FrameBuffer::~FrameBuffer(void) {
 	regs.dx = bank_number;
 	int32(0x10,&regs);
 }*/
-void FrameBuffer::draw_fill(const Color& color) {
+void Framebuffer::draw_fill(const Color& color) {
 	draw_rect(0,0,mode->info.XResolution,mode->info.YResolution, color);
 }
-void FrameBuffer::draw_rect(int x,int y,int w,int h, const Color& color) {
+void Framebuffer::draw_rect(int x,int y,int w,int h, const Color& color) {
 	for (int y2=0;y2<h;++y2) {
 		for (int x2=0;x2<w;++x2) {
 			set_pixel(x+x2,y+y2, color);
@@ -186,24 +181,24 @@ void FrameBuffer::draw_rect(int x,int y,int w,int h, const Color& color) {
 	}
 }
 
-void FrameBuffer::draw_text(int x,int y, char text, const Color& color) {
+void Framebuffer::draw_text(int x,int y, char text, const Color& color) {
 	draw_text(x,y, text, color,Color(255,0,255,0));
 }
-void FrameBuffer::draw_text(int x,int y, char text, const Color& color,const Color& background) {
+void Framebuffer::draw_text(int x,int y, char text, const Color& color,const Color& background) {
 	uint64_t chr = Font::font[(unsigned int)(text)];
 	uint64_t i = 0;
 	for (int y2=y;y2<y+8;++y2) {
 		for (int x2=x+8-1;x2>=x;--x2) {
-			if (chr&(1ull<<i)) set_pixel(x2,y2,      color);
-			else               set_pixel(x2,y2, background);
+			if (chr&(1ull<<i)) blend_pixel(x2,y2,      color);
+			else               blend_pixel(x2,y2, background);
 			++i;
 		}
 	}
 }
-void FrameBuffer::draw_text(int x,int y, const char* text, const Color& color) {
+void Framebuffer::draw_text(int x,int y, const char* text, const Color& color) {
 	draw_text(x,y, text, color,Color(255,0,255,0));
 }
-void FrameBuffer::draw_text(int x,int y, const char* text, const Color& color,const Color& background) {
+void Framebuffer::draw_text(int x,int y, const char* text, const Color& color,const Color& background) {
 	int i = 0;
 	LOOP:
 		char c = text[i];
@@ -213,24 +208,67 @@ void FrameBuffer::draw_text(int x,int y, const char* text, const Color& color,co
 		goto LOOP;
 }
 
-Color FrameBuffer::get_pixel(int x,int y) {
+void Framebuffer::draw_line(int x0,int y0,int x1,int y1, const Color& color) {
+	//http://tech-algorithm.com/articles/drawing-line-using-bresenham-algorithm/
+	int x = x0;
+	int y = y0;
+
+	int w = x1 - x;
+	int h = y1 - y;
+
+	int dx0=0, dy0=0, dx1=0, dy1=0;
+	if (w<0) dx0=-1; else if (w>0) dx0=1;
+	if (h<0) dy0=-1; else if (h>0) dy0=1;
+	if (w<0) dx1=-1; else if (w>0) dx1=1;
+
+	int longest = abs(w);
+	int shortest = abs(h);
+	if (!(longest>shortest)) {
+		longest = abs(h);
+		shortest = abs(w);
+		if (h<0) dy1=-1; else if (h>0) dy1=1;
+		dx1 = 0;
+	}
+	int numerator = longest >> 1;
+	for (int i=longest;i>=0;--i) {
+		blend_pixel(x,y, color);
+		numerator += shortest;
+		if (!(numerator<longest)) {
+			numerator -= longest;
+			x += dx0;
+			y += dy0;
+		} else {
+			x += dx1;
+			y += dy1;
+		}
+	}
+}
+
+Color Framebuffer::get_pixel(int x,int y) {
+	#ifdef MOSS_DEBUG
+	//Trying to access out of bounds causes the screen to be filled with magenta
+	if (x<0 || x>=mode->info.XResolution) { draw_fill(Color(255u,0u,255u,255u)); return Color(); }
+	if (y<0 || y>=mode->info.YResolution) { draw_fill(Color(255u,0u,255u,255u)); return Color(); }
+	#endif
+
 	//TODO: technically I think sometimes you aren't allowed to read from this memory?
 	return PixelUtil::get_at(this, x,y);
 }
-void FrameBuffer::set_pixel(int x,int y, const Color& color) {
-	/*int address = y*vesa_width + x;
-	int bank_size = vesa_granularity*1024; //SVGA memory banks are not necessarily 64KiB, so be sure to use .WinGranularity.
-	int bank_number = address/bank_size;
-	int bank_offset = address%bank_size;
-
-	set_vesa_bank(bank_number);
-
-	*((int*)(0xA0000+bank_offset)) = color;*/
+void Framebuffer::set_pixel(int x,int y, const Color& color) {
+	//Some drawing operations do this, and it's much more convenient to just discard
+	//the pixels here than to check them in each higher level call.
+	if (x<0 || x>=mode->info.XResolution) return;
+	if (y<0 || y>=mode->info.YResolution) return;
 
 	return PixelUtil::set_at(this, x,y, color);
 }
 
-void FrameBuffer::blend_pixel(int x,int y, const Color& color) {
+void Framebuffer::blend_pixel(int x,int y, const Color& color) {
+	//Some drawing operations do this, and it's much more convenient to just discard
+	//the pixels here than to check them in each higher level call.
+	if (x<0 || x>=mode->info.XResolution) return;
+	if (y<0 || y>=mode->info.YResolution) return;
+
 	Color original = get_pixel(x,y);
 
 	Color new_color = Color::blend(color,original);
@@ -238,7 +276,7 @@ void FrameBuffer::blend_pixel(int x,int y, const Color& color) {
 	set_pixel(x,y, new_color);
 }
 
-void FrameBuffer::copy_to_screen(const Mode* mode) const {
+void Framebuffer::copy_to_screen(const Mode* mode) const {
 	MOSSC::memcpy((void*)(mode->info.PhysBasePtr),buffer,size);
 }
 

@@ -3,10 +3,14 @@
 #include "../../../mosst/string.h"
 
 
-namespace MOSS { namespace Graphics {
-	namespace VESA {
-		class FrameBuffer;
-	}
+namespace MOSS {
+	namespace Input { namespace Mouse {
+		class EventMove;
+	}}
+	namespace Graphics {
+		namespace VESA {
+			class Framebuffer;
+		}
 namespace GUI {
 
 
@@ -24,11 +28,11 @@ class Manager {
 		Manager(void);
 		~Manager(void);
 
-		void set_mouse_position(int x, int y);
+		void handle_mouse(const Input::Mouse::EventMove& event);
 
 		void add_frame(const MOSST::String& title, int x,int y,int w,int h);
 
-		void draw(VESA::FrameBuffer* framebuffer) const;
+		void draw(VESA::Framebuffer* framebuffer) const;
 };
 
 

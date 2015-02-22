@@ -6,6 +6,18 @@ root = ""
 root_build  = root+"build/"
 root_source = root+"source/"
 
+skip = 1
+if skip == 0:
+    skip_recompile_directories = []
+else:
+    skip_recompile_directories = [root_source+"kernel/boot",root_source+"mossc/",root_source+"mosst/"]
+
+only = 1
+if only == 0:
+    only_recompile = []
+else:
+    only_recompile = ["gui"]
+
 #The standard C++11 is important for override in C++.
 #TODO: do we need -nostartfiles?
 args_compile = "-ffreestanding -O0 -Wall -Wextra -fno-exceptions -fno-rtti -std=c++11"
@@ -18,16 +30,35 @@ args_link = "-ffreestanding -O0 -nostdlib"
 
 link_files = []
 
+def get_should_compile(in_name):
+    for skip_recompile_directory in skip_recompile_directories:
+        if in_name.startswith(skip_recompile_directory):
+            return False
+    if len(only_recompile) != 0:
+        found = False
+        for only in only_recompile:
+            if only in in_name:
+                found = True
+                break
+        if not found:
+            return False
+    return True
 def compile_cpp(in_name,out_name):
-    print("    Compiling:  \""+in_name+"\"")
-    command = ["i586-elf-g++","-c",in_name,"-o",out_name]
-    command += args_compile.split(" ")
-    call(command)
+    if get_should_compile(in_name):
+        print("    Compiling:  \""+in_name+"\"")
+        command = ["i586-elf-g++","-c",in_name,"-o",out_name]
+        command += args_compile.split(" ")
+        call(command)
+    else:
+        print("  ##SKIPPING##: \""+in_name+"\"")
     link_files.append(out_name)
 def assemble_asm(in_name,out_name):
-    print("    Assembling: \""+in_name+"\"")
-    command = ["nasm","-felf",in_name,"-o",out_name]
-    call(command)
+    if get_should_compile(in_name):
+        print("    Assembling: \""+in_name+"\"")
+        command = ["nasm","-felf",in_name,"-o",out_name]
+        call(command)
+    else:
+        print("  ##SKIPPING##: \""+in_name+"\"")
     link_files.append(out_name)
 
 def compile_directory(directory):
@@ -67,12 +98,15 @@ def link():
     call(command)
 
 def main():
-    print("  Compiling:")
-    compile_directory(root_source)
+    try:
+        print("  Compiling:")
+        compile_directory(root_source)
 
-    print("  Linking")
-    link()
-    
+        print("  Linking")
+        link()
+    except KeyboardInterrupt:
+        print("  Aborting")
+
 
 if __name__ == "__main__": main()
 

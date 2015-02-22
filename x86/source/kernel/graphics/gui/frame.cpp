@@ -1,28 +1,42 @@
 #include "frame.h"
 
+#include "../../input/mouse.h"
+
 #include "../color.h"
 
 #include "../vesa/framebuffer.h"
+
+#include "button.h"
 
 
 namespace MOSS { namespace Graphics { namespace GUI {
 
 
-Frame::Frame(int x,int y, int w,int h) {
+Frame::Frame(ComponentBase* parent, int x,int y, int w,int h) : ComponentBase(parent,Rect(x,y,w,h),Rect(x,y,w,h)) {
 	set_position(x,y);
 	set_size(w,h);
+
+	button_close = new Buttons::ButtonClose(this);
+
 	visible = true; //TODO: false
 }
 Frame::~Frame(void) {
+	delete button_close;
+}
+
+bool Frame::handle_mouse(const Input::Mouse::EventMove&/* event*/) {
+	return true;
 }
 
 void Frame::set_position(int x, int y) {
-	params_window.x = x;
-	params_window.y = y;
+	rect_component.x = x;
+	rect_component.y = y;
 }
 void Frame::set_size(int width, int height) {
-	params_window.w =  width;
-	params_window.h = height;
+	rect_component.w =  width;
+	rect_component.h = height;
+	rect_client.w =  width;
+	rect_client.h = height;
 }
 
 void Frame::set_title(const MOSST::String& title) {
@@ -33,9 +47,19 @@ void Frame::set_visible(bool visible) {
 	this->visible = visible;
 }
 
-void Frame::draw(VESA::FrameBuffer* framebuffer) const {
-	framebuffer->draw_rect(params_window.x,params_window.y,params_window.w,params_window.h, Graphics::Color(64,64,64,255));
-	framebuffer->draw_text(params_window.x+10,params_window.y+params_window.h-10, title.c_str(), Graphics::Color(255,255,255));
+void Frame::draw(VESA::Framebuffer* framebuffer) const {
+	framebuffer->draw_rect(
+		rect_component.x,rect_component.y,rect_component.w,rect_component.h,
+		Graphics::Color(64,64,64,255)
+	);
+
+	framebuffer->draw_text(
+		rect_component.x+10,rect_component.y+rect_component.h-10,
+		title.c_str(),
+		Graphics::Color(255,255,255)
+	);
+
+	button_close->draw(framebuffer);
 }
 
 

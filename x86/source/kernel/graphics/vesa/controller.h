@@ -16,7 +16,7 @@ namespace VESA {
 //See http://wiki.osdev.org/Memory_Map_%28x86%29
 
 
-class FrameBuffer;
+class Framebuffer;
 
 class Mode;
 
@@ -30,11 +30,11 @@ class Controller {
 		Mode* current_mode;
 
 	private:
-		FrameBuffer* framebuffers[2];
+		Framebuffer* framebuffers[2];
 		int latest_complete_framebuffer;
 		int framebuffer_writing;
 	public:
-		FrameBuffer* current_framebuffer;
+		Framebuffer* current_framebuffer;
 
 	private:
 		class VESA_INFO { public:
