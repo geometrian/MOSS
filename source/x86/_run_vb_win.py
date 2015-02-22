@@ -1,5 +1,6 @@
 from subprocess import call
 
+
 def main():
 ##    #VirtualBox has a weird thing where it crashes if the UUID of the new hard drive is not what it expects.
 ##    #The line in _install_vb makes the UUID all zeros, apparently, but we can fix that by removing the disk
@@ -23,7 +24,7 @@ def main():
 ##    input()
     call([
         "C:\\Program Files\\Oracle\\VirtualBox\\VBoxManage.exe",
-        "internalcommands","sethduuid","C:\\dev\\C++\\MOSS\\VM\\MOSS-disk-flat.vmdk","4bfe659c-0e11-4f5f-a046-491451411217"
+        "internalcommands","sethduuid","C:\\dev\\C++\\MOSS\\VMs\\VirtualBox\\MOSS-disk-flat.vmdk","4bfe659c-0e11-4f5f-a046-491451411217"
     ])
     
     call([

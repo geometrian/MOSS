@@ -10,7 +10,6 @@
 
 *.pyc
 
-nircmd/
+resources/nircmd/
 
-VM/
-VMware/
+VMs/

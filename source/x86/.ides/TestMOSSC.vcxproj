@@ -19,38 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="source\mossc\math\trig.cpp" />
-    <ClCompile Include="source\mossc\stdio\fmt_io.cpp" />
-    <ClCompile Include="source\mossc\stdlib\int_arith.cpp" />
-    <ClCompile Include="source\mossc\string\comparison.cpp" />
-    <ClCompile Include="source\mossc\string\concatenation.cpp" />
-    <ClCompile Include="source\mossc\string\copying.cpp" />
-    <ClCompile Include="source\mossc\string\other.cpp" />
-    <ClCompile Include="source\mossc\string\searching.cpp" />
-    <ClCompile Include="source\mossc\_misc.cpp" />
-    <ClCompile Include="testmossc\main.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="source\mossc\math.h" />
-    <ClInclude Include="source\mossc\math\trig.h" />
-    <ClInclude Include="source\mossc\stdio.h" />
-    <ClInclude Include="source\mossc\stdio\fmt_io.h" />
-    <ClInclude Include="source\mossc\stdlib.h" />
-    <ClInclude Include="source\mossc\stdlib\int_arith.h" />
-    <ClInclude Include="source\mossc\string.h" />
-    <ClInclude Include="source\mossc\string\comparison.h" />
-    <ClInclude Include="source\mossc\string\concatenation.h" />
-    <ClInclude Include="source\mossc\string\copying.h" />
-    <ClInclude Include="source\mossc\string\other.h" />
-    <ClInclude Include="source\mossc\string\searching.h" />
-    <ClInclude Include="source\mossc\_common.h" />
-    <ClInclude Include="source\mossc\_misc.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="source\mossc\cmath" />
-    <None Include="source\mossc\cstdio" />
-    <None Include="source\mossc\cstdlib" />
-    <None Include="source\mossc\cstring" />
+    <ClCompile Include="..\source_testmossc\main.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{ED853E3A-6E69-4303-ADF1-D5BC17EDDA39}</ProjectGuid>
