@@ -3,6 +3,9 @@
 #include "copying.h"
 
 
+namespace MOSSC {
+
+
 char* strcat(char* destination, const char* source) {
 	size_t i = 0u;
 	while (destination[i]!='\0') ++i;
@@ -24,4 +27,7 @@ char* strncat(char* destination, const char* source, size_t num) {
 	destination2[i] = '\0';
 
 	return destination;
+}
+
+
 }

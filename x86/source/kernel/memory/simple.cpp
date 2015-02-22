@@ -13,28 +13,7 @@ uint64_t Block::get_size(void) const {
 }
 
 void Block::print(Terminal::TextModeTerminal* terminal) const {
-	/*terminal->write("[");
-	terminal->write((void*)(this));
-	terminal->write("(+");
-	terminal->write((int)(sizeof(BlockHeader)));
-	terminal->write("),");
-	terminal->write((void*)(header.next));
-	terminal->write(")");*/
-	terminal->write("{");
-	terminal->write((void*)(header.prev));
-	terminal->write("<-");
-	terminal->write((void*)(this));
-	terminal->write("->");
-	terminal->write((void*)(header.next));
-	terminal->write("}:");
-	terminal->write((int)(header.allocated));
-	terminal->write(":[");
-	terminal->write((void*)(&first_data));
-	terminal->write(",");
-	terminal->write((void*)(header.next));
-	terminal->write(")=");
-	terminal->write((int)(get_size()));
-	terminal->write("\n");
+	terminal->write("{%p<-%p->%p}:%d:[%p,%p)=%d\n", header.prev,this,header.next, header.allocated, &first_data,header.next, get_size());
 }
 
 
@@ -55,11 +34,7 @@ BlockGRUB::~BlockGRUB(void) {
 }
 
 void BlockGRUB::print(Terminal::TextModeTerminal* terminal) const {
-	terminal->write("  size="); terminal->write((int)(record_size));
-	terminal->write(", base_addr="); terminal->write((void*)(start >> 32)); terminal->write(" "); terminal->write((void*)(start & 0xffffffff));
-	terminal->write(", len="); terminal->write((void*)(size >> 32)); terminal->write(" "); terminal->write((void*)(size & 0xffffffff));
-	terminal->write(", type="); terminal->write((int)(type));
-	terminal->write("\n");
+	terminal->write("  size=%d, base_addr=%p %p, len=%p %p, type=%d\n", record_size, start>>32,start&0xffffffff, size>>32,size&0xffffffff, type);
 }
 
 
@@ -74,9 +49,7 @@ MemoryManager::MemoryManager(const Boot::multiboot_info_t* mbi) {
 
 	//TODO: capture more than one block, if available
 
-	/*terminal->write("mmap_addr="); terminal->write((void*)(mbi->mmap_addr));
-	terminal->write(", mmap_length="); terminal->write((void*)(mbi->mmap_length));
-	terminal->write("\n");
+	/*terminal->write("mmap_addr=%p, mmap_length=%p\n",mbi->mmap_addr,mbi->mmap_length);
 
 	multiboot_memory_map_t* mmap = (multiboot_memory_map_t*)(mbi->mmap_addr);
 	while ((unsigned long)(mmap)<mbi->mmap_addr+mbi->mmap_length) {
@@ -133,7 +106,7 @@ void* MemoryManager::malloc(size_t size) {
 
 	block->header.allocated = true;
 
-	//terminal->write((void*)(block));
+	//terminal->write("%p",block);
 
 	//Split this block if can fit another in
 	if (block->get_size()-size>sizeof(BlockHeader)) {

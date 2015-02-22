@@ -30,9 +30,7 @@ namespace MOSS { namespace Kernel {
 
 void handle_key_down(const Input::Keys::Event& event) {
 	if (Input::Keys::is_printable(event.key)) {
-		/*terminal->write("Keyboard got scan code ");
-		terminal->write((int)(scan_code));
-		terminal->write("!\n");*/
+		//terminal->write("Keyboard got scan code %d!\n",scan_code);
 		terminal->write(Input::Keys::get_printable(event.key));
 	}
 }
@@ -40,7 +38,8 @@ void handle_key_up(const Input::Keys::Event&/* event*/) {
 }
 
 void handle_mouse_move(const Input::Mouse::EventMove& event) {
-	//terminal->write("Mouse position: "); Kernel::terminal->write(event.x); Kernel::terminal->write(", "); Kernel::terminal->write(event.y); Kernel::terminal->write("\n");
+	terminal->write("Mouse position: %d, %d\n",event.x,event.y);
+	/*
 	graphics->set_pixel(event.x,event.y, Graphics::Color(255,0,255,255));
 
 	char buffer[64];
@@ -48,7 +47,8 @@ void handle_mouse_move(const Input::Mouse::EventMove& event) {
 
 	graphics->draw_text(50,50, "                                                  ", Graphics::Color(32,32,32));
 	graphics->draw_text(50,50, buffer, Graphics::Color(0,255,255));
-	//graphics->draw_text(50,50, "Hello World!", Graphics::Color(0,255,255));
+	//graphics->draw_text(50,50, "Hello World!", Graphics::Color(0,255,255));*/
+
 }
 
 void kernel_main(void) {

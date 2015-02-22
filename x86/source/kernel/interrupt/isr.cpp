@@ -266,8 +266,8 @@ void isr_common(State* state) {
 	uint32_t& which = state->int_ind;
 
 	/*Kernel::terminal->write("Received interrupt:\n");
-	Kernel::terminal->write("  Interrupt index: "); Kernel::terminal->write((int)(state-> int_ind)); Kernel::terminal->write("\n");
-	Kernel::terminal->write("  Error code:      "); Kernel::terminal->write((int)(state->err_code)); Kernel::terminal->write("\n");
+	Kernel::terminal->write("  Interrupt index: %d\n",state->int_ind);
+	Kernel::terminal->write("  Error code:      %d\n",state->err_code);
 	if (state->err_code == 14) {
 		Kernel::terminal->write("    Is special error code for page faults (interrupt 14):\n");
 		Kernel::terminal->write("    Diagnostic output not implemented!\n"); //TODO: this
@@ -296,11 +296,11 @@ void isr_common(State* state) {
 			Kernel::terminal->write("      1 : index is into IDT\n");
 		}
 
-		Kernel::terminal->write("      "); Kernel::terminal->write((int)(code.segement_selector_index)); Kernel::terminal->write("\n");
+		Kernel::terminal->write("      %d\n",code.segement_selector_index);
 	}
 	Kernel::terminal->write("Delegating\n");*/
 
-	//Kernel::terminal->write("Got interrupt "); Kernel::terminal->write((int)(which)); Kernel::terminal->write("!\n");
+	//Kernel::terminal->write("Got interrupt %d!\n",which);
 
 	ASSERT(which<=255,"Got interrupt that was outside the ISR table!");
 	ASSERT(which<=47,"Got interrupt that was unallocated!");

@@ -1,5 +1,8 @@
 #include "trig.h"
 
+
+namespace MOSSC {
+
 #if 0
 #include <stdint.h>
 
@@ -63,3 +66,6 @@ MOSS_DECL_FP1(acosh)
 MOSS_DECL_FP1(asinh)
 MOSS_DECL_FP1(atanh)*/
 #endif
+
+
+}

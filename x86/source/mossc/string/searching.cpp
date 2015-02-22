@@ -1,6 +1,9 @@
 #include "searching.h"
 
 
+namespace MOSSC {
+
+
 const void* memchr(const void* ptr, int value, size_t num) {
 	const unsigned char* ptr2 = (const unsigned char*)(ptr);
 	for (size_t i=0u;i<num;++i) {
@@ -114,4 +117,7 @@ const char* strstr(const char* str1, const char* str2) {
 }
       char* strstr(      char* str1, const char* str2) {
 	return (char*)(strstr((const char*)(str1),str2));
+}
+
+
 }

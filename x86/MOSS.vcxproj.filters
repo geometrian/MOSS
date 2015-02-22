@@ -152,6 +152,9 @@
     <ClCompile Include="source\mossc\stdlib\int_arith.cpp">
       <Filter>mossc\stdlib</Filter>
     </ClCompile>
+    <ClCompile Include="source\mossc\stdio\fmt_io.cpp">
+      <Filter>mossc\stdio</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\kernel\text_mode_terminal.h">
@@ -262,6 +265,9 @@
     </ClInclude>
     <ClInclude Include="source\mossc\stdlib\int_arith.h">
       <Filter>mossc\stdlib</Filter>
+    </ClInclude>
+    <ClInclude Include="source\kernel\graphics\color.h">
+      <Filter>kernel\graphics</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

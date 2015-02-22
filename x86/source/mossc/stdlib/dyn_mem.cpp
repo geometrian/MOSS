@@ -5,6 +5,9 @@
 #include "../string/other.h"
 
 
+namespace MOSSC {
+
+
 void* calloc(size_t num, size_t size) {
 	void* result = malloc(num*size);
 	memset(result,0,size);
@@ -30,15 +33,19 @@ void free(void* ptr) {
 	MOSS::Kernel::memory->free(ptr);
 }
 
+
+}
+
+
 void* operator new  (size_t size) {
-	return malloc(size);
+	return MOSSC::malloc(size);
 }
 void* operator new[](size_t size) {
-	return malloc(size);
+	return MOSSC::malloc(size);
 }
 void operator delete  (void* p) {
-	free(p);
+	MOSSC::free(p);
 }
 void operator delete[](void* p) {
-	free(p);
+	MOSSC::free(p);
 }

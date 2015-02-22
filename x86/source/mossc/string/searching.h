@@ -3,6 +3,9 @@
 #include <stddef.h>
 
 
+namespace MOSSC {
+
+
 const void* memchr(const void* ptr, int value, size_t num);
       void* memchr(      void* ptr, int value, size_t num);
 
@@ -24,3 +27,6 @@ const char* strstr(const char* str1, const char* str2);
 
 //TODO: this
 char* strtok(char* str, const char* delimiters);
+
+
+}

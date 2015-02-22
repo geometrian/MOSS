@@ -1,6 +1,9 @@
 #include "comparison.h"
 
 
+namespace MOSSC {
+
+
 int memcmp(const void* ptr1, const void* ptr2, size_t num) {
 	const unsigned char* p1 = (const unsigned char*)(ptr1);
 	const unsigned char* p2 = (const unsigned char*)(ptr2);
@@ -36,4 +39,7 @@ int strncmp(const char* str1, const char* str2, size_t num) {
 		if (c1=='\0') break; //c1==c2, so only test one
 	}
 	return '\0';
+}
+
+
 }

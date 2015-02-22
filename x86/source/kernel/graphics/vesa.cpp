@@ -19,7 +19,7 @@ namespace MOSS { namespace Graphics { namespace VESA {
 Mode::Mode(uint16_t index) : index(index) {
 	MODE_INFO* info2 = (MODE_INFO*)(0x500);
 
-	memset(info2,0,sizeof(MODE_INFO));
+	MOSSC::memset(info2,0,sizeof(MODE_INFO));
 	int ptr = (int)(info2);
 
 	Interrupts::regs16_t regs;
@@ -31,20 +31,12 @@ Mode::Mode(uint16_t index) : index(index) {
 
 	valid = regs.ax==0x004F;
 
-	memcpy(&info,info2,sizeof(MODE_INFO));
+	MOSSC::memcpy(&info,info2,sizeof(MODE_INFO));
 }
 Mode::~Mode(void) {}
 
 void Mode::print(Terminal::TextModeTerminal* terminal) const {
-	terminal->write("Mode ");
-	terminal->write(index);
-	terminal->write(": ");
-	terminal->write((int)(info.XResolution));
-	terminal->write("x");
-	terminal->write((int)(info.YResolution));
-	terminal->write("@");
-	terminal->write((int)(info.BitsPerPixel));
-	terminal->write("bpp\n");
+	terminal->write("Mode %u: %ux%u@%ubpp", index, info.XResolution,info.YResolution,info.BitsPerPixel);
 }
 
 
@@ -58,8 +50,8 @@ Controller::Controller(void) {
 	{
 		VESA_INFO* info2 = (VESA_INFO*)(0x500);
 
-		memset(info2,0,sizeof(VESA_INFO));
-		strncpy((char*)(info2->VESASignature),"VBE2",4);
+		MOSSC::memset(info2,0,sizeof(VESA_INFO));
+		MOSSC::strncpy((char*)(info2->VESASignature),"VBE2",4);
 		int ptr = (int)(info2);
 
 		//Kernel::terminal->write("Getting graphics modes . . .\n");
@@ -69,16 +61,16 @@ Controller::Controller(void) {
 		regs.es = (ptr>>4) & 0xFFFF;
 		Interrupts::int32(0x10,&regs);
 
-		//Kernel::terminal->write("Virtual pointer:   "); Kernel::terminal->write((void*)(vesa_info)); Kernel::terminal->write("\n");
-		//Kernel::terminal->write("Segmented pointer: "); Kernel::terminal->write((void*)((ptr>>4) & 0xFFFF)); Kernel::terminal->write(":"); Kernel::terminal->write((void*)(ptr & 0xF)); Kernel::terminal->write("\n");
+		//Kernel::terminal->write("Virtual pointer:   %p\n",vesa_info);
+		//Kernel::terminal->write("Segmented pointer: %p:%p\n",(ptr>>4)&0xFFFF,ptr&0xF);
 
 		ASSERT(regs.ax==0x004F,"Getting VESA graphics modes failed!");
 
 		//Check that we got the right magic marker value
-		ASSERT(strncmp((char*)(info2->VESASignature),"VESA",4)==0,"Got wrong VESA magic value!");
+		ASSERT(MOSSC::strncmp((char*)(info2->VESASignature),"VESA",4)==0,"Got wrong VESA magic value!");
 
 		//Copy the temporary information into this mode's record.
-		memcpy(&info,info2,sizeof(VESA_INFO));
+		MOSSC::memcpy(&info,info2,sizeof(VESA_INFO));
 
 		//Kernel::terminal->write("Graphics modes retrieved!\n");
 	}
@@ -91,17 +83,15 @@ Controller::Controller(void) {
 		uint16_t* mode_ptr = (uint16_t*)( ((info.VideoModePtr&0xFFFF0000)>>12) + (info.VideoModePtr&0xFFFF) );
 		uint16_t* mode_ptr2 = mode_ptr;
 
-		//Kernel::terminal->write("Video pointer: ");
-		//Kernel::terminal->write((void*)(mode_ptr));
-		//Kernel::terminal->write("\n");
+		//Kernel::terminal->write("Video pointer: %p\n",mode_ptr);
 
-		//Kernel::terminal->write((int)(mode_ptr)); Kernel::terminal->write(" "); Kernel::terminal->write((int)(mode_ptr2)); Kernel::terminal->write("\n");
+		//Kernel::terminal->write("%d %d\n",mode_ptr,mode_ptr2);
 
 		numof_modes = 0;
 		//Read the list of available modes
 		LOOP: {
 			uint16_t mode = mode_ptr[numof_modes];
-			//Kernel::terminal->write((int)(mode)); Kernel::terminal->write(" ");
+			//Kernel::terminal->write("%d ",mode);
 			if (mode!=0xFFFF) {
 				++numof_modes;
 				goto LOOP;
@@ -109,11 +99,9 @@ Controller::Controller(void) {
 		}
 		//Kernel::terminal->write("\n");
 
-		//Kernel::terminal->write((int)(mode_ptr)); Kernel::terminal->write(" "); Kernel::terminal->write((int)(mode_ptr2)); Kernel::terminal->write("\n");
+		//Kernel::terminal->write("%d %d\n",mode_ptr,mode_ptr2);
 
-		//Kernel::terminal->write("There are ");
-		//Kernel::terminal->write(numof_modes);
-		//Kernel::terminal->write(" modes!\n");
+		//Kernel::terminal->write("There are %d modes!\n",numof_modes);
 		ASSERT(numof_modes>=1,"No VESA modes available!"); //A problem since .get_mode_closest(...) cannot return NULL.
 
 		//We have to go through an intermediary step of caching the mode numbers here since they are originally
@@ -127,8 +115,7 @@ Controller::Controller(void) {
 		modes = new Mode*[numof_modes];
 		for (int i=0;i<numof_modes;++i) {
 			uint16_t mode = mode_indices[i];
-			//Kernel::terminal->write((int)(mode)); Kernel::terminal->write(" ");
-			//Kernel::terminal->write("Making new mode "); Kernel::terminal->write((int)(mode)); Kernel::terminal->write("!\n");
+			//Kernel::terminal->write("Making new mode %d!\n",mode);
 			modes[i] = new Mode(mode);
 		}
 
@@ -146,9 +133,9 @@ Mode* Controller::get_mode_closest(int w,int h, int bpp) {
 	for (int i=0;i<numof_modes;++i) {
 		Mode* mode = modes[i];
 
-		uint32_t score = abs(mode->info.XResolution*mode->info.YResolution-w*h) + 1000*abs(mode->info.BitsPerPixel-bpp);
+		uint32_t score = MOSSC::abs(mode->info.XResolution*mode->info.YResolution-w*h) + 1000*MOSSC::abs(mode->info.BitsPerPixel-bpp);
 
-		//Kernel::terminal->write((int)(score)); Kernel::terminal->write(": "); mode->print(Kernel::terminal); delay(1000);
+		//Kernel::terminal->write("%d: ",score); mode->print(Kernel::terminal); delay(1000);
 
 		if (score<best_score) {
 			//Kernel::terminal->write("  BEST SO FAR!\n");

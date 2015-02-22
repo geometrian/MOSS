@@ -20,14 +20,15 @@ echo "Compiling"
 
 #The standard C++11 is important for override in C++.
 #TODO: do we need -nostartfiles?
-export ARGS_CMPL="-ffreestanding -O2 -Wall -Wextra -fno-exceptions -fno-rtti -std=c++11"
-export ARGS_LINK="-ffreestanding -O2 -nostdlib"
+export ARGS_CMPL="-ffreestanding -O0 -Wall -Wextra -fno-exceptions -fno-rtti -std=c++11"
+export ARGS_LINK="-ffreestanding -O0 -nostdlib"
 
 
 
 echo "  Compiling mossc/math/*"
 i586-elf-g++ -c source/mossc/math/trig.cpp -o build/mossc/math/trig.o $ARGS_CMPL
 echo "  Compiling mossc/stdio/*"
+i586-elf-g++ -c source/mossc/stdio/fmt_io.cpp -o build/mossc/stdio/fmt_io.o $ARGS_CMPL
 echo "  Compiling mossc/stdlib/*"
 i586-elf-g++ -c source/mossc/stdlib/dyn_mem.cpp   -o build/mossc/stdlib/dyn_mem.o $ARGS_CMPL
 i586-elf-g++ -c source/mossc/stdlib/int_arith.cpp -o build/mossc/stdlib/int_arith.o $ARGS_CMPL
@@ -54,6 +55,7 @@ echo "  Compiling kernel/input/*"
 i586-elf-g++ -c source/kernel/input/keys.cpp -o build/kernel/input/keys.o $ARGS_CMPL
 echo "  Compiling kernel/interrupt/*"
 echo "  Compiling kernel/interrupt/<idt>"
+#echo "  ##################SKIPPING COMPILATION OF ISR.CPP!!!##################"
 nasm -felf      source/kernel/interrupt/idt.asm -o build/kernel/interrupt/idt1.o
 i586-elf-g++ -c source/kernel/interrupt/idt.cpp -o build/kernel/interrupt/idt2.o $ARGS_CMPL
 echo "  Compiling kernel/interrupt/<int32>"
@@ -109,6 +111,7 @@ i586-elf-gcc\
 	build/kernel/text_mode_terminal.o\
 \
 	build/mossc/math/trig.o\
+	build/mossc/stdio/fmt_io.o\
 	build/mossc/stdlib/dyn_mem.o\
 	build/mossc/stdlib/int_arith.o\
 	build/mossc/string/comparison.o\

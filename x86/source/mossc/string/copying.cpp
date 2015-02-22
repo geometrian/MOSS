@@ -1,6 +1,9 @@
 #include "copying.h"
 
 
+namespace MOSSC {
+
+
 void* memcpy(void* destination, const void* source, size_t num) {
 	char* dst = (char*)(destination);
 	const char* src = (const char*)(source);
@@ -74,4 +77,7 @@ char* strncpy(char* destination, const char* source, size_t num) {
 	} while (++i<num);
 
 	return destination;
+}
+
+
 }

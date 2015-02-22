@@ -52,11 +52,11 @@ class TextModeTerminal {
 
 		void write(char c, int x,int y);
 		void write(char c);
-		void write(  int data);
+		/*void write(  int data);
 		void write( bool data);
-		void write(void* data);
+		void write(void* data);*/
 
-		void write(const char* str);
+		void write(const char* format, ...);
 };
 
 

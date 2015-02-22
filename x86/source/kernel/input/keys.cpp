@@ -12,7 +12,7 @@ namespace MOSS { namespace Input { namespace Keys {
 
 bool is_printable(Codes::MossKey key) {
 	switch (key) {
-		#define PRINTABLE(NAME,SHIFT_NAME, DESC,SHIFT_DESC, SC) case Codes::KEY_##NAME: return strlen(DESC)==1;
+		#define PRINTABLE(NAME,SHIFT_NAME, DESC,SHIFT_DESC, SC) case Codes::KEY_##NAME: return MOSSC::strlen(DESC)==1;
 		MOSS_KEY_MACRO(PRINTABLE)
 		#undef MOSS_KEYS
 		case Codes::KEY_INVALID: return false;

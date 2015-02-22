@@ -85,7 +85,7 @@ extern "C" void kernel_entry(unsigned long magic, unsigned long addr) {
 	//Graphics::VESA::Mode* mode = graphics->get_mode_closest( 800,600,32);
 	Graphics::VESA::Mode* mode = graphics->get_mode_closest(1024,768,32);
 	//Graphics::VESA::Mode* mode = graphics->get_mode_closest(1152,864,32);
-	graphics->set_mode(mode);
+	//graphics->set_mode(mode);
 	//graphics->set_pixel(5,5, 255,0,0,255);
 
 	kernel_main();

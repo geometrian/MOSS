@@ -1,6 +1,9 @@
 #include "int_arith.h"
 
 
+namespace MOSSC {
+
+
 int abs(int n) {
 	return n<0 ? -n : n;
 }
@@ -24,4 +27,7 @@ ldiv_t ldiv(long int numer, long int denom) {
 }
 lldiv_t lldiv(long long int numer, long long int denom) {
 	DIV_BODY(lldiv_t)
+}
+
+
 }

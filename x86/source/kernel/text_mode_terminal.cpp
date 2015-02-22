@@ -1,5 +1,7 @@
 #include "text_mode_terminal.h"
 
+#include "../mossc/cstdio"
+
 
 namespace MOSS { namespace Terminal {
 
@@ -95,7 +97,7 @@ void TextModeTerminal::write(char c) {
 		}
 	}
 }
-void TextModeTerminal::write(  int data) {
+/*void TextModeTerminal::write(  int data) {
 	if (data==0) { write('0'); return; }
 
 	bool negative;
@@ -119,10 +121,10 @@ void TextModeTerminal::write(  int data) {
 void TextModeTerminal::write( bool data) {
 	write(data?"true":"false");
 }
-void write_nibble(TextModeTerminal* terminal, unsigned char num) {
+static void write_nibble(TextModeTerminal* terminal, unsigned char num) {
 	terminal->write((char)(   num   +   (num<10 ? '0' : 'A'-10)   ));
 }
-void write_byte(TextModeTerminal* terminal, unsigned char byte) {
+static void write_byte(TextModeTerminal* terminal, unsigned char byte) {
 	unsigned char h = 0;
 	while (byte>=16) {
 		++h;
@@ -142,17 +144,34 @@ void TextModeTerminal::write(void* data) {
 	write_byte(this,i1);
 	write_byte(this,i2);
 	write_byte(this,i3);
-}
+}*/
 
-void TextModeTerminal::write(const char* str) {
-	size_t i = 0;
+void TextModeTerminal::write(const char* format, ...) {
+	/*size_t i = 0;
 	LOOP:
 		char c = str[i];
 		if (c!='\0') {
 			write(c);
 			++i;
 			goto LOOP;
+		}*/
+
+	char buffer[256]; //TODO: use vsnprintf or something!
+
+	va_list args;
+	va_start(args,format);
+
+	MOSSC::vsprintf(buffer,format,args);
+	size_t i = 0;
+	LOOP:
+		char c = buffer[i];
+		if (c!='\0') {
+			write(c);
+			++i;
+			goto LOOP;
 		}
+
+	va_end(args);
 }
 
 
