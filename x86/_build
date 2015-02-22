@@ -1,0 +1,64 @@
+mkdir -p build
+mkdir -p build/kernel
+mkdir -p build/kernel/boot
+mkdir -p build/kernel/gui
+mkdir -p build/kernel/memory
+mkdir -p build/kernel/interrupt
+mkdir -p build/stdlib
+
+
+
+echo "Compiling kernel"
+
+export ARGS_CMPL="-ffreestanding -O2 -Wall -Wextra -fno-exceptions -fno-rtti"
+# -std=c++11"
+export ARGS_LINK="-ffreestanding -O2 -nostdlib"
+
+nasm -felf      source/kernel/boot/boot.asm -o build/kernel/boot/boot.o
+i586-elf-g++ -c source/kernel/memory/simple.cpp -o build/kernel/memory/simple.o $ARGS_CMPL
+nasm -felf      source/kernel/interrupt/gdt_idt.asm -o build/kernel/interrupt/gdt_idt1.o
+i586-elf-g++ -c source/kernel/interrupt/gdt_idt.cpp -o build/kernel/interrupt/gdt_idt2.o $ARGS_CMPL
+nasm -felf      source/kernel/interrupt/int32.asm -o build/kernel/interrupt/int32.o
+#nasm -felf      source/kernel/interrupt/isr.asm -o build/kernel/interrupt/isr1.o
+#i586-elf-g++ -c source/kernel/interrupt/isr.cpp -o build/kernel/interrupt/isr2.o $ARGS_CMPL
+
+i586-elf-g++ -c source/kernel/kernel.cpp -o build/kernel/kernel.o $ARGS_CMPL
+
+i586-elf-g++ -c source/kernel/text_mode_terminal.cpp -o build/kernel/text_mode_terminal.o $ARGS_CMPL
+
+i586-elf-g++ -c source/kernel/vesa.cpp -o build/kernel/vesa.o $ARGS_CMPL
+
+i586-elf-g++ -c source/stdlib/stdlib.cpp -o build/stdlib/stdlib.o $ARGS_CMPL
+
+i586-elf-g++ -c source/includes.cpp -o build/includes.o $ARGS_CMPL
+
+
+#build/kernel/interrupt/isr1.o\
+	#build/kernel/interrupt/isr2.o\
+
+echo "Linking kernel"
+
+i586-elf-gcc\
+	-T source/linker.ld\
+	-o build/MOSS.bin\
+	$ARGS_LINK\
+\
+\
+	build/kernel/boot/boot.o\
+	build/kernel/memory/simple.o\
+	build/kernel/interrupt/gdt_idt1.o\
+	build/kernel/interrupt/gdt_idt2.o\
+	build/kernel/interrupt/int32.o\
+\
+	build/kernel/kernel.o\
+\
+	build/kernel/text_mode_terminal.o\
+\
+	build/kernel/vesa.o\
+\
+	build/stdlib/stdlib.o\
+\
+	build/includes.o\
+\
+\
+	-lgcc

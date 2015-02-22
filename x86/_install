@@ -1,0 +1,8 @@
+mkdir -p ../VM/tmp
+mkdir -p ../VM/tmp/boot
+mkdir -p ../VM/tmp/boot/grub
+
+cp build/MOSS.bin ../VM/tmp/boot/MOSS.bin
+cp source/grub.cfg ../VM/tmp/boot/grub/grub.cfg
+#Apparently can't reorder this command
+grub-mkrescue -o ../VM/MOSS-flat.iso ../VM/tmp
