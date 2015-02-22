@@ -1,10 +1,10 @@
 #include "keys.h"
 
+#include "../../mossc/cstring"
 #include "../../includes.h"
 #include "../kernel.h"
 #include "../input/devices/controller_ps2.h"
 #include "../input/devices/keyboard.h"
-#include "../../stdlib/stdlib.h"
 
 
 namespace MOSS { namespace Input { namespace Keys {

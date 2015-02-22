@@ -6,7 +6,9 @@ namespace MOSS {
 	namespace Terminal {
 		class TextModeTerminal;
 	}
-namespace Graphics { namespace VESA {
+namespace Graphics {
+	class Color;
+namespace VESA {
 
 
 //http://www.delorie.com/djgpp/doc/ug/graphics/vesa.html
@@ -102,11 +104,13 @@ class Controller {
 
 		bool set_mode(Mode* mode);
 
-		void fill(unsigned char r,unsigned char g,unsigned char b,unsigned char a=255);
-		void draw_text(int x,int y, char text, unsigned char r,unsigned char g,unsigned char b,unsigned char a=255);
-		void draw_text(int x,int y, const char* text, unsigned char r,unsigned char g,unsigned char b,unsigned char a=255);
-		void set_pixel(int x,int y, unsigned int rgba);
-		void set_pixel(int x,int y, unsigned char r,unsigned char g,unsigned char b,unsigned char a=255);
+		void fill(const Color& color);
+		void draw_text(int x,int y, char text, const Color& color);
+		void draw_text(int x,int y, char text, const Color& color,const Color& background);
+		void draw_text(int x,int y, const char* text, const Color& color);
+		void draw_text(int x,int y, const char* text, const Color& color,const Color& background);
+		void set_pixel(int x,int y, const Color& color);
+		void blend_pixel(int x,int y, const Color& color);
 };
 
 

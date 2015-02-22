@@ -1,12 +1,12 @@
 #include "vesa.h"
 
-#include "../../stdlib/stdlib.h"
+#include "../../mossc/cstdlib"
+#include "../../mossc/cstring"
 #include "../interrupt/int32.h"
 #include "../kernel.h"
 #include "../text_mode_terminal.h"
 
-#include "../../stdlib/math.h"
-
+#include "color.h"
 #include "font.h"
 
 
@@ -184,39 +184,40 @@ bool Controller::set_mode(Mode* mode) {
 	regs.dx = bank_number;
 	int32(0x10,&regs);
 }*/
-void Controller::fill(unsigned char r,unsigned char g,unsigned char b,unsigned char a/*=255*/) {
+void Controller::fill(const Color& color) {
 	for (int y=0;y<height;++y) {
 		for (int x=0;x<width;++x) {
-			set_pixel(x,y, r,g,b,a);
+			set_pixel(x,y, color);
 		}
 	}
 }
-void Controller::draw_text(int x,int y, char text, unsigned char r,unsigned char g,unsigned char b,unsigned char a/*=255*/) {
+void Controller::draw_text(int x,int y, char text, const Color& color) {
+	draw_text(x,y, text, color,Color(255,0,255,0));
+}
+void Controller::draw_text(int x,int y, char text, const Color& color,const Color& background) {
 	uint64_t chr = Font::font[(unsigned int)(text)];
-	int i = 0;
+	uint64_t i = 0;
 	for (int y2=y;y2<y+8;++y2) {
-		for (int x2=x;x2<x+8;++x2) {
-			if (chr&(1<<i)) draw_pixel(x2,y2, r,g,b,a);
+		for (int x2=x+8-1;x2>=x;--x2) {
+			if (chr&(1ull<<i)) set_pixel(x2,y2,      color);
+			else               set_pixel(x2,y2, background);
+			++i;
 		}
 	}
 }
-void Controller::draw_text(int x,int y, const char* text, unsigned char r,unsigned char g,unsigned char b,unsigned char a/*=255*/) {
+void Controller::draw_text(int x,int y, const char* text, const Color& color) {
+	draw_text(x,y, text, color,Color(255,0,255,0));
+}
+void Controller::draw_text(int x,int y, const char* text, const Color& color,const Color& background) {
 	int i = 0;
 	LOOP:
 		char c = text[i];
 		if (c=='\0') return;
-		Controller::draw_text(x+8*i,y, c, r,g,b,a);
+		Controller::draw_text(x+8*i,y, c, color,background);
 		++i;
 		goto LOOP;
 }
-void Controller::set_pixel(int x,int y, unsigned int rgba) {
-	unsigned char r = (rgba&0xFF000000)>>24; //r
-	unsigned char g = (rgba&0x00FF0000)>>16; //g
-	unsigned char b = (rgba&0x0000FF00)>> 8; //b
-	unsigned char a = (rgba&0x000000FF)    ; //a
-	set_pixel(x,y, r,g,b,a);
-}
-void Controller::set_pixel(int x,int y, unsigned char r,unsigned char g,unsigned char b,unsigned char a/*=255*/) {
+void Controller::set_pixel(int x,int y, const Color& color) {
 	if (x<0 || x>= width) return;
 	if (y<0 || y>=height) return;
 
@@ -233,10 +234,31 @@ void Controller::set_pixel(int x,int y, unsigned char r,unsigned char g,unsigned
 
 	unsigned char* addr = (unsigned char*)( current_mode->info.PhysBasePtr + y*current_mode->info.BytesPerScanLine + x*current_mode->info.BitsPerPixel/8 );
 
-	addr[0] = b;
-	addr[1] = g;
-	addr[2] = r;
-	addr[3] = a;
+	addr[0] = color.b;
+	addr[1] = color.g;
+	addr[2] = color.r;
+	addr[3] = color.a;
+}
+void Controller::blend_pixel(int x,int y, const Color& color) {
+	if (x<0 || x>= width) return;
+	if (y<0 || y>=height) return;
+
+	y = height - y - 1;
+
+	unsigned char* addr = (unsigned char*)( current_mode->info.PhysBasePtr + y*current_mode->info.BytesPerScanLine + x*current_mode->info.BitsPerPixel/8 );
+
+	Color original;
+	original.b = addr[0];
+	original.g = addr[1];
+	original.r = addr[2];
+	original.a = addr[3];
+
+	//TODO: technically I think sometimes you aren't allowed to read from this memory?
+	Color new_color = Color::blend(color,original);
+	addr[0] = new_color.b;
+	addr[1] = new_color.g;
+	addr[2] = new_color.r;
+	addr[3] = new_color.a;
 }
 
 

@@ -14,18 +14,26 @@ void* memcpy(void* destination, const void* source, size_t num) {
 void* memmove(void* destination, const void* source, size_t num) {
 	//Difference is that the pointers can overlap
 
-	char* dst = (char*)(destination);
-	const char* src = (const char*)(source);
+	if (num!=0u) {
+		char* dst = (char*)(destination);
+		const char* src = (const char*)(source);
 
-	if (dst>src) {
-		//Moving forward in memory (so do the copy backwards)
-		for (size_t i=num-1;i>=0u;--i) {
-			dst[i] = src[i];
-		}
-	} else {
-		//Moving backward in memory (so do the copy forwards)
-		for (size_t i=0u;i<num;++i) {
-			dst[i] = src[i];
+		if (dst>src) {
+			//Moving forward in memory (so do the copy backwards)
+			size_t i = num - 1;
+
+			LOOP:
+				dst[i] = src[i];
+				if (i!=0u) {
+					i--;
+					goto LOOP;
+				}
+		} else {
+			//Moving backward in memory (so do the copy forwards)
+			size_t i = 0u;
+			do {
+				dst[i] = src[i];
+			} while (++i<num);
 		}
 	}
 
@@ -33,6 +41,8 @@ void* memmove(void* destination, const void* source, size_t num) {
 }
 
 char* strcpy(char* destination, const char* source) {
+	int i = 0;
+
 	LOOP:
 		char c = source[i];
 		destination[i] = c;
@@ -61,7 +71,7 @@ char* strncpy(char* destination, const char* source, size_t num) {
 	LOOP2:
 	do {
 		destination[i] = '\0';
-	while (++i<num);
+	} while (++i<num);
 
 	return destination;
 }

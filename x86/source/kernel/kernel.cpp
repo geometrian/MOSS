@@ -1,7 +1,9 @@
 #include "kernel.h"
 
+#include "graphics/color.h"
 #include "graphics/vesa.h"
 
+#include "../mossc/cstdio"
 #include "input/devices/controller_ps2.h"
 #include "input/devices/mouse.h"
 #include "input/keys.h"
@@ -39,8 +41,14 @@ void handle_key_up(const Input::Keys::Event&/* event*/) {
 
 void handle_mouse_move(const Input::Mouse::EventMove& event) {
 	//terminal->write("Mouse position: "); Kernel::terminal->write(event.x); Kernel::terminal->write(", "); Kernel::terminal->write(event.y); Kernel::terminal->write("\n");
-	graphics->set_pixel(event.x,event.y, 255,0,255,255);
-	graphics->draw_text(50,50, 
+	graphics->set_pixel(event.x,event.y, Graphics::Color(255,0,255,255));
+
+	char buffer[64];
+	sprintf(buffer,"Mouse position: (%+3d,%+3d)",event.x,event.y);
+
+	graphics->draw_text(50,50, "                                                  ", Graphics::Color(32,32,32));
+	graphics->draw_text(50,50, buffer, Graphics::Color(0,255,255));
+	//graphics->draw_text(50,50, "Hello World!", Graphics::Color(0,255,255));
 }
 
 void kernel_main(void) {

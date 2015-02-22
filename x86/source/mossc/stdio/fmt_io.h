@@ -4,11 +4,14 @@
 #include <stddef.h>
 #include <stdint.h>
 
-//#include "../string/copying.h"
+#include "../string/copying.h"
+#include "../string/other.h"
 
 
-#define TEMP_BUFFER_WRITE(FUNCTION)\
-	char temp[64]={};\
+#define INTEGRAL_BUFFER_SIZE 20
+#define FLOAT_BUFFER_SIZE 256 //TODO: the float function may not be entirely safe about using this!
+#define TEMP_BUFFER_WRITE(SIZE,FUNCTION)\
+	char temp[SIZE]={};\
 	int num_written;\
 	{\
 		char* temp2=temp;\
@@ -172,7 +175,30 @@ class SpecifierBase {
 		}
 
 	protected:
-		//Anywthing written still counts against the minimum number of characters we need to write
+		int get_float_kind(double value) {
+			// 0 = ordinary double
+			//-1 = -INF
+			// 1 = +INF
+			// 2 = NaN
+
+			//http://en.wikipedia.org/wiki/Double-precision_floating-point_format
+			union {
+				  double d;
+				uint64_t i;
+			} convert;
+			convert.d = value;
+
+			if (convert.i==0x7FF0000000000000) { //+INF
+				return  1;
+			} else if (convert.i==0xFFF0000000000000) { //-INF
+				return -1;
+			} else if ((convert.i&0x7FF0000000000000ull)==0x7FF0000000000000ull && convert.i&0x000FFFFFFFFFFFFFull) { //NaN
+				return  2;
+			}
+			return 0;
+		}
+
+		//Anything written still counts against the minimum number of characters we need to write
 		//When writing, do this first, since any padding should happen after the sign.
 		//Also makes value unsigned, if it wasn't already.
 		char* write_sign_u(char* buffer) {
@@ -190,7 +216,17 @@ class SpecifierBase {
 			return buffer;
 		}
 		template <typename type_signed> char* write_sign_s(char* buffer, type_signed* value) {
-			if (*value>=0) {
+			if (*value>=(type_signed)(0)) {
+				buffer = write_sign_u(buffer);
+			} else {
+				*(buffer++) = '-';
+				*value = -*value;
+				--min_width;
+			}
+			return buffer;
+		}
+		char* write_sign_f(char* buffer, double* value) {
+			if (*value>=0.0 || get_float_kind(*value)==2) { //NaNs are erroneously reported negative
 				buffer = write_sign_u(buffer);
 			} else {
 				*(buffer++) = '-';
@@ -225,24 +261,18 @@ class SpecifierBase {
 
 			return buffer;
 		}
-
-		char* write_float(char* str, double value) {
-			double larger = 1.0;
-			while (larger<value) {
-
-			}
-			return str;
-		}
 };
 class SpecifierIntegralBase : public SpecifierBase {
 	protected:
-		SpecifierIntegralBase(va_list* args, const char* specifier_str,int specifier_length) : SpecifierBase(args, specifier_str,specifier_length) {}
+		SpecifierIntegralBase(va_list* args, const char* specifier_str,int specifier_length) : SpecifierBase(args, specifier_str,specifier_length) {
+			if (precision>20) valid=false; //That's larger than any integer, and would cause a problem with the 20 char buffer in .write_uint(...)!
+		}
 	public:
 		virtual ~SpecifierIntegralBase(void) {}
 
 	protected:
-		char* write_uint(char* str, uint64_t value) {
-			if (precision==0 && value==0ull) return str;
+		char* write_uint(char* buffer, uint64_t value) {
+			if (precision==0 && value==0ull) return buffer;
 
 			//largest is 18446744073709551615 => 20 characters long
 			char temp[20];
@@ -258,13 +288,14 @@ class SpecifierIntegralBase : public SpecifierBase {
 
 			int num_zeros = precision - (i+1);
 			for (int j=0;j<num_zeros;++j) {
-				*(str++) = '0';
+				*(buffer++) = '0';
 			}
 
 			while (i>=0) {
-				*(str++) = temp[i--];
+				*(buffer++) = temp[i--];
 			}
-			return str;
+
+			return buffer;
 		}
 };
 class SpecifierSignedIntegral : public SpecifierIntegralBase {
@@ -275,7 +306,7 @@ class SpecifierSignedIntegral : public SpecifierIntegralBase {
 		char* write(char* buffer) override {
 			int value = va_arg(*args,int);
 			buffer = write_sign_s(buffer,&value);
-			TEMP_BUFFER_WRITE(write_uint)
+			TEMP_BUFFER_WRITE(INTEGRAL_BUFFER_SIZE,write_uint)
 			return write_data(buffer, temp,num_written);
 		}
 };
@@ -287,7 +318,7 @@ class SpecifierUnsignedIntegral : public SpecifierIntegralBase {
 		char* write(char* buffer) override {
 			unsigned int value = va_arg(*args,unsigned int);
 			buffer = write_sign_u(buffer);
-			TEMP_BUFFER_WRITE(write_uint)
+			TEMP_BUFFER_WRITE(INTEGRAL_BUFFER_SIZE,write_uint)
 			return write_data(buffer, temp,num_written);
 		}
 };
@@ -300,8 +331,8 @@ class SpecifierCharacter : public SpecifierBase {
 		~SpecifierCharacter(void) {}
 
 		char* write(char* buffer) override {
-			char value = va_arg(*args,char);
-			TEMP_BUFFER_WRITE(write_char)
+			char value = (int)(va_arg(*args,int));
+			TEMP_BUFFER_WRITE(1,write_char)
 			return write_data(buffer, temp,num_written);
 		}
 
@@ -325,15 +356,141 @@ class SpecifierString : public SpecifierBase {
 		}
 
 	private:
-		char* write_string(char* str, char* value) {
+		char* write_string(char* buffer, char* value) {
 			LOOP:
 				char c = *value;
 				if (c!='\0') {
-					*(str++) = c;
+					*(buffer++) = c;
 					++value;
 					goto LOOP;
 				}
-			return str;
+			return buffer;
+		}
+};
+class SpecifierFloat : public SpecifierBase {
+	public:
+		SpecifierFloat(va_list* args, const char* specifier_str,int specifier_length) : SpecifierBase(args, specifier_str,specifier_length) {
+			if (precision==-1) precision = 6;
+		}
+		virtual ~SpecifierFloat(void) {}
+
+		char* write(char* buffer) override {
+			double value = va_arg(*args,double);
+			buffer = write_sign_f(buffer,&value);
+			TEMP_BUFFER_WRITE(FLOAT_BUFFER_SIZE,write_float)
+			return write_data(buffer, temp,num_written);
+		}
+
+	private:
+		inline char* write_float_high(char* buffer, double* value) {
+			if (*value>=1.0) {
+				double larger1 = 1.0;
+				double larger2 = 0.1;
+				while (larger1<=*value) {
+					larger2 *= 10.0;
+					larger1 *= 10.0;
+				}
+				LOOP:
+					char digit = '0';
+					while (*value>=larger2) {
+						++digit;
+						*value -= larger2;
+					}
+					if (*value>1.0) {
+						*(buffer++) = digit;
+						larger1 /= 10.0;
+						larger2 /= 10.0;
+						goto LOOP;
+					} else {
+						if (precision==0 && *value>=0.5) ++digit; //rounding
+						*(buffer++) = digit;
+					}
+			} else {
+				*(buffer++) = (precision==0 && *value>=0.5) ? '1' : '0'; //rounding
+			}
+			return buffer;
+		}
+		inline char* write_float_low(char* buffer, double value) {
+			if (precision==0) return buffer; //It's not hard to handle this later, but it allows us to make the loop bottom-tested, which is faster and more intuitive
+
+			int i = 0;
+			LOOP:
+				char digit = '0';
+				value *= 10.0;
+				while (value>1.0) {
+					++digit;
+					value -= 1.0;
+				}
+
+				if (++i==precision) {
+					if (value>=0.5) ++digit; //round
+					*(buffer++) = digit;
+					return buffer;
+				}
+
+				*(buffer++) = digit;
+
+				goto LOOP;
+		}
+		char* write_float(char* buffer, double value) {
+			#define WRITE_STRING(STR) { memmove(buffer,STR,sizeof(STR)-1); buffer+=sizeof(STR)-1; }
+			switch (get_float_kind(value)) {
+				case  0: {//ordinary double
+					char* buffer_orig = buffer;
+
+					//See the comment below for why the +1.
+					buffer = write_float_high(buffer+1,&value);
+					*(buffer++) = '.';
+					buffer = write_float_low(buffer,value);
+
+					int written = buffer - buffer_orig;
+
+					//The individual functions do rounding, which just increments the least significant digit.
+					//If it happened to be '9' however, then it will overflow to ':'.  So, we go back through
+					//what we just wrote and check it, propagating the results back if we find any.  This can
+					//cause an extra digit to be pushed onto the front, which we must be ready for.
+
+					//To this end, the +1 is already in-place, and we can write something there.  If we didn't
+					//overflow, then we shift everything back to cover it up.
+
+					bool carry = false;
+					for (int i=written-1;i>=1;--i) {
+						if (buffer_orig[i]=='.') continue;
+						if (carry) {
+							++(buffer_orig[i]);
+							carry = false;
+						}
+						if (buffer_orig[i]==':') {
+							buffer_orig[i] = '0';
+							carry = true;
+						}
+					}
+					if (carry) {
+						buffer_orig[0] = '1';
+					} else {
+						//shift everything back
+						int i;
+						for (i=1;i<written;++i) {
+							buffer_orig[i-1] = buffer_orig[i];
+						}
+						buffer_orig[written-1] = '\0';
+						--buffer;
+					}
+
+					break;
+				}
+				case -1: //-INF (sign has already been written)
+					WRITE_STRING("INF")
+					break;
+				case  1: //+INF (sign has already been written)
+					WRITE_STRING("INF")
+					break;
+				case  2: //NaN
+					WRITE_STRING("NaN")
+					break;
+			}
+			#undef WRITE_STRING
+			return buffer;
 		}
 };
 
@@ -350,6 +507,7 @@ static char* write_fmtspecifier(char* str, const char* specifier_str,int specifi
 	char specifier_ch = specifier_str[specifier_length-1];
 
 	SpecifierBase* specifier = NULL;
+	//TODO: the ones that aren't yet supported!
 	switch (specifier_ch) {
 		case 'd': //Fallthrough
 		case 'i': specifier=new   SpecifierSignedIntegral(args, specifier_str,specifier_length); break; //Signed decimal
@@ -358,7 +516,7 @@ static char* write_fmtspecifier(char* str, const char* specifier_str,int specifi
 		case 'x': break; //Unsigned hex
 		case 'X': break; //Unsigned hex (uppercase)
 		case 'f': //Fallthrough TODO: I don't know what the difference is supposed to be! //Floating-point
-		//case 'F': return SpecifierFloat(args, specifier_str,specifier_length).write(str); //Floating-point (uppercase)
+		case 'F': specifier=new SpecifierFloat(args, specifier_str,specifier_length); break; //Floating-point (uppercase)
 		case 'e': break; //Scientific notation
 		case 'E': break; //Scientific notation (uppercase)
 		case 'g': break; //Shortest of using f xor e

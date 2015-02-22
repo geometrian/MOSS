@@ -1,7 +1,5 @@
 #include "boot/multiboot.h"
 
-#include "../stdlib/stdlib.h" //TODO: remove
-
 #include "graphics/vesa.h"
 
 #include "input/devices/controller_ps2.h"

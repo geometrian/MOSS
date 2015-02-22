@@ -21,6 +21,8 @@
     <None Include="source\linker.ld" />
     <None Include="source\mossc\cmath" />
     <None Include="source\mossc\cstdio" />
+    <None Include="source\mossc\cstdlib" />
+    <None Include="source\mossc\cstring" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\includes.cpp" />
@@ -41,6 +43,7 @@
     <ClCompile Include="source\kernel\text_mode_terminal.cpp" />
     <ClCompile Include="source\mossc\math\trig.cpp" />
     <ClCompile Include="source\mossc\stdlib\dyn_mem.cpp" />
+    <ClCompile Include="source\mossc\stdlib\int_arith.cpp" />
     <ClCompile Include="source\mossc\string\comparison.cpp" />
     <ClCompile Include="source\mossc\string\concatenation.cpp" />
     <ClCompile Include="source\mossc\string\copying.cpp" />
@@ -77,6 +80,7 @@
     <ClInclude Include="source\mossc\stdio\fmt_io.h" />
     <ClInclude Include="source\mossc\stdlib.h" />
     <ClInclude Include="source\mossc\stdlib\dyn_mem.h" />
+    <ClInclude Include="source\mossc\stdlib\int_arith.h" />
     <ClInclude Include="source\mossc\string.h" />
     <ClInclude Include="source\mossc\string\comparison.h" />
     <ClInclude Include="source\mossc\string\concatenation.h" />

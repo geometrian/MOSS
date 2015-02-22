@@ -1,7 +1,5 @@
 #include "searching.h"
 
-#define NULL 0
-
 
 const void* memchr(const void* ptr, int value, size_t num) {
 	const unsigned char* ptr2 = (const unsigned char*)(ptr);
@@ -53,7 +51,7 @@ const char* strpbrk(const char* str1, const char* str2) {
 		LOOP2:
 			char c2 = str2[j];
 			if (c2!='\0') {
-				if (c1==c2) return i;
+				if (c1==c2) return str1+i;
 				++j;
 				goto LOOP2;
 			}
@@ -82,7 +80,8 @@ size_t strspn(const char* str1, const char* str2) {
 	size_t i = 0u;
 	LOOP1:
 		char c1 = str1[i];
-		if (c1='\0') return i;
+		if (c1=='\0') return i;
+
 		size_t j = 0u;
 		LOOP2:
 			char c2 = str2[j];
@@ -94,6 +93,7 @@ size_t strspn(const char* str1, const char* str2) {
 				++j;
 				goto LOOP2;
 			}
+
 		return i;
 }
 

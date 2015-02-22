@@ -71,6 +71,12 @@
     <None Include="source\mossc\cstdio">
       <Filter>mossc</Filter>
     </None>
+    <None Include="source\mossc\cstdlib">
+      <Filter>mossc</Filter>
+    </None>
+    <None Include="source\mossc\cstring">
+      <Filter>mossc</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\kernel\text_mode_terminal.cpp">
@@ -142,6 +148,9 @@
     </ClCompile>
     <ClCompile Include="source\mossc\_misc.cpp">
       <Filter>mossc</Filter>
+    </ClCompile>
+    <ClCompile Include="source\mossc\stdlib\int_arith.cpp">
+      <Filter>mossc\stdlib</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -249,6 +258,9 @@
       <Filter>mossc</Filter>
     </ClInclude>
     <ClInclude Include="source\mossc\stdlib\dyn_mem.h">
+      <Filter>mossc\stdlib</Filter>
+    </ClInclude>
+    <ClInclude Include="source\mossc\stdlib\int_arith.h">
       <Filter>mossc\stdlib</Filter>
     </ClInclude>
   </ItemGroup>

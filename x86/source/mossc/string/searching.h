@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stddef.h>
+
 
 const void* memchr(const void* ptr, int value, size_t num);
       void* memchr(      void* ptr, int value, size_t num);
