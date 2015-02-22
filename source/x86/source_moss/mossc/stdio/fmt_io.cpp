@@ -18,7 +18,7 @@ namespace MOSSC {
 	{\
 		char* temp2=temp;\
 		temp2 = FUNCTION(temp2, value);\
-		if (temp2==NULL) return NULL;\
+		if (temp2==nullptr) return nullptr;\
 		num_written = temp2 - temp;\
 	}
 
@@ -52,7 +52,7 @@ class SpecifierBase {
 
 			//Parse flags
 			specifier_str = parse_flags(specifier_str);
-			if (specifier_str==NULL) FAIL
+			if (specifier_str==nullptr) FAIL
 
 			//Parse width
 			bool got_width;
@@ -107,23 +107,23 @@ class SpecifierBase {
 			LOOP:
 				switch (*specifier_str) {
 					case '-':
-						if (found_ljst) return NULL; found_ljst=true;
+						if (found_ljst) return nullptr; found_ljst=true;
 						flag_ljst = true;
 						break;
 					case '+':
-						if (found_sign) return NULL; found_sign=true;
+						if (found_sign) return nullptr; found_sign=true;
 						flag_sign = 1;
 						break;
 					case ' ':
-						if (found_sign) return NULL; found_sign=true;
+						if (found_sign) return nullptr; found_sign=true;
 						flag_sign = 2;
 						break;
 					case '#':
-						if (found_hash) return NULL; found_hash=true;
+						if (found_hash) return nullptr; found_hash=true;
 						flag_hash = true;
 						break;
 					case '0':
-						if (found_zero) return NULL; found_zero=true;
+						if (found_zero) return nullptr; found_zero=true;
 						flag_zero = true;
 						break;
 					default:
@@ -245,7 +245,7 @@ class SpecifierBase {
 
 			if (flag_ljst) {
 				//Copy the string over directly, and then pad the rest with spaces
-				if (flag_zero) return NULL; //must pad with spaces
+				if (flag_zero) return nullptr; //must pad with spaces
 				int i = 0;
 				for (;i<(int)(temp_length);++i) {
 					*(buffer++) = temp[i];
@@ -545,7 +545,7 @@ static char* write_fmtspecifier(char* str, const char* specifier_str,int specifi
 
 	char specifier_ch = specifier_str[specifier_length-1];
 
-	SpecifierBase* specifier = NULL;
+	SpecifierBase* specifier = nullptr;
 	//TODO: the ones that aren't yet supported!
 	switch (specifier_ch) {
 		case 'd': //Fallthrough
@@ -573,7 +573,7 @@ static char* write_fmtspecifier(char* str, const char* specifier_str,int specifi
 		default: break;
 	}
 
-	if (specifier==NULL) goto PARSE_ERROR;
+	if (specifier==nullptr) goto PARSE_ERROR;
 	if (!specifier->valid) {
 		delete specifier;
 		goto PARSE_ERROR;
@@ -585,7 +585,7 @@ static char* write_fmtspecifier(char* str, const char* specifier_str,int specifi
 
 	PARSE_ERROR:
 		write_fmtspecifier_error(str, specifier_ch);
-		return NULL;
+		return nullptr;
 }
 
 static bool string_contains(const char* string, char character) {
@@ -629,7 +629,7 @@ int vsprintf(char* buffer, const char* format, va_list args) {
 				}
 				if (string_contains(specifiers,c2)) {
 					buffer = write_fmtspecifier(buffer, format,i+1, &args);
-					if (buffer==NULL) {
+					if (buffer==nullptr) {
 						return_value = -1; //TODO: wrong number?
 						goto END;
 					}

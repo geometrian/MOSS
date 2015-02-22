@@ -11,13 +11,13 @@ ComponentBase::ComponentBase(ComponentBase* parent, const Rect& rect_component,c
 	rect_component(rect_component),rect_client(rect_client),
 	alive(true)
 {
-	if (parent!=NULL) {
+	if (parent!=nullptr) {
 		parent->children->insert_back(this);
 	}
 	children = new MOSST::LinkedList<ComponentBase*>();
 }
 ComponentBase::~ComponentBase(void) {
-	if (parent!=NULL) {
+	if (parent!=nullptr) {
 		//TODO: this algorithm actually has n^2 complexity.
 		for (int i=0;i<parent->children->size;++i) {
 			if ((*parent->children)[i]==this) {
@@ -49,7 +49,7 @@ bool ComponentBase::handle_mouse(const Input::Mouse::EventMouseUnclick& event) {
 }
 
 Rect ComponentBase::get_client_rect_world(void) {
-	if (parent==NULL) {
+	if (parent==nullptr) {
 		return rect_client;
 	} else {
 		Rect parent_rect = parent->get_client_rect_world();
@@ -60,7 +60,7 @@ Rect ComponentBase::get_client_rect_world(void) {
 	}
 }
 Rect ComponentBase::get_component_rect_world(void) {
-	if (parent==NULL) {
+	if (parent==nullptr) {
 		return rect_component;
 	} else {
 		Rect parent_rect = parent->get_client_rect_world();

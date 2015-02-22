@@ -47,7 +47,7 @@ class Kernel;
 
 extern Kernel* kernel;
 
-class Kernel {
+class Kernel final {
 	friend void kernel_entry(unsigned long magic, unsigned long addr);
 	friend void* MOSSC:: calloc(size_t num, size_t size);
 	friend void* MOSSC:: malloc(size_t size);

@@ -7,23 +7,22 @@ import hashlib
 try:    import cPickle as pickle #Only present in Python 2.*; Python 3 automatically imports the
 except: import  pickle as pickle #new equivalent of cPickle, if it's available.
 
+
 root = ""
-root_build  = root+"build/"
-root_source = root+"source/"
+root_build  = root+".build/"
+root_source = root+"source_moss/"
 
 skip = 1
 if skip == 0:
     skip_recompile_directories = [root_source+"grub/"]
 else:
     skip_recompile_directories = [root_source+"grub/",root_source+"kernel/boot",root_source+"mossc/",root_source+"mosst/"]
-
 only = 0
 if only == 0:
     only_recompile = []
 else:
     only_recompile = ["gui"]
 
-#The standard C++11 is important for override in C++.
 #TODO: do we need -nostartfiles?
 args_compile = "-ffreestanding -O0 -Wall -Wextra -fno-exceptions -fno-rtti -std=c++11"
 args_link = "-ffreestanding -O0 -nostdlib"
@@ -34,7 +33,7 @@ link_files = []
 def init_hash():
     global file_hashes
     try:
-        file = open(root_build+"hash_cache.txt","r")
+        file = open(root_build+"hash_cache.txt","rb")
         data_str = file.read()
         file.close()
 
@@ -44,7 +43,7 @@ def init_hash():
 def deinit_hash():
     data_str = pickle.dumps(file_hashes)
     
-    file = open(root_build+"hash_cache.txt","w")
+    file = open(root_build+"hash_cache.txt","wb")
     file.write(data_str)
     file.close()
 
@@ -63,12 +62,14 @@ def get_will_compile(in_name):
     #If not, then definitely need to compile
     except KeyError:
         pass
+
     file_hashes[in_name] = file_hash
+
     return True
 def compile_cpp(in_name,out_name):
     if get_will_compile(in_name):
         print("    Compiling:  \""+in_name+"\"")
-        command = ["/home/ian/opt/cross/bin/i586-elf-g++","-c",in_name,"-o",out_name]
+        command = ["../../cross/bin/i586-elf-g++","-c",in_name,"-o",out_name]
         command += args_compile.split(" ")
         call(command)
     else:
@@ -101,18 +102,18 @@ def compile_directory(directory):
                     out_name += str(i)
                 out_name += ".o"
                 return out_name
-            if filename.endswith(".cpp"):
+            if   filename.endswith(".cpp"):
                 compile_cpp(filename,get_out_name(filename))
             elif filename.endswith(".asm"):
                 assemble_asm(filename,get_out_name(filename))
                 
         elif os.path.isdir(filename):
             if "old" in filename: continue
-                
+
             compile_directory(filename)
 
 def link():
-    command = ["/home/ian/opt/cross/bin/i586-elf-gcc","-T",root_source+"linker.ld","-o",root_build+"MOSS.bin"]
+    command = ["../../cross/bin/i586-elf-gcc","-T",root_source+"linker.ld","-o",root_build+"MOSS.bin"]
     command += args_link.split(" ")
     for file in link_files:
         command.append(file)

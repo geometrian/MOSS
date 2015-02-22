@@ -15,7 +15,7 @@ String::~String(void) {
 void String::insert_back(const char& object) /*override*/ {
 	Vector::insert_back(object);
 
-	//Push a NULL character onto the string, but pretend it doesn't exist.
+	//Push a null character onto the string, but pretend it doesn't exist.
 	Vector::insert_back('\0');
 	--size;
 }
@@ -45,7 +45,7 @@ String& String::operator+=(const String& other) {
 }
 
 const char* String::c_str(void) const {
-	return (const char*)(this->data);
+	return (const char*)(this->_data);
 }
 
 

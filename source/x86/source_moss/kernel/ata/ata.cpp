@@ -19,7 +19,7 @@ namespace MOSS { namespace ATA {
 Channel::Channel(Controller* controller, ChannelType type) : controller(controller), type(type) {
 	got_irq = false;
 
-	current = NULL;
+	current = nullptr;
 	drive0 = new Drive(this,Master);
 	drive_select(Master);
 
@@ -35,7 +35,7 @@ void Channel::handle_irq(void) {
 	got_irq = true;
 }
 void Channel::_read_sector(void) {
-	ASSERT(current!=NULL,"Current drive was NULL somehow!");
+	ASSERT(current!=nullptr,"Current drive was null somehow!");
 	Drive::StatusByte status = current->get_status();
 	ASSERT(!status.err,"Read sectors got ERR!");
 
@@ -115,7 +115,7 @@ void Drive::update_control_register(void) {
 	//Bit 3 is "HOB" (1=read back the High Order Byte of the last LBA48 value sent to an IO port)
 
 	//Drive must be current to accept changes to nIEN.
-	ASSERT(channel->current!=NULL,"Channel does not have a current drive!");
+	ASSERT(channel->current!=nullptr,"Channel does not have a current drive!");
 	Channel::DriveType temp = channel->current->type;
 	channel->drive_select(type);
 	switch (type) {
@@ -225,7 +225,7 @@ void Drive::read_sectors(uint64_t lba, uint8_t* data_buffer,unsigned int num_sec
 
 Controller::Controller(void) {
 	channel0 = new Channel(this,Channel::Primary);
-	channel1 = NULL;
+	channel1 = nullptr;
 }
 Controller::~Controller(void) {
 	delete channel0;
@@ -239,7 +239,7 @@ const uint8_t* Controller::read_sector(uint64_t lba) {
 	return buffer;
 }
 void Controller::read_sectors(uint64_t lba, uint8_t* data_buffer,unsigned int num_sectors) {
-	ASSERT(channel0->current!=NULL,"No HDD current!");
+	ASSERT(channel0->current!=nullptr,"No HDD current!");
 	channel0->current->read_sectors(lba, data_buffer, num_sectors);
 }
 

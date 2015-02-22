@@ -42,7 +42,7 @@ ControllerPS2::ControllerPS2(void) {
 		//buffer.  Now that the devices are disabled (and can't send more data to it), flush the output buffer.
 		if (is_outputbuffer_full()) {
 			//Read from IO port 0x60 and discard the result.
-			recv_data(NULL,0);
+			recv_data(nullptr,0);
 		}
 	}
 
@@ -164,7 +164,7 @@ bool ControllerPS2::recv_data(uint8_t* data, int timeout_counter/*=-1*/) {
 	}
 	RECV:
 	uint8_t result = IO::recv<uint8_t>(DataPort);
-	if (data!=NULL) *data=result;
+	if (data!=nullptr) *data=result;
 	return true;
 }
 

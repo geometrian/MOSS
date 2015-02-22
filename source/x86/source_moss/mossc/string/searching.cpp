@@ -9,7 +9,7 @@ const void* memchr(const void* ptr, int value, size_t num) {
 	for (size_t i=0u;i<num;++i) {
 		if (ptr2[i]==(unsigned char)(value)) return ptr2+i;
 	}
-	return NULL;
+	return nullptr;
 }
       void* memchr(      void* ptr, int value, size_t num) {
 	return (void*)(memchr((const void*)(ptr), value, num));
@@ -19,7 +19,7 @@ const char* strchr(const char* str, int character) {
 	LOOP:
 		char c = *str;
 		if (c==(char)(character)) return str;
-		if (c=='\0') return NULL;
+		if (c=='\0') return nullptr;
 		++str;
 		goto LOOP;
 }
@@ -28,7 +28,7 @@ const char* strchr(const char* str, int character) {
 }
 
 size_t strcspn(const char* str1, const char* str2) {
-	//Includes NULL-characters in the search
+	//Includes null-characters in the search
 	size_t i = 0u;
 	LOOP1:
 		char c1 = str1[i];
@@ -45,11 +45,11 @@ size_t strcspn(const char* str1, const char* str2) {
 }
 
 const char* strpbrk(const char* str1, const char* str2) {
-	//Does not include NULL-characters in the search
+	//Does not include null-characters in the search
 	size_t i = 0u;
 	LOOP1:
 		char c1 = str1[i];
-		if (c1=='\0') return NULL;
+		if (c1=='\0') return nullptr;
 		size_t j = 0u;
 		LOOP2:
 			char c2 = str2[j];
@@ -73,7 +73,7 @@ const char* strrchr(const char* str, int character) {
 			++str;
 			goto LOOP;
 		}
-	return NULL;
+	return nullptr;
 }
       char* strrchr(      char* str, int character) {
 	return (char*)(strrchr((const char*)(str),character));
@@ -108,7 +108,7 @@ const char* strstr(const char* str1, const char* str2) {
 			return str1;
 		}
 		char c1 = str1[i];
-		if (c1=='\0') return NULL;
+		if (c1=='\0') return nullptr;
 		if (c1!=c2) {
 			++str1;
 			i = 0u;

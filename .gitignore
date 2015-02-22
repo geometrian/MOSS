@@ -12,4 +12,8 @@
 
 resources/nircmd/
 
+cross/
 VMs/
+
+**/.build/
+**/log/

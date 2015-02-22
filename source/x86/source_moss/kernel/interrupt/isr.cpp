@@ -255,7 +255,7 @@ bool isr45(void) {
 //ISR 46 = IRQ 14 (Primary ATA Hard Disk)
 bool isr46(void) {
 	//ASSERT(false,"Handling IRQ 14 (stub)\n"); return false;
-	ASSERT(kernel->controller_ata->channel0!=NULL,"ATA controller channel 0 is NULL!");
+	ASSERT(kernel->controller_ata->channel0!=nullptr,"ATA controller channel 0 is null!");
 	kernel->controller_ata->channel0->handle_irq();
 	return true;
 }
@@ -263,7 +263,7 @@ bool isr46(void) {
 //ISR 47 = IRQ 15 (Secondary ATA Hard Disk)
 bool isr47(void) {
 	//ASSERT(false,"Handling IRQ 15 (stub)"); return false;
-	ASSERT(kernel->controller_ata->channel1!=NULL,"ATA controller channel 1 is NULL!");
+	ASSERT(kernel->controller_ata->channel1!=nullptr,"ATA controller channel 1 is null!");
 	kernel->controller_ata->channel1->handle_irq();
 	return true;
 }
@@ -271,7 +271,7 @@ bool isr47(void) {
 //Unassigned [48,255] (208)
 
 bool IQR_ISR::operator()(void) const {
-	return (isr==NULL) ? def() : isr();
+	return (isr==nullptr) ? def() : isr();
 }
 
 IQR_ISR irq_isrs[16];
@@ -280,7 +280,7 @@ void init_irqs(void) {
 	//Modules/devices can come along and override the default ISRs for IRQs, but they need to be function pointers to allow that.
 
 	for (int i=0;i<16;++i) {
-		irq_isrs[i].isr = NULL;
+		irq_isrs[i].isr = nullptr;
 	}
 	#define SETUP_ISR(DEFAULT_ISR_INDEX) irq_isrs[DEFAULT_ISR_INDEX-32].def = isr##DEFAULT_ISR_INDEX;
 		SETUP_ISR(32) irq_isrs[0].isr=irq_isrs[0].def;

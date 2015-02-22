@@ -6,7 +6,7 @@
 namespace MOSST {
 
 
-class String : Vector<char> {
+class String final : Vector<char> {
 	public:
 		String(void);
 		String(const char* data);

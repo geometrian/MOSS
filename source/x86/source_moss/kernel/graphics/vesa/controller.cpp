@@ -21,10 +21,10 @@ namespace MOSS { namespace Graphics { namespace VESA {
 Controller::Controller(void) {
 	width = -1;
 	height = -1;
-	current_mode = NULL;
+	current_mode = nullptr;
 
-	framebuffers[0] = NULL;
-	framebuffers[1] = NULL;
+	framebuffers[0] = nullptr;
+	framebuffers[1] = nullptr;
 	latest_complete_framebuffer = -1;
 	framebuffer_writing = 0;
 
@@ -106,14 +106,14 @@ Controller::Controller(void) {
 	}
 }
 Controller::~Controller(void) {
-	if (framebuffers[1]!=NULL) delete framebuffers[1];
-	if (framebuffers[0]!=NULL) delete framebuffers[0];
+	if (framebuffers[1]!=nullptr) delete framebuffers[1];
+	if (framebuffers[0]!=nullptr) delete framebuffers[0];
 
 	delete [] modes;
 }
 
 Mode* Controller::get_mode_closest(int w,int h, int bpp) {
-	Mode* best = NULL;
+	Mode* best = nullptr;
 	uint32_t best_score = -1;
 
 	for (int i=0;i<numof_modes;++i) {
@@ -133,7 +133,7 @@ Mode* Controller::get_mode_closest(int w,int h, int bpp) {
 		}
 	}
 
-	ASSERT(best!=NULL,"No satisfactory VESA mode!");
+	ASSERT(best!=nullptr,"No satisfactory VESA mode!");
 	return best;
 }
 
@@ -152,8 +152,8 @@ bool Controller::set_mode(Mode* mode) {
 	height = mode->info.YResolution;
 	current_mode = mode;
 
-	if (framebuffers[0]!=NULL) delete framebuffers[0];
-	if (framebuffers[1]!=NULL) delete framebuffers[1];
+	if (framebuffers[0]!=nullptr) delete framebuffers[0];
+	if (framebuffers[1]!=nullptr) delete framebuffers[1];
 	framebuffers[0] = new Framebuffer(current_mode);
 	framebuffers[1] = new Framebuffer(current_mode);
 
@@ -173,7 +173,7 @@ void Controller::frame_flip(void) {
 	//See http://wiki.osdev.org/GUI
 	//See http://www.delorie.com/djgpp/doc/ug/graphics/vga.html
 
-	ASSERT(framebuffers[0]!=NULL && framebuffers[1]!=NULL, "At least one frame is NULL!  Must set a mode first!");
+	ASSERT(framebuffers[0]!=nullptr && framebuffers[1]!=nullptr, "At least one frame is null!  Must set a mode first!");
 	if (latest_complete_framebuffer==-1) return;
 
 	//Wait for vertical retrace

@@ -63,7 +63,7 @@ bool InterfaceDevicePS2Mouse::handle_irq(void) /*override*/ {
 }
 
 void InterfaceDevicePS2Mouse::set_position(int x, int y) {
-	ASSERT(kernel->graphics!=NULL&&kernel->graphics->current_mode!=NULL,"Mouse pointer can only be operated in a graphics mode!"); //But only because we need to check where to not move it.
+	ASSERT(kernel->graphics!=nullptr&&kernel->graphics->current_mode!=nullptr,"Mouse pointer can only be operated in a graphics mode!"); //But only because we need to check where to not move it.
 	if      (x <                       0) x=                         0;
 	else if (x>=kernel->graphics-> width) x=kernel->graphics-> width-1;
 	if      (y <                       0) y=                         0;

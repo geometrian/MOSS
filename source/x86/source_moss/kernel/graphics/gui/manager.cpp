@@ -56,7 +56,7 @@ void Manager::handle_mouse(const Input::Mouse::EventMouseUnclick& event) {
 }
 
 void Manager::add_frame(const MOSST::String& title, int x,int y,int w,int h) {
-	Frame* frame = new Frame(NULL, x,y,w,h);
+	Frame* frame = new Frame(nullptr, x,y,w,h);
 	frame->set_title(title);
 
 	frames.insert_back(frame);

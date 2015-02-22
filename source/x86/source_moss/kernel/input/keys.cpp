@@ -22,7 +22,7 @@ bool is_printable(Codes::MossKey key) {
 
 const char* get_printable(Codes::MossKey key) {
 	Devices::InterfaceDevicePS2Keyboard* keyboard = (Devices::InterfaceDevicePS2Keyboard*)(kernel->controller_ps2->device0); //TODO: kinda blecherous
-	ASSERT(keyboard!=NULL,"Cannot convert to a printable value; keyboard does not exist yet!");
+	ASSERT(keyboard!=nullptr,"Cannot convert to a printable value; keyboard does not exist yet!");
 	switch (key) {
 		#define CASE_STRING(NAME,SHIFT_NAME, DESC,SHIFT_DESC, SC)\
 			case SC:\

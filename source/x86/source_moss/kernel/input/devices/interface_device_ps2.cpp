@@ -49,7 +49,7 @@ InterfaceDevicePS2Base* InterfaceDevicePS2Base::get_new_device(ControllerPS2* co
 	}
 
 	//Get device's ID and new device subclass instance based off of it
-	InterfaceDevicePS2Base* new_device = NULL;
+	InterfaceDevicePS2Base* new_device = nullptr;
 	{
 		//http://wiki.osdev.org/%228042%22_PS/2_Controller#Detecting_PS.2F2_Device_Types
 		//Asks the PS/2 device to identify itself -> 0xFA(ACK),[none, 1, or 2 bytes]
@@ -124,7 +124,7 @@ InterfaceDevicePS2Base* InterfaceDevicePS2Base::get_new_device(ControllerPS2* co
 
 	//Set to default values, and then the values that MOSS wants.
 	{
-		if (new_device==NULL) ASSERT(false,"PS/2 device was NULL somehow!");
+		if (new_device==nullptr) ASSERT(false,"PS/2 device was null somehow!");
 		new_device->set_defaults();
 		switch (new_device->device_type) {
 			case DeviceKeyboardMF2:

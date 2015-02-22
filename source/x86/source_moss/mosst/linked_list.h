@@ -18,12 +18,12 @@ template <typename type> class LinkedList {
 			type data;
 
 			Node(LinkedList* parent, Node* prev,Node* next, const type& data) : parent(parent), prev(prev),next(next), data(data) {
-				if (prev==NULL) {
+				if (prev==nullptr) {
 					parent->first = this;
 				} else {
 					prev->next = this;
 				}
-				if (next==NULL) {
+				if (next==nullptr) {
 					parent->last = this;
 				} else {
 					next->prev = this;
@@ -39,10 +39,10 @@ template <typename type> class LinkedList {
 					parent->last = this->prev;
 				}
 
-				if (prev!=NULL) {
+				if (prev!=nullptr) {
 					prev->next = next;
 				}
-				if (next!=NULL) {
+				if (next!=nullptr) {
 					next->prev = prev;
 				}
 
@@ -57,21 +57,21 @@ template <typename type> class LinkedList {
 
 	public:
 		LinkedList(void) {
-			first = NULL;
-			last  = NULL;
+			first = nullptr;
+			last  = nullptr;
 			size = 0;
 		}
 		virtual ~LinkedList(void) {
-			while (last!=NULL) {
+			while (last!=nullptr) {
 				remove_back();
 			}
 		}
 
 		void insert_front(const type& object) {
-			new Node(this, NULL,first, object); //adds itself
+			new Node(this, nullptr,first, object); //adds itself
 		}
 		void insert_back(const type& object) {
-			new Node(this, last,NULL, object); //adds itself
+			new Node(this, last,nullptr, object); //adds itself
 		}
 		void insert(const type& object, int after_index) {
 			if (after_index==-1) insert_front(object);

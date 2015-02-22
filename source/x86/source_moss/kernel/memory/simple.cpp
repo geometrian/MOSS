@@ -99,7 +99,7 @@ void* MemoryManager::malloc(size_t size) {
 		block = block->header.next;
 		if ((uint64_t)(block)==end) {
 			ASSERT(false,"Cannot allocate more space!  Out of space!");
-			return NULL; //No more space!
+			return nullptr; //No more space!
 		}
 
 		goto LOOP;

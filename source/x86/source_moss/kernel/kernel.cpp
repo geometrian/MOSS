@@ -25,16 +25,16 @@ Kernel* kernel;
 
 Kernel::Kernel(void) {
 	#ifdef MOSS_DEBUG
-		terminal = NULL;
+		terminal = nullptr;
 
-		graphics = NULL;
-		gui = NULL;
+		graphics = nullptr;
+		gui = nullptr;
 
-		controller_ps2 = NULL;
+		controller_ps2 = nullptr;
 
-		controller_ata = NULL;
+		controller_ata = nullptr;
 
-		memory = NULL;
+		memory = nullptr;
 	#endif
 }
 Kernel::~Kernel(void) {}
