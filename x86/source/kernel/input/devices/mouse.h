@@ -52,22 +52,15 @@ class DevicePS2Mouse : public DevicePS2Base {
 		bool buttons[5];
 
 	public:
-		DevicePS2Mouse(ControllerPS2* controller);
+		DevicePS2Mouse(ControllerPS2* controller, int device_index, const DeviceType& device_type);
 		virtual ~DevicePS2Mouse(void);
 
-		void reset(void);
-
-		void  enable_streaming(void);
-		void disable_streaming(void);
+		bool handle_irq(void) override;
 
 		void set_position(int x, int y);
 		void   click(int button_index);
 		void unclick(int button_index);
-
-		void handle_irq(void) override;
-
-		void send_command_device(uint8_t command);
-		void wait_response(uint8_t wait_byte=0xFA);
+		void set_sample_rate(int hz);
 
 	private:
 		void _handle_current_packet(void);

@@ -133,7 +133,7 @@ void load_gdt(void) {
 	EntryGDT::construct(gdt_entries+4, 0x00000000u,0xFFFFFFFFu, EntryGDT::Access::AccessByte::get_selector_data(3)); //User data segment
 
 	/*//http://www.brokenthorn.com/Resources/OSDev8.html
-	Kernel::terminal->write("  Checking match\n");
+	kernel->write("  Checking match\n");
 	//11111111 11111111 00000000 00000000 00000000 10011010 11001111 00000000
 	moss_assert( ((unsigned char*)(gdt_entries))[ 8]==0xFF, "Mismatch on GDT byte 1");
 	moss_assert( ((unsigned char*)(gdt_entries))[ 9]==0xFF, "Mismatch on GDT byte 2");
@@ -143,7 +143,7 @@ void load_gdt(void) {
 	moss_assert( ((unsigned char*)(gdt_entries))[13]==0x9A, "Mismatch on GDT byte 6");
 	moss_assert( ((unsigned char*)(gdt_entries))[14]==0xCF, "Mismatch on GDT byte 7");
 	moss_assert( ((unsigned char*)(gdt_entries))[15]==0x00, "Mismatch on GDT byte 8");
-	Kernel::terminal->write("  Matched code segment!\n");
+	kernel->write("  Matched code segment!\n");
 	//11111111 11111111 00000000 00000000 00000000 10010010 11001111 00000000
 	moss_assert( ((unsigned char*)(gdt_entries))[16]==0xFF, "Mismatch on GDT byte 1");
 	moss_assert( ((unsigned char*)(gdt_entries))[17]==0xFF, "Mismatch on GDT byte 2");
@@ -153,7 +153,7 @@ void load_gdt(void) {
 	moss_assert( ((unsigned char*)(gdt_entries))[21]==0x92, "Mismatch on GDT byte 6");
 	moss_assert( ((unsigned char*)(gdt_entries))[22]==0xCF, "Mismatch on GDT byte 7");
 	moss_assert( ((unsigned char*)(gdt_entries))[23]==0x00, "Mismatch on GDT byte 8");
-	Kernel::terminal->write("  Matched data segment!\n");*/
+	kernel->write("  Matched data segment!\n");*/
 
 	gdt_lgdt(base,limit);
 }

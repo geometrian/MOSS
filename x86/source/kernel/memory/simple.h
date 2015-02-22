@@ -7,9 +7,6 @@ namespace MOSS {
 		class multiboot_info_t;
 		class multiboot_memory_map_t;
 	}
-	namespace Terminal {
-		class TextModeTerminal;
-	}
 namespace Memory {
 
 
@@ -25,7 +22,7 @@ class Block { public:
 
 	uint64_t get_size(void) const;
 
-	void print(Terminal::TextModeTerminal* terminal) const;
+	void print(void) const;
 };
 
 class BlockGRUB {
@@ -40,7 +37,7 @@ class BlockGRUB {
 		BlockGRUB(Boot::multiboot_memory_map_t* mmap);
 		~BlockGRUB(void);
 
-		void print(Terminal::TextModeTerminal* terminal) const;
+		void print(void) const;
 };
 
 class MemoryManager {
@@ -55,7 +52,7 @@ class MemoryManager {
 		void* malloc(size_t size);
 		void free(void* ptr);
 
-		void print(Terminal::TextModeTerminal* terminal) const;
+		void print(void) const;
 };
 
 

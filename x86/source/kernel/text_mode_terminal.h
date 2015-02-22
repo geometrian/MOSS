@@ -1,6 +1,8 @@
 #pragma once
 #include "../includes.h"
 
+#include <stdarg.h>
+
 
 namespace MOSS { namespace Terminal {
 
@@ -55,8 +57,8 @@ class TextModeTerminal {
 		/*void write(  int data);
 		void write( bool data);
 		void write(void* data);*/
-
-		void write(const char* format, ...);
+		void write(const char* format);
+		void write(const char* format, va_list args);
 };
 
 

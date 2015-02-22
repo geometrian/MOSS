@@ -113,7 +113,7 @@ void load_idt(void) {
 	uint32_t base  = (uint32_t)(&idt_entries);
 	uint16_t limit = sizeof(EntryIDT)*256 - 1;
 
-	//Kernel::terminal->write((int)(sizeof(EntryIDT)));
+	//kernel->write((int)(sizeof(EntryIDT)));
 	ASSERT(sizeof(EntryIDT)==8,"EntryIDT is the wrong size!");
 	ASSERT(sizeof(Interrupts::ErrorCode)==4,"Interrupt error code (normal type) is the wrong size!");
 	ASSERT(sizeof(Interrupts::ErrorCodePF)==4,"Interrupt error code (for page faults) is the wrong size!");

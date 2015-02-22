@@ -11,7 +11,7 @@
 namespace MOSS { namespace Input { namespace Devices {
 
 
-DevicePS2Keyboard::DevicePS2Keyboard(ControllerPS2* controller) : DevicePS2Base(controller) {
+DevicePS2Keyboard::DevicePS2Keyboard(ControllerPS2* controller, int device_index, const DeviceType& device_type) : DevicePS2Base(controller,device_index,device_type) {
 	lock_scroll = false;
 	lock_num = false;
 	lock_caps = false;
@@ -22,14 +22,13 @@ DevicePS2Keyboard::DevicePS2Keyboard(ControllerPS2* controller) : DevicePS2Base(
 }
 DevicePS2Keyboard::~DevicePS2Keyboard(void) {}
 
-/*void send_key(uint8_t scancode) {
+bool DevicePS2Keyboard::handle_irq(void) /*override*/ {
+	if (!DevicePS2Base::handle_irq()) return false;
 
-}*/
-#if 1
-void DevicePS2Keyboard::handle_irq(void) /*override*/ {
 	//Must read port 0x60 to clear the keyboard interrupt
 	//Also, we want the scan code!
-	uint8_t scan_code = recv();
+	uint8_t scan_code;
+	controller->recv_data(&scan_code);
 
 	if (scan_code&0x80) {
 		scan_code ^= 0x80;
@@ -51,22 +50,12 @@ void DevicePS2Keyboard::handle_irq(void) /*override*/ {
 
 	Keys::Codes::MossKey key = (Keys::Codes::MossKey)(scan_code);
 	if (keys[scan_code]) {
-		Kernel::handle_key_down(Keys::Event(key,true));
+		kernel->handle_key_down(Keys::Event(key,true));
 	} else {
-		Kernel::handle_key_up(Keys::Event(key,false));
+		kernel->handle_key_up(Keys::Event(key,false));
 	}
-}
 
-void DevicePS2Keyboard::send(uint8_t byte) const {
-	//Since commands sent to the device are sent to the controller first, the controller must be
-	//ready for the command (at least for the keyboard encoder?)
-	controller->wait_for_inputbuffer_clear();
-	IO::send<uint8_t>(CommandRegister,byte);
-}
-//Read device (e.g. keyboard encoder) buffer
-uint8_t DevicePS2Keyboard::recv(void) const {
-	controller->wait_for_outputbuffer_full();
-	return IO::recv<uint8_t>(InputBuffer);
+	return true;
 }
 
 bool DevicePS2Keyboard::get_shift_state(void) const {
@@ -82,13 +71,12 @@ bool DevicePS2Keyboard::set_LEDs(void) {
 	if (lock_scroll) data |= 0x01;
 	if (   lock_num) data |= 0x02;
 	if (  lock_caps) data |= 0x04;
-	for (int i=0;i<MOSS_MAX_PS2_ATTEMPTS;++i) {
-		send(0xED);
-		send(data);
-		if (recv()==0xFA) return true;
-	}
-	return false;
+	send_command_device(0xED);
+	controller->send_data(data);
+	wait_response();
+	return true;
 }
+#if 0
 bool DevicePS2Keyboard::echo(void) const {
 	//Echo command (for diagnostic purposes/device removal detection) -> 0xEE(Echo)/0xFE(resend)
 	//Expects no data bytes
@@ -98,73 +86,27 @@ bool DevicePS2Keyboard::echo(void) const {
 	}
 	return false;
 }
-int DevicePS2Keyboard::get_scancode(void) const {
+#endif
+int DevicePS2Keyboard::get_scancode(void) {
 	//Retrieves the scancode the keyboard is currently using -> 0xFA(ACK),[scan code set number]/0xFE(resend)
 	//Expects one data byte (0x00, the get flag of the 0xF0 command)
 	//This method returns the scancode number on success, -1 on failure.
-	for (int i=0;i<MOSS_MAX_PS2_ATTEMPTS;++i) {
-		send(0xF0);
-		if (recv()==0xFA) return recv();
-	}
+	send_command_device(0xF0);
+	//wait_response();
+	ASSERT(false,"Not implemented!");
 	return -1;
 }
-bool DevicePS2Keyboard::set_scancode(int scancode) {
+void DevicePS2Keyboard::set_scancode(int scancode) {
 	//Sets the keyboard's scancode -> 0xFA(ACK)/0xFE(resend)
 	//Expects one data byte (the scancode set, which should be 0x01/0x02/0x03 for scancode sets 1/2/3)
-	for (int i=0;i<MOSS_MAX_PS2_ATTEMPTS;++i) {
-		send(0xF0);
-		send(scancode);
-		if (recv()==0xFA) return true;
-	}
-	return false;
+	send_command_device(    0xF0);
+	wait_response();
+	send_command_device(scancode);
+	wait_response();
 }
-int DevicePS2Keyboard::identify(void) {
-	//http://wiki.osdev.org/%228042%22_PS/2_Controller#Detecting_PS.2F2_Device_Types
-	//Asks the PS/2 device to identify itself -> 0xFA(ACK),[none, 1, or 2 bytes]
-	//Expects no data bytes
-	//Sets the indentification of the device (0 on success, -1 on failure, -2 when not recognized)
-
-	//TODO: http://wiki.osdev.org/PS/2_Keyboard#Special_Bytes seems to imply that this can only return ACK?
-	send(0xF2);
-	if (recv()==0xFA) {
-		//No response indicates "Ancient AT keyboard with translation enabled in the PS/Controller".  Not supported.
-		uint8_t first = recv();
-		switch (first) {
-			case 0x00:
-				//Standard PS/2 mouse
-				device_type = DeviceMouse;
-				return 0;
-			case 0x03:
-				//Mouse with scroll wheel
-				device_type = DeviceMouseScroll;
-				return 0;
-			case 0x05:
-				//Five-button mouse
-				device_type = DeviceMouse5;
-				return 0;
-			case 0xAB: {
-				uint8_t second = recv();
-				switch (second) {
-					case 0x41:
-					case 0xC1:
-						//MF2 keyboard with translation enabled in the PS/Controller (not possible for the second PS/2 port)
-						device_type = DeviceKeyboardMF2Trans;
-						return 0;
-					case 0x83:
-						//MF2 keyboard
-						device_type = DeviceKeyboardMF2;
-						return 0;
-				}
-				//fallthrough
-			}
-			default:
-				return -2;
-		}
-	}
-	return -1;
-}
+#if 0
 class _TypeMaticByte { public:
-	//Bits [0,4] repeat rate (0b00000=30Hz, 0b11111=2Hz) (TODO: How is <= that possible?)
+	//Bits [0,4] repeat rate (0b00000=30Hz, 0b11111=2Hz) (TODO: How is <= that possible?) <= This is how: http://www.computer-engineering.org/ps2keyboard/
 	//Bits [5,6] delay before keys start repeating (0b00=250ms,0b01=500ms,0b10=750ms,0b11=1000ms)?
 	//Bit 7 must be 0.
 	uint8_t          repeat_rate : 5;
@@ -199,8 +141,7 @@ bool DevicePS2Keyboard::scanning_enable(void) {
 	}
 	return false;
 }
-//TODO: OSDev seems to think that 0xF5 disables scanning, possibly also resetting to default parameters, whereas http://www.brokenthorn.com/Resources/OSDev19.html
-//seems to think that 0xF5 resets to power on condition and then waits for the enable command.  I.e., osdev thinks the reset may happen, BrokenThorn avers it will.
+
 bool DevicePS2Keyboard::scanning_disable(void) {
 	//Disable scanning (keyboard will not send scan codes) -> 0xFA(ACK)/0xFE(resend)
 	//Expects no data bytes

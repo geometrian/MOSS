@@ -15,9 +15,9 @@ void* calloc(size_t num, size_t size) {
 }
 void* malloc(size_t size) {
 	#ifdef MOSS_DEBUG
-	ASSERT(MOSS::Kernel::memory!=NULL,"Cannot allocate memory; memory manager does not exist!");
+	ASSERT(MOSS::kernel->memory!=NULL,"Cannot allocate memory; memory manager does not exist!");
 	#endif
-	return MOSS::Kernel::memory->malloc(size);
+	return MOSS::kernel->memory->malloc(size);
 }
 void* realloc(void* ptr, size_t size) {
 	free(ptr);
@@ -28,9 +28,9 @@ void* realloc(void* ptr, size_t size) {
 }
 void free(void* ptr) {
 	#ifdef MOSS_DEBUG
-	ASSERT(MOSS::Kernel::memory!=NULL,"Cannot delete memory; memory manager does not exist!");
+	ASSERT(MOSS::kernel->memory!=NULL,"Cannot delete memory; memory manager does not exist!");
 	#endif
-	MOSS::Kernel::memory->free(ptr);
+	MOSS::kernel->memory->free(ptr);
 }
 
 

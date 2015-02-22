@@ -97,69 +97,18 @@ void TextModeTerminal::write(char c) {
 		}
 	}
 }
-/*void TextModeTerminal::write(  int data) {
-	if (data==0) { write('0'); return; }
-
-	bool negative;
-	if (data>=0) {
-		negative = false;
-	} else {
-		data = -data;
-		negative =  true;
-	}
-
-	char buffer[17] = "               0";
-	int index = 15;
-	while (data>0) {
-		buffer[index--] = '0' + (data % 10);
-		data /= 10;
-	}
-
-	if (negative) write('-');
-	write(buffer+index+1);
-}
-void TextModeTerminal::write( bool data) {
-	write(data?"true":"false");
-}
-static void write_nibble(TextModeTerminal* terminal, unsigned char num) {
-	terminal->write((char)(   num   +   (num<10 ? '0' : 'A'-10)   ));
-}
-static void write_byte(TextModeTerminal* terminal, unsigned char byte) {
-	unsigned char h = 0;
-	while (byte>=16) {
-		++h;
-		byte -= 16;
-	}
-	write_nibble(terminal,   h);
-	write_nibble(terminal,byte);
-}
-void TextModeTerminal::write(void* data) {
-	write('0'); write('x');
-	unsigned char* ptr = (unsigned char*)(&data);
-	unsigned char i0 = *(ptr+3);
-	unsigned char i1 = *(ptr+2);
-	unsigned char i2 = *(ptr+1);
-	unsigned char i3 = *(ptr  );
-	write_byte(this,i0);
-	write_byte(this,i1);
-	write_byte(this,i2);
-	write_byte(this,i3);
-}*/
-
-void TextModeTerminal::write(const char* format, ...) {
-	/*size_t i = 0;
+void TextModeTerminal::write(const char* format) {
+	size_t i = 0;
 	LOOP:
-		char c = str[i];
+		char c = format[i];
 		if (c!='\0') {
 			write(c);
 			++i;
 			goto LOOP;
-		}*/
-
+		}
+}
+void TextModeTerminal::write(const char* format, va_list args) {
 	char buffer[256]; //TODO: use vsnprintf or something!
-
-	va_list args;
-	va_start(args,format);
 
 	MOSSC::vsprintf(buffer,format,args);
 	size_t i = 0;
@@ -170,8 +119,6 @@ void TextModeTerminal::write(const char* format, ...) {
 			++i;
 			goto LOOP;
 		}
-
-	va_end(args);
 }
 
 

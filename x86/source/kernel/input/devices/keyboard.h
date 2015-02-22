@@ -27,13 +27,7 @@ namespace MOSS { namespace Input { namespace Devices {
 class ControllerPS2;
 
 class DevicePS2Keyboard : public DevicePS2Base {
-	//friend class ControllerPS2;
 	private:
-		enum DeviceIO {
-			InputBuffer     = 0x0060,
-			CommandRegister = 0x0060
-		};
-
 		bool lock_scroll;
 		bool lock_num;
 		bool lock_caps;
@@ -41,32 +35,20 @@ class DevicePS2Keyboard : public DevicePS2Base {
 		bool keys[256];
 
 	public:
-		DevicePS2Keyboard(ControllerPS2* controller);
+		DevicePS2Keyboard(ControllerPS2* controller, int device_index, const DeviceType& device_type);
 		virtual ~DevicePS2Keyboard(void);
 
-		void handle_irq(void) override;
+		bool handle_irq(void) override;
 
-	private:
-		//Send a command byte or command data byte to keyboard encoder.
-		void send(uint8_t byte) const;
-		//Read keyboard encoder buffer
-		uint8_t recv(void) const;
-
-	public:
 		bool get_shift_state(void) const;
 
 		//http://wiki.osdev.org/PS/2_Keyboard#Commands
 		bool set_LEDs(void);
-		bool echo(void) const;
-		int get_scancode(void) const;
-		bool set_scancode(int scancode);
-		//TODO: move to DevicePS2Base and call on construction
-		int identify(void);
+		//bool echo(void) const;
+		int get_scancode(void);
+		void set_scancode(int scancode);
+		/*
 		bool set_typematic(int delay_before_typematic_ms, int repeat_rate_hz);
-		bool scanning_enable(void);
-		//TODO: OSDev seems to think that 0xF5 disables scanning, possibly also resetting to default parameters, whereas http://www.brokenthorn.com/Resources/OSDev19.html
-		//seems to think that 0xF5 resets to power on condition and then waits for the enable command.  I.e., OSDev thinks the reset may happen, BrokenThorn avers it will.
-		bool scanning_disable(void);
 		//TODO: OSDev thinks that 0xF6 sets default parameters, but BrokenThorn thinks it also enables scanning.
 		bool reset(void);
 		//There are a lot of other commands that aren't implemented here:
@@ -78,7 +60,7 @@ class DevicePS2Keyboard : public DevicePS2Base {
 		//0xFC //Set a single key to generate make and break codes (scancode 3 only)
 		//0xFD //Set a single key to generate only break codes (scancode 3 only)
 		//0xFE //Resend last result
-		bool self_test(void);
+		bool self_test(void);*/
 };
 
 //TODO: this

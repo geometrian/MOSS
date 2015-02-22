@@ -2,11 +2,9 @@
 
 #include "../../io/io.h"
 
-#include "keyboard.h"
-#include "mouse.h"
-
 #include "../../kernel.h"
-#include "../../text_mode_terminal.h"
+
+#include "device.h"
 
 
 namespace MOSS { namespace Input { namespace Devices {
@@ -15,9 +13,6 @@ namespace MOSS { namespace Input { namespace Devices {
 ControllerPS2::ControllerPS2(void) {
 	ASSERT(sizeof(StatusByte)==1,"Status byte was the wrong size!");
 	ASSERT(sizeof(ConfigurationByte)==1,"Configuration byte was the wrong size!");
-
-	//keyboard = new DevicePS2Keyboard(this);
-	mouse    = new DevicePS2Mouse(this);
 
 	//http://wiki.osdev.org/%228042%22_PS/2_Controller#Initialising_the_PS.2F2_Controller (these steps):
 
@@ -113,57 +108,40 @@ ControllerPS2::ControllerPS2(void) {
 	}
 
 	//Step 10: Reset devices
-	//	All PS/2 devices should support the "reset" command (which is a command for the device, and not a command for the PS/2 Controller).
-	//	To send the reset, just send the byte 0xFF to each (usable) device.  The device/s will respond with 0xFA (success) or 0xFC
-	//	(failure), or won't respond at all (no device present). If your code supports "hot-plug PS/2 devices" (see later), then you can
-	//	assume each device is "not present" and let the hot-plug code figure out that the device is present if/when 0xFA or 0xFC is
-	//	received on a PS/2 port.
 	{
-		//Kernel::terminal->write("Resetting PS/2 devices\n");
-		//keyboard->reset();
-		mouse->reset();
+		//For each device:
+		//	Reset device
+		//	Get the device's id
+		//	Allocate a subclass based on the particular id that handles the device
+		//	Return as base pointer
+		device0 = DevicePS2Base::get_new_device(this, 0);
+		device1 = DevicePS2Base::get_new_device(this, 1);
 	}
 
 	//Step 11: Enable interrupts
 	//	OSDev suggests this as part of step 9, but I think it should come after the devices have been set up properly.
 	{
 		ConfigurationByte config_byte = _get_configuration_byte();
-		config_byte. first_port_interrupts_enabled = false; //TODO: when adding back keyboard, enable this.
-		config_byte.second_port_interrupts_enabled =  true;
+		config_byte. first_port_interrupts_enabled = true;
+		config_byte.second_port_interrupts_enabled = true;
 		_set_configuration_byte(config_byte);
 	}
 
-	//Step 12: Enable devices' data
+	//Step 12: Enable devices' data streams
 	{
-		mouse->enable_streaming();
+		device0->enable();
+		device1->enable();
 	}
 
-	//Kernel::terminal->write("Keyboard using scancode "); Kernel::terminal->write((int)(keyboard->get_scancode())); Kernel::terminal->write("!\n");
+	//kernel->write("Keyboard using scancode "); kernel->write((int)(keyboard->get_scancode())); kernel->write("!\n");
 	//ASSERT(keyboard->set_scancode(2)==2,"Could not set keyboard scancode to 2!");
 	//ASSERT(test(),"PS/2 Controller test failed!");
 
 	//ASSERT(false,"PS/2 Success!"); //Hang the OS, just to show that it worked.
 }
 ControllerPS2::~ControllerPS2(void) {
-	delete mouse;
-	//delete keyboard;
-}
-
-bool ControllerPS2::handle_irq_keyboard(void) {
-	//Check that the interrupt was genuine
-	if (!is_outputbuffer_full()) return false;
-
-	keyboard->handle_irq();
-
-	return true;
-}
-bool ControllerPS2::handle_irq_mouse(void) {
-	//Check that the interrupt was genuine
-	if (!is_outputbuffer_full()) return false;
-
-	mouse->handle_irq();
-
-	return true;
+	//delete device0;
+	delete device1;
 }
 
 void ControllerPS2::send_command(uint8_t command) {

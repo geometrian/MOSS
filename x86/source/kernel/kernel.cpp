@@ -14,36 +14,38 @@
 #include "text_mode_terminal.h"
 
 
-namespace MOSS { namespace Kernel {
+namespace MOSS {
 
 
-//The objects these point to must exist (see setup.cpp)
-#ifdef MOSS_DEBUG
-	Terminal::TextModeTerminal* terminal = NULL;
-	Memory::MemoryManager* memory = NULL;
-	Input::Devices::ControllerPS2* controller = NULL;
-	Graphics::VESA::Controller* graphics = NULL;
-	Graphics::GUI::Manager* gui = NULL;
-#else
-	Terminal::TextModeTerminal* terminal;
-	Memory::MemoryManager* memory;
-	Input::Devices::ControllerPS2* controller;
-	Graphics::VESA::Controller* graphics;
-	Graphics::GUI::Manager* gui;
-#endif
+Kernel* kernel;
 
-void handle_key_down(const Input::Keys::Event& event) {
+
+Kernel::Kernel(void) {
+	#ifdef MOSS_DEBUG
+		terminal = NULL;
+
+		graphics = NULL;
+		gui = NULL;
+
+		controller = NULL;
+
+		memory = NULL;
+	#endif
+}
+Kernel::~Kernel(void) {}
+
+void Kernel::handle_key_down(const Input::Keys::Event&/* event*/) {
+	/*//terminal->write('A');
 	if (Input::Keys::is_printable(event.key)) {
-		//terminal->write("Keyboard got scan code %d!\n",scan_code);
-		terminal->write(Input::Keys::get_printable(event.key));
-	}
+		//write("Keyboard got scan code %d!\n",scan_code);
+		write(Input::Keys::get_printable(event.key));
+	}*/
 }
-void handle_key_up(const Input::Keys::Event&/* event*/) {
-
+void Kernel::handle_key_up(const Input::Keys::Event&/* event*/) {
 }
 
-void handle_mouse_move(const Input::Mouse::EventMouseMove& event) {
-	//terminal->write("Mouse position: %d, %d\n",event.x,event.y);
+void Kernel::handle_mouse_move(const Input::Mouse::EventMouseMove& event) {
+	//write("Mouse position: %d, %d\n",event.x,event.y);
 
 	/*graphics->current_framebuffer->set_pixel(event.x,event.y, Graphics::Color(255u,0u,255u,255u));
 
@@ -54,40 +56,66 @@ void handle_mouse_move(const Input::Mouse::EventMouseMove& event) {
 	//graphics->draw_text(50,50, "Hello World!", Graphics::Color(0u,255u,255u));
 	gui->handle_mouse(event);
 }
-void handle_mouse_click(const Input::Mouse::EventMouseClick& event) {
+void Kernel::handle_mouse_click(const Input::Mouse::EventMouseClick& event) {
 	gui->handle_mouse(event);
 }
-void handle_mouse_unclick(const Input::Mouse::EventMouseUnclick& event) {
+void Kernel::handle_mouse_unclick(const Input::Mouse::EventMouseUnclick& event) {
 	gui->handle_mouse(event);
 }
 
-void kernel_main(void) {
-	/*char buffer[256];
-	graphics->current_mode->get_printable(buffer);
-	graphics->draw_text(50,graphics->current_mode->info.YResolution-50, buffer, Graphics::Color(255u,255u,255u));
+void Kernel::write(const char* format, ...) {
+	va_list args;
+	va_start(args,format);
 
-	//terminal->write("Hanging in kernel!\n");
+	terminal->write(format, args);
 
-	//graphics->fill(Graphics::Color(255u,0u,0u,255u));
+	va_end(args);
+}
 
-	graphics->draw_text(50,70, "TEST WRITING!", Graphics::Color(0u,255u,255u),Graphics::Color(32u,32u,32u));
+void Kernel::init(void) {
+	/*for (int i=0;i<graphics->numof_modes;++i) {
+		graphics->modes[i]->print(terminal);
+		delay(1000);
+	}*/
+	//Graphics::VESA::Mode* mode = graphics->get_mode_closest( 800,600,32);
+	Graphics::VESA::Mode* mode = graphics->get_mode_closest(1024,768,32);
+	//Graphics::VESA::Mode* mode = graphics->get_mode_closest(1152,864,32);
 
-	int x = 20;
-	int y = 600;
-	for (int r=0;r<255;r+=64) {
-		for (int g=0;g<255;g+=64) {
-			for (int b=0;b<255;b+=64) {
-				MOSSC::sprintf(buffer,"=(%3d,%3d,%3d)",r,g,b);
-				graphics->draw_text(x+110,y, buffer, Graphics::Color(255u,255u,255u),Graphics::Color(32u,32u,32u));
-				graphics->draw_rect(x,y,100,10, Graphics::Color(r,g,b));
-				y -= 15;
-				if (y<100) {
-					y = 600;
-					x += 250;
+	//write("Setting mode "); mode->print(terminal); write(" . . .\n"); delay(5000);
+	graphics->set_mode(mode);
+	//graphics->set_pixel(5,5, 255,0,0,255);
+}
+void Kernel::main(void) {
+	#if 0
+		char buffer[256];
+		graphics->current_mode->get_printable(buffer);
+		graphics->draw_text(50,graphics->current_mode->info.YResolution-50, buffer, Graphics::Color(255u,255u,255u));
+	#endif
+	#if 0
+		//graphics->fill(Graphics::Color(255u,0u,0u,255u));
+
+		graphics->draw_text(50,70, "TEST WRITING!", Graphics::Color(0u,255u,255u),Graphics::Color(32u,32u,32u));
+
+		int x = 20;
+		int y = 600;
+		for (int r=0;r<255;r+=64) {
+			for (int g=0;g<255;g+=64) {
+				for (int b=0;b<255;b+=64) {
+					MOSSC::sprintf(buffer,"=(%3d,%3d,%3d)",r,g,b);
+					graphics->draw_text(x+110,y, buffer, Graphics::Color(255u,255u,255u),Graphics::Color(32u,32u,32u));
+					graphics->draw_rect(x,y,100,10, Graphics::Color(r,g,b));
+					y -= 15;
+					if (y<100) {
+						y = 600;
+						x += 250;
+					}
 				}
 			}
 		}
-	}*/
+	#endif
+	#if 0
+		terminal->write("Hanging in kernel!\n"); while (true);
+	#endif
 
 	/*for (int r=0;r<=255;++r) {
 		for (int g=0;g<=255;++g) {
@@ -110,4 +138,4 @@ void kernel_main(void) {
 }
 
 
-}}
+}

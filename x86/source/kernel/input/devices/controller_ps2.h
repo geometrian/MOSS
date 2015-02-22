@@ -12,8 +12,7 @@ namespace MOSS { namespace Input { namespace Devices {
 //http://wiki.osdev.org/%228042%22_PS/2_Controller#Overview.
 
 
-class DevicePS2Keyboard;
-class DevicePS2Mouse;
+class DevicePS2Base;
 
 //http://wiki.osdev.org/%228042%22_PS/2_Controller
 class ControllerPS2 {
@@ -104,16 +103,12 @@ class ControllerPS2 {
 		};
 #endif
 
-		DevicePS2Keyboard* keyboard;
-		DevicePS2Mouse* mouse;
+		DevicePS2Base* device0;
+		DevicePS2Base* device1;
 
 	public:
 		ControllerPS2(void);
 		~ControllerPS2(void);
-
-		//Returns true iff handled, false iff not
-		bool handle_irq_keyboard(void);
-		bool handle_irq_mouse(void);
 
 	public:
 		void send_command(uint8_t command);

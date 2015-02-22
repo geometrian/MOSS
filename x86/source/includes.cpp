@@ -1,6 +1,5 @@
 #include "includes.h"
 
-#include "kernel/text_mode_terminal.h"
 #include "kernel/kernel.h"
 
 #include "mossc/cstdio"
@@ -16,7 +15,10 @@ namespace MOSS {
 			char buffer[256];
 			MOSSC::vsprintf(buffer,failure_message,args);
 
-			Kernel::terminal->write("%s:%d: \"%s\"\n", filename,line, buffer);
+			kernel->write("%s:%d: \"%s\"\n", filename,line, buffer);
+
+			__asm__ __volatile__("cli");
+			__asm__ __volatile__("hlt");
 			LOOP: goto LOOP;
 		}
 

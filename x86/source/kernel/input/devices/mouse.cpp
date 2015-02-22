@@ -12,7 +12,6 @@
 #include "../../../mossc/_misc.h"
 
 #include "../../kernel.h"
-#include "../../text_mode_terminal.h"
 
 
 namespace MOSS { namespace Input { namespace Devices {
@@ -20,7 +19,7 @@ namespace MOSS { namespace Input { namespace Devices {
 
 //TODO: timeouts for all this!
 
-DevicePS2Mouse::DevicePS2Mouse(ControllerPS2* controller) : DevicePS2Base(controller) {
+DevicePS2Mouse::DevicePS2Mouse(ControllerPS2* controller, int device_index, const DeviceType& device_type) : DevicePS2Base(controller,device_index,device_type) {
 	ASSERT(sizeof(received_data)==4,"Mouse data packet is the wrong size!");
 
 	mouse_cycle = 0;
@@ -32,62 +31,9 @@ DevicePS2Mouse::DevicePS2Mouse(ControllerPS2* controller) : DevicePS2Base(contro
 DevicePS2Mouse::~DevicePS2Mouse(void) {
 }
 
-void DevicePS2Mouse::reset(void) {
-	//The mouse probably sends ACK (0xFA) plus several more bytes, then resets itself, and always sends 0xAA.
-	send_command_device(0xFF);
+bool DevicePS2Mouse::handle_irq(void) /*override*/ {
+	if (!DevicePS2Base::handle_irq()) return false;
 
-	/*uint8_t response;
-	do {
-		bool result = controller->recv_data(&response,10000);
-		ASSERT(result,"PS/2 mouse does not exist or reset failed!");
-	} while (response!=0xAA);*/
-	uint8_t response;
-	bool got_affirm = false;
-	while (controller->recv_data(&response,10000)) if (response==0xAA) got_affirm=true;
-	ASSERT(got_affirm,"PS/2 mouse does not exist or reset failed!");
-
-	//Tell the mouse to use default settings
-	//	Disables streaming, sets the packet rate to 100 per second, and resolution to 4 pixels per mm.
-	send_command_device(0xF6);
-	wait_response();
-}
-
-void DevicePS2Mouse:: enable_streaming(void) {
-	//Enable packet streaming
-	send_command_device(0xF4);
-	wait_response();
-}
-void DevicePS2Mouse::disable_streaming(void) {
-	//Disable packet streaming
-	send_command_device(0xF5);
-	wait_response();
-}
-
-void DevicePS2Mouse::set_position(int x, int y) {
-	ASSERT(Kernel::graphics!=NULL&&Kernel::graphics->current_mode!=NULL,"Mouse pointer can only be operated in a graphics mode!"); //But only because we need to check where to not move it.
-	if      (x <                       0) x=                         0;
-	else if (x>=Kernel::graphics-> width) x=Kernel::graphics-> width-1;
-	if      (y <                       0) y=                         0;
-	else if (y>=Kernel::graphics->height) y=Kernel::graphics->height-1;
-
-	int dx = x - this->x;
-	int dy = y - this->y;
-	if (dx!=0 || dy!=0) {
-		last_x = this->x;
-		last_y = this->y;
-		this->x += dx;
-		this->y += dy;
-		Kernel::handle_mouse_move(Mouse::EventMouseMove(this->x,this->y,dx,dy));
-	}
-}
-void DevicePS2Mouse::  click(int button_index) {
-	Kernel::handle_mouse_click(Mouse::EventMouseClick(button_index));
-}
-void DevicePS2Mouse::unclick(int button_index) {
-	Kernel::handle_mouse_unclick(Mouse::EventMouseUnclick(button_index));
-}
-
-void DevicePS2Mouse::handle_irq(void) /*override*/ {
 	//http://forum.osdev.org/viewtopic.php?t=10247
 	//http://www.computer-engineering.org/ps2mouse/
 
@@ -112,23 +58,57 @@ void DevicePS2Mouse::handle_irq(void) /*override*/ {
 			mouse_cycle = 0;
 			break;
 	}
+
+	return true;
 }
 
-//List of commands: http://wiki.osdev.org/Mouse_Input#Useful_Mouse_Command_Set
-void DevicePS2Mouse::send_command_device(uint8_t command) {
-	Kernel::terminal->write("Sending mouse command %d\n",command);
+void DevicePS2Mouse::set_position(int x, int y) {
+	ASSERT(kernel->graphics!=NULL&&kernel->graphics->current_mode!=NULL,"Mouse pointer can only be operated in a graphics mode!"); //But only because we need to check where to not move it.
+	if      (x <                       0) x=                         0;
+	else if (x>=kernel->graphics-> width) x=kernel->graphics-> width-1;
+	if      (y <                       0) y=                         0;
+	else if (y>=kernel->graphics->height) y=kernel->graphics->height-1;
 
-	//Tell the PS/2 controller that the next byte should be redirected to the second port (mouse)
-	controller->send_command(0xD4); //No response expected
-
-	//Write command to PS/2 controller, which will now redirect it to the mouse
-	controller->send_data(command); //Caller should check for a response, iff applicable!
+	int dx = x - this->x;
+	int dy = y - this->y;
+	if (dx!=0 || dy!=0) {
+		last_x = this->x;
+		last_y = this->y;
+		this->x += dx;
+		this->y += dy;
+		kernel->handle_mouse_move(Mouse::EventMouseMove(this->x,this->y,dx,dy));
+	}
 }
-void DevicePS2Mouse::wait_response(uint8_t wait_byte/*=0xFA*/) {
-	//Called after most commands, which return 0xFA (ACK).  The only one that (might) not is the reset command.
-	uint8_t response;
-	controller->recv_data(&response);
-	ASSERT(response==wait_byte,"Command to mouse failed (expected %d, got %d)!",wait_byte,response);
+void DevicePS2Mouse::  click(int button_index) {
+	kernel->handle_mouse_click(Mouse::EventMouseClick(button_index));
+}
+void DevicePS2Mouse::unclick(int button_index) {
+	kernel->handle_mouse_unclick(Mouse::EventMouseUnclick(button_index));
+}
+void DevicePS2Mouse::set_sample_rate(int hz) {
+	#ifdef MOSS_DEBUG
+	switch (hz) {
+		case 10: case 20: case 40: case 60: case 80: case 100: case 200: break;
+		default:
+			ASSERT(false,"Invalid samping rate %d (must be one of 10, 20, 40, 60, 80, 100, 200)!",hz);
+	}
+	#endif
+
+	//kernel->write(">>Sending 0xF3\n");
+	send_command_device(0xF3);
+
+	//kernel->write(">>Waiting\n");
+	wait_response();
+
+	//kernel->write(">>Sending Hz\n");
+	//controller->send_data(hz);
+	send_command_device(hz); //works for some reason?  See http://forum.osdev.org/viewtopic.php?f=1&t=26899
+	//controller->send_data(hz);
+
+	//kernel->write(">>Waiting\n");
+	wait_response();
+
+	//kernel->write(">>Done!\n");
 }
 
 void DevicePS2Mouse::_handle_current_packet(void) {

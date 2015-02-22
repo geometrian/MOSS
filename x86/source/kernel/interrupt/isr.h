@@ -25,6 +25,18 @@ class ErrorCodePF { public:
 } __attribute__((packed));
 
 
+typedef bool(*ISR)(void);
+class IQR_ISR { public:
+	ISR def; //the default ISR
+	ISR isr; //Any overriding ISR
+	bool operator()(void) const;
+};
+
+extern IQR_ISR irq_isrs[16];
+
+void init_irqs(void);
+
+
 //When an ISR assembly callback is invoked, it jumps quickly to a common assembly subroutine defined in isr.asm, which then calls this C++ common handler below.
 //This function then delegates the event to the appropriate ISR C++ callback defined in isr.cpp.  See isr.asm for more details on this flow.
 
