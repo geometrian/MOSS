@@ -7,6 +7,8 @@ boot: disk, cdrom
 mouse: enabled=0, toggle=ctrl+f10
 
 romimage: file=$BXSHARE/BIOS-bochs-latest
+#romimage: file="C:/dev/C++/MOSS/resources/bochs-2.6.7-msvc-src/bochs-2.6.7/BIOS-bochs-latest"
 
 vga: extension=vbe
 vgaromimage: file=$BXSHARE/VGABIOS-lgpl-latest
+#vgaromimage: file="C:/dev/C++/MOSS/resources/bochs-2.6.7-msvc-src/bochs-2.6.7/VGABIOS-lgpl-latest"

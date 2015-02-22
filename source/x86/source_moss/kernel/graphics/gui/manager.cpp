@@ -17,10 +17,6 @@ Manager::Manager(void) {
 }
 Manager::~Manager(void) {
 	delete mouse;
-
-	while (frames.size>0) {
-		delete frames.remove_back();
-	}
 }
 
 void Manager::update(void) {
@@ -32,7 +28,7 @@ void Manager::update(void) {
 	}
 }
 
-void Manager::handle_mouse(const Input::Mouse::EventMouseMove& event) {
+void Manager::handle_mouse(Input::Mouse::   EventMouseMove const& event) {
 	mouse->x = event.x;
 	mouse->y = event.y;
 
@@ -40,14 +36,14 @@ void Manager::handle_mouse(const Input::Mouse::EventMouseMove& event) {
 		if (frames[i]->handle_mouse(event)) break;
 	}
 }
-void Manager::handle_mouse(const Input::Mouse::  EventMouseClick& event) {
+void Manager::handle_mouse(Input::Mouse::  EventMouseClick const& event) {
 	mouse->buttons[event.index] =  true;
 
 	for (int i=0;i<frames.size;++i) {
 		if (frames[i]->handle_mouse(event)) break;
 	}
 }
-void Manager::handle_mouse(const Input::Mouse::EventMouseUnclick& event) {
+void Manager::handle_mouse(Input::Mouse::EventMouseUnclick const& event) {
 	mouse->buttons[event.index] = false;
 
 	for (int i=0;i<frames.size;++i) {
@@ -55,7 +51,7 @@ void Manager::handle_mouse(const Input::Mouse::EventMouseUnclick& event) {
 	}
 }
 
-void Manager::add_frame(const MOSST::String& title, int x,int y,int w,int h) {
+void Manager::add_frame(MOSST::String const& title, int x,int y,int w,int h) {
 	Frame* frame = new Frame(nullptr, x,y,w,h);
 	frame->set_title(title);
 

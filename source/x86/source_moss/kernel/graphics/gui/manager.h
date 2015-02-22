@@ -35,11 +35,11 @@ class Manager final {
 
 		void update(void);
 
-		void handle_mouse(const Input::Mouse::EventMouseMove& event);
-		void handle_mouse(const Input::Mouse::  EventMouseClick& event);
-		void handle_mouse(const Input::Mouse::EventMouseUnclick& event);
+		void handle_mouse(Input::Mouse::   EventMouseMove const& event);
+		void handle_mouse(Input::Mouse::  EventMouseClick const& event);
+		void handle_mouse(Input::Mouse::EventMouseUnclick const& event);
 
-		void add_frame(const MOSST::String& title, int x,int y,int w,int h);
+		void add_frame(MOSST::String const& title, int x,int y,int w,int h);
 
 		void draw(VESA::Framebuffer* framebuffer) const;
 };

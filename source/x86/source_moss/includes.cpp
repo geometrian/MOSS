@@ -16,7 +16,7 @@ namespace MOSS {
 
 
 void _message(char const* filename,int line, char const* fmt_cstr,va_list args) {
-	kernel->write("(%s:%d): \n", filename,line);
+	kernel->write("(%s:%d): ", filename,line);
 
 	char buffer[256];
 	MOSSC::vsprintf(buffer, fmt_cstr,args); //TODO: vsnprintf

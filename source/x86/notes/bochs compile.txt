@@ -1,0 +1,8 @@
+Download source
+
+Follow directions here:
+	http://bochs.sourceforge.net/doc/docbook/user/compiling.html#COMPILING-WIN32
+	Except, add option "--enable-debugger" to ".conf.win32-vcpp".  Note that this implies "--enable-iodebug", the flag we want.
+
+Options:
+	http://bochs.sourceforge.net/doc/docbook/user/compiling.html#CONFIG-OPTS

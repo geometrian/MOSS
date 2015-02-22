@@ -112,7 +112,7 @@ template <typename type> class LinkedList final {
 
 	private:
 		Node* _get_node_at(int index) const {
-			assert_term(index>0&&index<size,"Tried to access a linked list (size %d) out of bounds (index %d)!",size,index);
+			assert_term(index>=0&&index<size,"Tried to access a linked list (size %d) out of bounds (index %d)!",size,index);
 			Node* result = _head;
 			for (int i=0;i<index;++i) {
 				result = result->next;

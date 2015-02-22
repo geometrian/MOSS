@@ -2,6 +2,8 @@
 
 #include "../mossc/cstdio"
 
+#include "io/io.h"
+
 
 namespace MOSS { namespace Terminal {
 
@@ -20,7 +22,7 @@ namespace MOSS { namespace Terminal {
 TextModeTerminal::TextModeTerminal(void) {
 	_x = 0;
 	_y = 0;
-	buffer = (uint16_t*)(0xB8000);
+	buffer = reinterpret_cast<uint16_t*>(0xB8000);
 
 	set_color(EMPTY_FG,EMPTY_BG);
 	for (int y=0; y<TEXTMODE_HEIGHT; ++y) {
@@ -85,6 +87,11 @@ void TextModeTerminal::write(char c, int x,int y) {
 	buffer[index] = c16 | (color16 << 8);
 }
 void TextModeTerminal::write(char c) {
+	#ifdef MOSS_DEBUG
+	//Bochs debug: TODO: it doesn't do anything.
+	//IO::send(0xE9,static_cast<uint8_t>(c));
+	#endif
+
 	if (c=='\r') {
 		_x = 0;
 	} else if (c=='\n') {
