@@ -10,10 +10,37 @@
     <Filter Include="asm_helpers">
       <UniqueIdentifier>{1eadb784-405c-4581-b339-e92e9a3602eb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="kernel\ui">
+      <UniqueIdentifier>{b9a4f415-421a-4293-9540-ea0b7453f9ff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="kernel\file_system">
+      <UniqueIdentifier>{cb7875f7-94e3-4387-9529-26df16887c0f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="kernel\memory">
+      <UniqueIdentifier>{4369b462-d48a-411e-8b65-e07a66086a84}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="kernel\lib">
+      <UniqueIdentifier>{7a967be3-1bf7-4613-aed8-c694549bdaef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="kernel\gdt_idt">
+      <UniqueIdentifier>{225f089a-3a40-4c64-bf05-f5bfeabbab6a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="kernel\ui\keyboard">
+      <UniqueIdentifier>{117b2768-efde-40bf-897c-657f47013e1a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="MOSS\kernel\kernel.c">
+    <ClCompile Include="MOSS\kernel\kernel.cpp">
       <Filter>kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="MOSS\kernel\ui\console.h">
+      <Filter>kernel\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="MOSS\kernel\ui\console.cpp">
+      <Filter>kernel\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="MOSS\kernel\ui\graphics.cpp">
+      <Filter>kernel\ui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -26,5 +53,55 @@
     <None Include="MOSS\kernel\jump.asm">
       <Filter>kernel</Filter>
     </None>
+    <None Include="MOSS\kernel\gdt_idt\gdt.asm">
+      <Filter>kernel\gdt_idt</Filter>
+    </None>
+    <None Include="MOSS\kernel\gdt_idt\idt.asm">
+      <Filter>kernel\gdt_idt</Filter>
+    </None>
+    <None Include="MOSS\kernel\gdt_idt\isr.asm">
+      <Filter>kernel\gdt_idt</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="MOSS\kernel\ui\graphics.h">
+      <Filter>kernel\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="MOSS\kernel\file_system\file.h">
+      <Filter>kernel\file_system</Filter>
+    </ClInclude>
+    <ClInclude Include="MOSS\kernel\memory\memory.h">
+      <Filter>kernel\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="MOSS\kernel\lib\String.h">
+      <Filter>kernel\lib</Filter>
+    </ClInclude>
+    <ClInclude Include="MOSS\kernel\lib\DynamicArray.h">
+      <Filter>kernel\lib</Filter>
+    </ClInclude>
+    <ClInclude Include="MOSS\kernel\lib\clib.h">
+      <Filter>kernel\lib</Filter>
+    </ClInclude>
+    <ClInclude Include="MOSS\kernel\lib\Mutex.h">
+      <Filter>kernel\lib</Filter>
+    </ClInclude>
+    <ClInclude Include="MOSS\kernel\stdinc.h">
+      <Filter>kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="MOSS\kernel\gdt_idt\gdt.h">
+      <Filter>kernel\gdt_idt</Filter>
+    </ClInclude>
+    <ClInclude Include="MOSS\kernel\gdt_idt\idt.h">
+      <Filter>kernel\gdt_idt</Filter>
+    </ClInclude>
+    <ClInclude Include="MOSS\kernel\gdt_idt\isr.h">
+      <Filter>kernel\gdt_idt</Filter>
+    </ClInclude>
+    <ClInclude Include="MOSS\kernel\ui\keyboard\keyboard.h">
+      <Filter>kernel\ui\keyboard</Filter>
+    </ClInclude>
+    <ClInclude Include="MOSS\kernel\interrupt.h">
+      <Filter>kernel</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

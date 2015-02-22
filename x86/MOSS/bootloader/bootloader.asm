@@ -2,7 +2,7 @@
 ;Ian Mallett
 
 ADDRESS_KERNEL  EQU 0x1000      ; Address that the kernel will be loaded to by the bootloader
-SEGMENT_ID_CODE EQU 0x0008      ; Code segment ID is 8
+SEGMENT_ID_CODE EQU 0x0008      ; Code segment ID is  8
 SEGMENT_ID_DATA EQU 0x0010      ; Data segment ID is 16
 ADDRESS_STACK   EQU 0x00090000  ; Top of conventional memory
 
@@ -77,10 +77,12 @@ main:
 	PRINTI  str_lk_4
 	FAIL    jc, str_f_load
 
-	;	Load GDT thing
-	;cli              ; we don't want to be interrupted right now
+	;	Disable interrupts for now
+	;cli
+
+	;	Load temporary GDT
 	xor     ax, ax
-	mov     ds, ax      ; clear ds - this register is used by lgdt
+	mov     ds, ax      ; clear ds.  This register is used by lgdt
 	lgdt    [gdt_desc]  ; Load the GDT descriptor
 	PRINTI  str_lk_5
 
@@ -96,7 +98,7 @@ main:
 	mov  cr0, eax
 
 	;	Long jump to clear prefetch queue and enter kernel
-	jmp SEGMENT_ID_CODE:clear_queue_and_jmp
+	jmp  SEGMENT_ID_CODE:clear_queue_and_jmp
 
 [BITS 32]
 ;By far jumping we clear the prefetch queue, apparently.
@@ -123,7 +125,10 @@ clear_queue_and_jmp:
 	;mov  [eax], ebx
 
 	;Jump to the kernel!
-	jmp SEGMENT_ID_CODE:ADDRESS_KERNEL
+	jmp  SEGMENT_ID_CODE:ADDRESS_KERNEL
+
+	;Just in case
+	jmp  $
 
 DAP:  ; Disk Address Packet
 	;Size of DAP
@@ -146,7 +151,7 @@ DAP:  ; Disk Address Packet
 bootdisk  db 0
 
 ;ASCII 13 is \r, ASCII 10 is \n
-str_ss_1  db "MOSS 0.3 Bootloader",13,10,"Ian Mallett",13,10,0
+str_ss_1  db "MOSS Bootloader",13,10,"Ian Mallett",13,10,0
 
 str_lk_2  db "INT13 supported!",13,10,0
 str_lk_3  db "load start:",13,10,0

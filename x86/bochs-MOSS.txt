@@ -1,2 +1,0 @@
-ata0-master: type=disk, path="C:/dev/C++/MOSS/0.3/disk_img.bin", cylinders=512, heads=1, spt=4
-  boot: disk

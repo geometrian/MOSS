@@ -6,12 +6,12 @@ from build_print_info import *
 def install(mb): #Copy bootloader into hard drive
     print_info("Installing bootloader")
     
-    f = open("bootloader.bin","rb")
+    f = open("../build/bootloader.bin","rb")
     data1 = f.read()
     f.close()
 
     print_info("Installing kernel")
-    f = open("kernel.bin","rb")
+    f = open("../build/kernel.bin","rb")
     data2 = f.read()
     f.close()
 
@@ -19,13 +19,13 @@ def install(mb): #Copy bootloader into hard drive
     data += "\x00"*(1*1024*1024-len(data))
 
     print_info("Writing data")
-    f = open("disk_img.bin","wb")
+    f = open("../build/disk_img.bin","wb")
     f.write(data)
     f.close()
 
 ##    f = open("C:\\Users\\Ian Mallett\\VirtualBox VMs\\MOSS\\MOSS-flat.vmdk","wb")
 ##    f = open("../../../../Users/Ian Mallett/VirtualBox VMs/MOSS/MOSS-flat.vmdk","wb")
-    f = open("../VM/MOSS-flat.vmdk","wb")
+    f = open("../../VM/MOSS-flat.vmdk","wb")
     f.write(data)
     f.close()
 

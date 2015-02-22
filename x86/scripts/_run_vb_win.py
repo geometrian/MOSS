@@ -4,12 +4,11 @@ import sys, time
 from build_print_info import *
 
 def main():
-    print_info("Booting Bochs virtual machine")
-    #http://bochs.sourceforge.net/doc/docbook/user/using-bochs.html#COMMANDLINE
+    print_info("Booting VirtualBox virtual machine")
     call([
-        "C:\\Program Files (x86)\\Bochs-2.6\\bochs.exe",
-        "-q",
-        "-f","C:/dev/C++/MOSS/0.3/bochs-MOSS.txt"
+        "C:\\Program Files\\Oracle\\VirtualBox\\VBoxManage.exe",
+##        "VBoxManage",
+        "startvm","MOSS"
     ])
 
 ##    print_info("Bringing to front")
@@ -20,4 +19,4 @@ def main():
     print_info("Virtual machine started",1)
 if __name__ == '__main__':
     main()
-##    time.sleep(2)
+    time.sleep(2)

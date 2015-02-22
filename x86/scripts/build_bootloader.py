@@ -7,11 +7,11 @@ from which_nasm import *
 def assemble_compile_bootloader1():
     call([
         nasm,
-        "MOSS/bootloader/bootloader.asm",
-        "-i","MOSS/bootloader/",
-        "-i","MOSS/asm_helpers/",
+        "../MOSS/bootloader/bootloader.asm",
+        "-i","../MOSS/bootloader/",
+        "-i","../MOSS/asm_helpers/",
         "-f","bin",
-        "-o","bootloader.bin"
+        "-o","../build/bootloader.bin"
     ])
 
 def main():
