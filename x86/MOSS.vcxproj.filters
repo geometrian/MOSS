@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="kernel">
+      <UniqueIdentifier>{b36dc3fd-f9c8-40a3-a0f0-c28b2bfa7887}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="asm_helpers">
+      <UniqueIdentifier>{852e4d28-0871-4668-bdae-554b7fd1e9ee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="bootloader1">
+      <UniqueIdentifier>{4d154320-dc3d-4776-ba8b-4346cedeabd3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="bootloader2">
+      <UniqueIdentifier>{b5c6ff57-9e31-4c64-a35d-064846d55804}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="MOSS\asm_helpers\print.asm">
+      <Filter>asm_helpers</Filter>
+    </None>
+    <None Include="MOSS\bootloader1\bootloader1.asm">
+      <Filter>bootloader1</Filter>
+    </None>
+    <None Include="MOSS\bootloader1\print_level1.asm">
+      <Filter>bootloader1</Filter>
+    </None>
+    <None Include="MOSS\bootloader2\print_level2.asm">
+      <Filter>bootloader2</Filter>
+    </None>
+    <None Include="MOSS\bootloader2\bootloader2.asm">
+      <Filter>bootloader2</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="MOSS\kernel\kernel.c">
+      <Filter>kernel</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

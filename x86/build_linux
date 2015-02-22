@@ -1,0 +1,2 @@
+gcc -m32 -c -Wall -Wextra -Werror -nostdlib -fno-builtin -nostartfiles -nodefaultlibs MOSS/kernel/kernel.c -o kernel.o
+ld -s --entry loader -m elf_i386 -o kernel.bin bootloader2.o kernel.o
