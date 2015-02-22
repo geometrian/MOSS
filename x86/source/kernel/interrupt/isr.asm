@@ -25,13 +25,17 @@
 ;	--Returns from interrupt vector using special "iret" instruction.
 
 ;Note: The ISRs/common subroutine do NOT issue "cli" or "sti".  This is because the CPU automatically pushes the original value
-;of "eflags" and then disables interrupts before entering an ISR.  When leaving, "iret" pops "eflags" back, which includes the
-;original (enabled) state of the interrupts.  It does all this to avoid race conditions.  The practical upshot is that "cli" and
-;"sti" are wastes of time.  See http://forum.osdev.org/viewtopic.php?f=1&t=20572.
+;of "eflags" and then disables interrupts before entering an ISR for interrupts.  When leaving, "iret" pops "eflags" back, which
+;includes the original (enabled) state of the interrupts.  It does all this to avoid race conditions.  For an ISR for exceptions,
+;it makes sense to leave them enabled?  The practical upshot is that "cli" and "sti" are wastes of time.
+;See http://forum.osdev.org/viewtopic.php?f=1&t=20572.
 
 ;Note: the original link pushed bytes onto the stack for the dummy error code and the interrupt index.  The stack is 4-byte
 ;aligned, so two bytes took up eight on the stack and the effect was the same.  However, this is much more clear.  See also
 ;http://forum.osdev.org/viewtopic.php?f=1&t=23998&start=0.
+
+;See Intel Manual ~pg. 248.  When an interrupt happens, "eflags", "cs", "eip", and (possibly) the error code are pushed onto the
+;stack.
 
 
 ;ISR that DOES NOT pass its own error code
@@ -39,8 +43,10 @@
 	global isr%1_asm
 	extern isr%1
 	isr%1_asm:
-		push  dword 0 ;dummy error code
-		push  dword 1 ;interrupt index
+		xchg  bx, bx
+
+		push  dword  0 ;dummy error code
+		push  dword %1 ;interrupt index
 		jmp   common_subroutine
 %endmacro
 ;ISR that DOES pass its own error code
@@ -48,8 +54,10 @@
 	global isr%1_asm
 	extern isr%1
 	isr%1_asm:
-		              ;error code was pushed here automatically by the CPU prior to entry
-		push  dword 1 ;interrupt index
+		xchg  bx, bx
+
+		               ;error code was pushed here automatically by the CPU prior to entry
+		push  dword %1 ;interrupt index
 		jmp   common_subroutine
 %endmacro
 
@@ -60,12 +68,12 @@ common_subroutine:
 	push   fs
 	push   gs
 
-	;;Load the Kernel Data Segment descriptor!
-	;mov  ax, 0x10
-	;mov  ds, ax
-	;mov  es, ax
-	;mov  fs, ax
-	;mov  gs, ax
+	;Load the Kernel Data Segment descriptor!
+	mov  ax, 0x10
+	mov  ds, ax
+	mov  es, ax
+	mov  fs, ax
+	mov  gs, ax
 	mov  eax, esp  ;Push us the stack
 
 	push  eax

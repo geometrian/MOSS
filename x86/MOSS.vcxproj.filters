@@ -29,9 +29,6 @@
     <None Include="source\kernel\interrupt\gdt_idt.asm">
       <Filter>kernel\interrupt</Filter>
     </None>
-    <None Include="source\kernel\interrupt\idt.asm">
-      <Filter>kernel\interrupt</Filter>
-    </None>
     <None Include="source\kernel\interrupt\isr.asm">
       <Filter>kernel\interrupt</Filter>
     </None>
@@ -61,6 +58,13 @@
     <ClCompile Include="source\stdlib\stdlib.cpp">
       <Filter>stdlib</Filter>
     </ClCompile>
+    <ClCompile Include="source\kernel\interrupt\isr.cpp">
+      <Filter>kernel\interrupt</Filter>
+    </ClCompile>
+    <ClCompile Include="source\kernel\interrupt\gdt_idt.cpp">
+      <Filter>kernel\interrupt</Filter>
+    </ClCompile>
+    <ClCompile Include="source\includes.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\kernel\text_mode_terminal.h">
@@ -92,9 +96,6 @@
       <Filter>stdlib</Filter>
     </ClInclude>
     <ClInclude Include="source\kernel\interrupt\gdt_idt.h">
-      <Filter>kernel\interrupt</Filter>
-    </ClInclude>
-    <ClInclude Include="source\kernel\interrupt\idt.h">
       <Filter>kernel\interrupt</Filter>
     </ClInclude>
     <ClInclude Include="source\kernel\interrupt\isr.h">

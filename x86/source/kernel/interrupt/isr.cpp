@@ -26,18 +26,50 @@ void isr32through255(void) {
 }*/
 
 
-void isr_common(const State* state) {
-	//Note that the error interrupt index and error code are unsigned bytes, but they're on the stack, and so were sign extended if they
-	//happened to be over 127.  See also http://forum.osdev.org/viewtopic.php?f=1&t=23998&sid=98cd3b1e6b1256f0dbdb0885e84ba05f&start=15.
+void isr_common(State* state) {
+	//See sign-extending about unsigned bytes here: http://forum.osdev.org/viewtopic.php?f=1&t=23998&sid=98cd3b1e6b1256f0dbdb0885e84ba05f&start=15.
+	//Shouldn't be an issue since everything pushed is 32 bits.
+
 	Kernel::terminal->write("Received interrupt:\n");
+
 	Kernel::terminal->write("  Interrupt index: "); Kernel::terminal->write((int)(state-> int_ind)); Kernel::terminal->write("\n");
+
 	Kernel::terminal->write("  Error code:      "); Kernel::terminal->write((int)(state->err_code)); Kernel::terminal->write("\n");
+	if (state->err_code == 14) {
+		Kernel::terminal->write("    Is special error code for page faults (interrupt 14):\n");
+		Kernel::terminal->write("    Diagnostic output not implemented!\n"); //TODO: this
+	} else {
+		Kernel::terminal->write("    Is normal error code for exceptions:\n");
+		//state->err_code = 0x200212u;
+		ErrorCode code = *((ErrorCode*)(&state->err_code));
+
+		if (code.external_event==0) {
+			Kernel::terminal->write("      0 : ?\n");
+		} else {
+			Kernel::terminal->write("      1 : <External Event>\n");
+		}
+
+		if (code.descr_location==0) {
+			if (code.descr_in_LDT==0) {
+				Kernel::terminal->write("      0 : index into GDT\n");
+			} else {
+				Kernel::terminal->write("      1 : index into LDT\n");
+			}
+		} else {
+			Kernel::terminal->write("      1 : index is into IDT\n");
+		}
+
+		Kernel::terminal->write("      "); Kernel::terminal->write((int)(code.segement_selector_index)); Kernel::terminal->write("\n");
+	}
 	Kernel::terminal->write("Done.  Hanging . . .\n");
 	//Kernel::terminal->write("received interrupt!\n");
 	while (true);
 
-	//0b100000100000000000100 (0x104004)
-	//0b100000100000000010100 (0x104014) (1064980)
+	//0b 00010000 01000000 00000100 (0x104004)
+	//0b 00010000 01000000 00010100 (0x104014) (1064980)
+	//0b 00010000 01000001 10100100 (0x1041A4) (1065380)
+	//0b 00010000 01000011 00110100 (0x104334) (1065780)
+	//0b 00100000 00000010 00010010 (0x200212) (2097682)
 }
 
 

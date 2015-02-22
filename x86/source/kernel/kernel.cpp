@@ -53,7 +53,10 @@ extern "C" void kernel_main(unsigned long magic, unsigned long addr) {
 	MOSS::Interrupts::reload_segments();
 
 	terminal->write("Enabling Interrupts\n");
+
 	MOSS::Interrupts::enable();
+
+	MOSS_DEBUG_BOCHSBREAK
 
 	/*terminal->write("Test firing . . .\n");
 	MOSS::Interrupts::fire_int13h();

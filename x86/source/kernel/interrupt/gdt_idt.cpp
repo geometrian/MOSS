@@ -158,6 +158,8 @@ void load_idt(void) {
 	//Kernel::terminal->write((int)(sizeof(EntryIDT)));
 	#ifdef MOSS_DEBUG
 	moss_assert(sizeof(EntryIDT)==8,"EntryIDT is the wrong size!");
+	moss_assert(sizeof(Interrupts::ErrorCode)==4,"Interrupt error code (normal type) is the wrong size!");
+	moss_assert(sizeof(Interrupts::ErrorCodePF)==4,"Interrupt error code (for page faults) is the wrong size!");
 	#endif
 
 #define IDT_SET_GATE(N) EntryIDT::construct(idt_entries+N, (uint32_t)(isr##N##_asm), EntryIDT::Type::TypeByte::Interrupt32, 0);

@@ -19,8 +19,8 @@ i586-elf-g++ -c source/kernel/memory/simple.cpp -o build/kernel/memory/simple.o 
 nasm -felf      source/kernel/interrupt/gdt_idt.asm -o build/kernel/interrupt/gdt_idt1.o
 i586-elf-g++ -c source/kernel/interrupt/gdt_idt.cpp -o build/kernel/interrupt/gdt_idt2.o $ARGS_CMPL
 nasm -felf      source/kernel/interrupt/int32.asm -o build/kernel/interrupt/int32.o
-#nasm -felf      source/kernel/interrupt/isr.asm -o build/kernel/interrupt/isr1.o
-#i586-elf-g++ -c source/kernel/interrupt/isr.cpp -o build/kernel/interrupt/isr2.o $ARGS_CMPL
+nasm -felf      source/kernel/interrupt/isr.asm -o build/kernel/interrupt/isr1.o
+i586-elf-g++ -c source/kernel/interrupt/isr.cpp -o build/kernel/interrupt/isr2.o $ARGS_CMPL
 
 i586-elf-g++ -c source/kernel/kernel.cpp -o build/kernel/kernel.o $ARGS_CMPL
 
@@ -33,8 +33,6 @@ i586-elf-g++ -c source/stdlib/stdlib.cpp -o build/stdlib/stdlib.o $ARGS_CMPL
 i586-elf-g++ -c source/includes.cpp -o build/includes.o $ARGS_CMPL
 
 
-#build/kernel/interrupt/isr1.o\
-	#build/kernel/interrupt/isr2.o\
 
 echo "Linking kernel"
 
@@ -49,6 +47,8 @@ i586-elf-gcc\
 	build/kernel/interrupt/gdt_idt1.o\
 	build/kernel/interrupt/gdt_idt2.o\
 	build/kernel/interrupt/int32.o\
+	build/kernel/interrupt/isr1.o\
+	build/kernel/interrupt/isr2.o\
 \
 	build/kernel/kernel.o\
 \

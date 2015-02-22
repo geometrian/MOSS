@@ -5,6 +5,11 @@
 
 #define MOSS_DEBUG
 
+#ifdef MOSS_DEBUG
+	#define MOSS_DEBUG_BOCHSBREAK __asm__ __volatile__("xchg  %bx, %bx");
+#else
+	#define MOSS_DEBUG_BOCHSBREAK
+#endif
 
 typedef struct __attribute__((packed)) {
 	unsigned short di;
