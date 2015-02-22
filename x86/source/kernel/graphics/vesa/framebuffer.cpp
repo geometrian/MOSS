@@ -259,14 +259,30 @@ void Framebuffer::draw_line(int x0,int y0,int x1,int y1, const Color& color) {
 }
 
 Color Framebuffer::get_pixel(int x,int y) {
+	#ifdef MOSS_DEBUG
+	//Trying to access out of bounds causes the screen to be filled with magenta
+	if (x<0 || x>=mode->info.XResolution) { draw_fill(Color(255u,0u,255u,255u)); return Color(); }
+	if (y<0 || y>=mode->info.YResolution) { draw_fill(Color(255u,0u,255u,255u)); return Color(); }
+	#endif
+
 	//TODO: technically I think sometimes you aren't allowed to read from this memory?
 	return PixelUtil::get_at(this, x,y);
 }
 void Framebuffer::set_pixel(int x,int y, const Color& color) {
+	//Some drawing operations do this, and it's much more convenient to just discard
+	//the pixels here than to check them in each higher level call.
+	if (x<0 || x>=mode->info.XResolution) return;
+	if (y<0 || y>=mode->info.YResolution) return;
+
 	return PixelUtil::set_at(this, x,y, color);
 }
 
 void Framebuffer::blend_pixel(int x,int y, const Color& color) {
+	//Some drawing operations do this, and it's much more convenient to just discard
+	//the pixels here than to check them in each higher level call.
+	if (x<0 || x>=mode->info.XResolution) return;
+	if (y<0 || y>=mode->info.YResolution) return;
+
 	Color original = get_pixel(x,y);
 
 	Color new_color = Color::blend(color,original);

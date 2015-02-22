@@ -11,6 +11,18 @@ root = ""
 root_build  = root+"build/"
 root_source = root+"source/"
 
+skip = 1
+if skip == 0:
+    skip_recompile_directories = [root_source+"grub/"]
+else:
+    skip_recompile_directories = [root_source+"grub/",root_source+"kernel/boot",root_source+"mossc/",root_source+"mosst/"]
+
+only = 0
+if only == 0:
+    only_recompile = []
+else:
+    only_recompile = ["gui"]
+
 #The standard C++11 is important for override in C++.
 #TODO: do we need -nostartfiles?
 args_compile = "-ffreestanding -O0 -Wall -Wextra -fno-exceptions -fno-rtti -std=c++11"

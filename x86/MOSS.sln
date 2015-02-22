@@ -1,11 +1,13 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MOSS", "MOSS.vcxproj", "{04E3B400-FC69-4F9F-91F2-75302098AADC}"
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31206.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MOSS", ".ides\MOSS.vcxproj", "{04E3B400-FC69-4F9F-91F2-75302098AADC}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestMOSSC", "TestMOSSC.vcxproj", "{ED853E3A-6E69-4303-ADF1-D5BC17EDDA39}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestMOSSC", ".ides\TestMOSSC.vcxproj", "{ED853E3A-6E69-4303-ADF1-D5BC17EDDA39}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestMOSST", "TestMOSST.vcxproj", "{DCBB776B-1E39-4F3C-8359-27503B0EA33A}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestMOSST", ".ides\TestMOSST.vcxproj", "{DCBB776B-1E39-4F3C-8359-27503B0EA33A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
