@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../../../includes.h"
+
 
 namespace MOSS { namespace Graphics {
 	class Color;
@@ -37,19 +39,19 @@ class Controller {
 		Framebuffer* current_framebuffer;
 
 	private:
-		class VESA_INFO { public:
-			unsigned char  VESASignature[4]; //set to "VBE2", returns "VESA"
-			unsigned short VESAVersion;
-			unsigned long  OEMStringPtr;
-			unsigned char  Capabilities[4];
-			unsigned long  VideoModePtr;
-			unsigned short TotalMemory; //# of 64KB blocks
-			unsigned short OemSoftwareRev;
-			unsigned long  OemVendorNamePtr;
-			unsigned long  OemProductNamePtr;
-			unsigned long  OemProductRevPtr;
-			unsigned char  Reserved[222];
-			unsigned char  OemData[256];
+		class VESA_INFO final { public:
+			uint8_t  VESASignature[4]; //set to "VBE2", returns "VESA"
+			uint16_t VESAVersion;
+			uint32_t OEMStringPtr;
+			uint8_t  Capabilities[4];
+			uint32_t VideoModePtr;
+			uint16_t TotalMemory; //# of 64KB blocks
+			uint16_t OemSoftwareRev;
+			uint32_t OemVendorNamePtr;
+			uint32_t OemProductNamePtr;
+			uint32_t OemProductRevPtr;
+			uint8_t  Reserved[222];
+			uint8_t  OemData[256];
 		} __attribute__((packed));
 		VESA_INFO info;
 

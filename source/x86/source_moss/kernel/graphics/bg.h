@@ -1,11 +1,13 @@
 #pragma once
 
+#include "../../includes.h"
+
 
 namespace MOSS { namespace Graphics { namespace Font {
 
 
 //RGB, no alpha, two bytes for each
-//extern const char* bg;
+//extern char const* bg;
 
 
 }}}

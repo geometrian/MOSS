@@ -1,28 +1,29 @@
 #include "includes.h"
 
 #include "kernel/kernel.h"
-
 #include "mossc/cstdio"
 
 
+extern "C" void die(void) {
+	//Clear hardware interrupts (to prevent the next instruction being interrupted) and then "hlt".
+	__asm__ __volatile__("cli");
+	__asm__ __volatile__("hlt");
+	//If that fails, busy loop.
+	LOOP: goto LOOP;
+}
+
 namespace MOSS {
-	#ifdef MOSS_DEBUG
-	void _assert(bool condition, const char* filename,int line, const char* failure_message,...) {
-		va_list args;
-		va_start(args,failure_message);
 
-		if (!condition) {
-			char buffer[256];
-			MOSSC::vsprintf(buffer,failure_message,args);
 
-			kernel->write("%s:%d: \"%s\"\n", filename,line, buffer);
+void _message(char const* filename,int line, char const* fmt_cstr,va_list args) {
+	kernel->write("(%s:%d): \n", filename,line);
 
-			__asm__ __volatile__("cli");
-			__asm__ __volatile__("hlt");
-			LOOP: goto LOOP;
-		}
+	char buffer[256];
+	MOSSC::vsprintf(buffer, fmt_cstr,args); //TODO: vsnprintf
+	kernel->write("%s", buffer);
 
-		va_end(args);
-	}
-	#endif
+	kernel->write("\n");
+}
+
+
 }

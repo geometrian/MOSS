@@ -97,7 +97,7 @@ void TextModeTerminal::write(char c) {
 		}
 	}
 }
-void TextModeTerminal::write(const char* format) {
+void TextModeTerminal::write(char const* format) {
 	size_t i = 0;
 	LOOP:
 		char c = format[i];
@@ -107,7 +107,7 @@ void TextModeTerminal::write(const char* format) {
 			goto LOOP;
 		}
 }
-void TextModeTerminal::write(const char* format, va_list args) {
+void TextModeTerminal::write(char const* format, va_list args) {
 	char buffer[256]; //TODO: use vsnprintf or something!
 
 	MOSSC::vsprintf(buffer,format,args);

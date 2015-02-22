@@ -2,12 +2,12 @@
 
 #include "../mossc/cstdio"
 
+#include "ata/ata.h"
+
 #include "graphics/gui/manager.h"
-#include "graphics/color.h"
 #include "graphics/vesa/controller.h"
 #include "graphics/vesa/framebuffer.h"
-
-#include "ata/ata.h"
+#include "graphics/color.h"
 
 #include "input/devices/controller_ps2.h"
 //#include "input/devices/mouse_ps2.h"
@@ -68,7 +68,7 @@ void Kernel::handle_mouse_unclick(const Input::Mouse::EventMouseUnclick& event) 
 	gui->handle_mouse(event);
 }
 
-void Kernel::write(const char* format, ...) {
+void Kernel::write(char const* format, ...) {
 	va_list args;
 	va_start(args,format);
 

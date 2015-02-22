@@ -1,4 +1,5 @@
 #pragma once
+
 #include "../../includes.h"
 
 
@@ -11,12 +12,12 @@ namespace Memory {
 
 
 class Block;
-class BlockHeader { public:
+class BlockHeader final { public:
 	bool allocated;
 	Block* prev;
 	Block* next;
 };
-class Block { public:
+class Block final { public:
 	BlockHeader header;
 	unsigned int first_data;
 
@@ -25,7 +26,7 @@ class Block { public:
 	void print(void) const;
 };
 
-class BlockGRUB {
+class BlockGRUB final {
 	public:
 		unsigned int record_size;
 		uint64_t start;
@@ -40,7 +41,7 @@ class BlockGRUB {
 		void print(void) const;
 };
 
-class MemoryManager {
+class MemoryManager final {
 	private:
 		uint64_t start; //inclusive
 		uint64_t   end; //exclusive

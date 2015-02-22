@@ -52,10 +52,8 @@ _start:
 	call  kernel_entry
 
 	;In case the function returns (which it shouldn't), we can do nothing except
-	;	stop entirely.  To do that, clear hardware interrupts (to prevent the next
-	;	instruction being interrupted) and then "hlt".
-	cli
-	;If that fails, busy loop.
-	hlt
+	;	stop entirely.
+	extern die
+	call  die
 .hang:
 	jmp  .hang

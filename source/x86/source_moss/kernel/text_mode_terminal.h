@@ -1,7 +1,6 @@
 #pragma once
-#include "../includes.h"
 
-#include <stdarg.h>
+#include "../includes.h"
 
 
 namespace MOSS { namespace Terminal {
@@ -9,7 +8,7 @@ namespace MOSS { namespace Terminal {
 
 //NOTE: All numbers and coordinates start at 0!
 
-class TextModeTerminal {
+class TextModeTerminal final {
 	private:
 		//char data[VGA_HEIGHT][VGA_WIDTH];
 
@@ -57,8 +56,8 @@ class TextModeTerminal {
 		/*void write(  int data);
 		void write( bool data);
 		void write(void* data);*/
-		void write(const char* format);
-		void write(const char* format, va_list args);
+		void write(char const* format);
+		void write(char const* format, va_list args);
 };
 
 

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../../../includes.h"
+
 #include "../../../mosst/linked_list.h"
 #include "../../../mosst/string.h"
 
@@ -21,7 +23,7 @@ class Frame;
 
 class Mouse;
 
-class Manager {
+class Manager final {
 	private:
 		MOSST::LinkedList<Frame*> frames;
 

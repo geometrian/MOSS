@@ -1,7 +1,6 @@
 #include "mouse.h"
 
 #include "../vesa/framebuffer.h"
-
 #include "../color.h"
 
 

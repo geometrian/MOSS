@@ -5,7 +5,7 @@ namespace MOSS { namespace Memory {
 
 
 //GDT Entry
-class EntryGDT {
+class EntryGDT final {
 	private:
 		uint32_t        limit_low : 16; //The lower 16 bits of the limit
 		uint32_t         base_low : 24; //The lower 24 bits of base
@@ -19,7 +19,7 @@ class EntryGDT {
 		//		executable bit: 1 is code/data selector, 0 is system
 		//	I am going to use 1=code selector/0=data selector version, since doing it the other way causes a triple fault.
 		union Access {
-			class AccessByte { public:
+			class AccessByte final { public:
 				bool     accessed :  1; //Initialized to 0; CPU sets when segment is accessed
 				bool           rw :  1; //Writable bit for data selectors / Readable bit for code selectors
 				bool     dir_conf :  1; //For data selectors, 0 the segment grows up, 1 the segment grows down.  For code selectors, 0 only executable by processes with exactly privilege, 1 lower is okay too
@@ -124,7 +124,7 @@ void load_gdt(void) {
 	uint32_t base  = (uint32_t)(&gdt_entries);          //The linear address of the first gdt_entry_t struct.
 	uint16_t limit = sizeof(EntryGDT)*MOSS_NUM_GDT - 1; //The upper 16 bits of all selector limits.  Size of table minus 1.  sizeof(EntryGDT) should be 8.
 
-	ASSERT(sizeof(EntryGDT)==8,"EntryGDT is the wrong size!");
+	assert_term(sizeof(EntryGDT)==8,"EntryGDT is the wrong size!");
 
 	EntryGDT::construct(gdt_entries,   0x00000000u,         0u, EntryGDT::Access::AccessByte::          get_null()); //Null segment
 	EntryGDT::construct(gdt_entries+1, 0x00000000u,0xFFFFFFFFu, EntryGDT::Access::AccessByte::get_selector_code(0)); //Kernel code segment

@@ -1,4 +1,5 @@
 #pragma once
+
 #include "../../../includes.h"
 
 #include "interface_device_ps2.h"
@@ -10,23 +11,23 @@ namespace MOSS { namespace Input { namespace Devices {
 //http://www.brokenthorn.com/Resources/OSDev19.html
 
 //Note: the motherboard emulates USB keyboards and USB mice as PS/2 devices.  Therefore, this code should
-//work for them as well.  However, http://wiki.osdev.org/%228042%22_PS/2_Controller#USB_Legacy_Support
-//says that you should disable legacy support.  TODO: that.
+//	work for them as well.  However, http://wiki.osdev.org/%228042%22_PS/2_Controller#USB_Legacy_Support
+//	says that you should disable legacy support.  TODO: that.
 
 //There is a keyboard encoder and a keyboard controller.  The encoder lives on the keyboard itself
-//and stores data about it.  The keyboard controller lives on the motherboard and communicates
-//with the encoder, producing IRQs.
+//	and stores data about it.  The keyboard controller lives on the motherboard and communicates
+//	with the encoder, producing IRQs.
 
 //Key codes are either make and break.  Make is the press, break is the release.
 
 //Note: at the hardware level, const-correctness is pretty-much meaningless.  "const" is added here
-//when the method oughtn't to semantically change the state of something.  I.e., even though the
-//data buffers of the PS/2 device or controller change, "const" implies their state should be
-//preserved.
+//	when the method oughtn't to semantically change the state of something.  I.e., even though the
+//	data buffers of the PS/2 device or controller change, "const" implies their state should be
+//	preserved.
 
 class ControllerPS2;
 
-class InterfaceDevicePS2Keyboard : public InterfaceDevicePS2Base {
+class InterfaceDevicePS2Keyboard final : public InterfaceDevicePS2Base {
 	private:
 		bool lock_scroll;
 		bool lock_num;
@@ -35,7 +36,7 @@ class InterfaceDevicePS2Keyboard : public InterfaceDevicePS2Base {
 		bool keys[256];
 
 	public:
-		InterfaceDevicePS2Keyboard(ControllerPS2* controller, int device_index, const DeviceType& device_type);
+		InterfaceDevicePS2Keyboard(ControllerPS2* controller, int device_index, DeviceType const& device_type);
 		virtual ~InterfaceDevicePS2Keyboard(void);
 
 		bool handle_irq(void) override;

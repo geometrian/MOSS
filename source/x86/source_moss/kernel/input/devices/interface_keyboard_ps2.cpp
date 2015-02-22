@@ -11,7 +11,7 @@
 namespace MOSS { namespace Input { namespace Devices {
 
 
-InterfaceDevicePS2Keyboard::InterfaceDevicePS2Keyboard(ControllerPS2* controller, int device_index, const DeviceType& device_type) : InterfaceDevicePS2Base(controller,device_index,device_type) {
+InterfaceDevicePS2Keyboard::InterfaceDevicePS2Keyboard(ControllerPS2* controller, int device_index, DeviceType const& device_type) : InterfaceDevicePS2Base(controller,device_index,device_type) {
 	lock_scroll = false;
 	lock_num = false;
 	lock_caps = false;
@@ -93,7 +93,7 @@ int InterfaceDevicePS2Keyboard::get_scancode(void) {
 	//This method returns the scancode number on success, -1 on failure.
 	send_command_device(0xF0);
 	//wait_response();
-	ASSERT(false,"Not implemented!");
+	assert_term(false,"Not implemented!");
 	return -1;
 }
 void InterfaceDevicePS2Keyboard::set_scancode(int scancode) {

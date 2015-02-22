@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../../includes.h"
+
 
 namespace MOSS { namespace Graphics {
 
@@ -15,7 +17,7 @@ class Color { public:
 	inline Color(void) {}
 	inline Color(unsigned char r,unsigned char g,unsigned char b,unsigned char a=255) : r(r),g(g),b(b),a(a) {}
 
-	static Color blend(const Color& foreground, const Color& background) {
+	static Color blend(Color const& foreground, Color const& background) {
 		//#define ROUND(X) ((unsigned char)(X+0.5f))
 
 		Color result;

@@ -1,7 +1,5 @@
 #include "controller.h"
 
-#include "../../../includes.h"
-
 #include "../../../mossc/cstdlib"
 #include "../../../mossc/cstring"
 
@@ -47,10 +45,10 @@ Controller::Controller(void) {
 		//kernel->write("Virtual pointer:   %p\n",vesa_info);
 		//kernel->write("Segmented pointer: %p:%p\n",(ptr>>4)&0xFFFF,ptr&0xF);
 
-		ASSERT(regs.ax==0x004F,"Getting VESA graphics modes failed!");
+		assert_term(regs.ax==0x004F,"Getting VESA graphics modes failed!");
 
 		//Check that we got the right magic marker value
-		ASSERT(MOSSC::strncmp((char*)(info2->VESASignature),"VESA",4)==0,"Got wrong VESA magic value!");
+		assert_term(MOSSC::strncmp(reinterpret_cast<char*>(info2->VESASignature),"VESA",4)==0,"Got wrong VESA magic value!");
 
 		//Copy the temporary information into this mode's record.
 		MOSSC::memcpy(&info,info2,sizeof(VESA_INFO));
@@ -85,7 +83,7 @@ Controller::Controller(void) {
 		//kernel->write("%d %d\n",mode_ptr,mode_ptr2);
 
 		//kernel->write("There are %d modes!\n",numof_modes);
-		ASSERT(numof_modes>=1,"No VESA modes available!"); //A problem since don't want to try to allocate nothing.
+		assert_term(numof_modes>=1,"No VESA modes available!"); //A problem since don't want to try to allocate nothing.
 
 		//We have to go through an intermediary step of caching the mode numbers here since they are originally
 		//stored low in memory, and creating a new mode immediately (and thereby retrieving information about it)
@@ -133,7 +131,7 @@ Mode* Controller::get_mode_closest(int w,int h, int bpp) {
 		}
 	}
 
-	ASSERT(best!=nullptr,"No satisfactory VESA mode!");
+	assert_term(best!=nullptr,"No satisfactory VESA mode!");
 	return best;
 }
 
@@ -144,7 +142,7 @@ bool Controller::set_mode(Mode* mode) {
 	Interrupts::int32(0x10,&regs);
 
 	if (regs.ax!=0x004F) {
-		ASSERT(false,"Could not set graphics mode!\n");
+		assert_term(false,"Could not set graphics mode!\n");
 		return false;
 	}
 
@@ -173,7 +171,7 @@ void Controller::frame_flip(void) {
 	//See http://wiki.osdev.org/GUI
 	//See http://www.delorie.com/djgpp/doc/ug/graphics/vga.html
 
-	ASSERT(framebuffers[0]!=nullptr && framebuffers[1]!=nullptr, "At least one frame is null!  Must set a mode first!");
+	assert_term(framebuffers[0]!=nullptr && framebuffers[1]!=nullptr, "At least one frame is null!  Must set a mode first!");
 	if (latest_complete_framebuffer==-1) return;
 
 	//Wait for vertical retrace

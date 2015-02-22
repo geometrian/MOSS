@@ -2,9 +2,8 @@
 
 #include "../../input/mouse.h"
 
-#include "../color.h"
-
 #include "../vesa/framebuffer.h"
+#include "../color.h"
 
 #include "button.h"
 

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../includes.h"
+
 #include "vector.h"
 
 
@@ -8,18 +10,18 @@ namespace MOSST {
 
 class String final : Vector<char> {
 	public:
-		String(void);
-		String(const char* data);
-		virtual ~String(void);
+		inline String(void) : Vector() {}
+		String(char const* data); //Note not explicit
+		inline virtual ~String(void) {}
 
-		void insert_back(const char& object) override;
+		void insert_back(char const& object) override;
 
-		String operator+(const String& other);
+		String operator+(String const& other);
 
-		String& operator+=(const char* other);
-		String& operator+=(const String& other);
+		String& operator+=(char const* other);
+		String& operator+=(String const& other);
 
-		const char* c_str(void) const;
+		char const* c_str(void) const;
 };
 
 

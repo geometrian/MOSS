@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../../includes.h"
+
 
 namespace MOSS { namespace Input { namespace Keys { namespace Codes {
 
@@ -127,7 +129,7 @@ class Event { public:
 bool is_printable(Codes::MossKey key);
 
 //If the key itself is not "is_printable(...)", then it will return the name of the key.
-const char* get_printable(Codes::MossKey key);
+char const* get_printable(Codes::MossKey key);
 
 
 }}}

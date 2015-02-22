@@ -1,7 +1,6 @@
 #include "controller_ps2.h"
 
 #include "../../io/io.h"
-
 #include "../../kernel.h"
 
 #include "interface_device_ps2.h"
@@ -11,9 +10,6 @@ namespace MOSS { namespace Input { namespace Devices {
 
 
 ControllerPS2::ControllerPS2(void) {
-	ASSERT(sizeof(StatusByte)==1,"Status byte was the wrong size!");
-	ASSERT(sizeof(ConfigurationByte)==1,"Configuration byte was the wrong size!");
-
 	//http://wiki.osdev.org/%228042%22_PS/2_Controller#Initialising_the_PS.2F2_Controller (these steps):
 
 	//Step 1: Initialize USB controllers (disabling emulation)
@@ -59,7 +55,8 @@ ControllerPS2::ControllerPS2(void) {
 	{
 		send_command(0xAA);
 		uint8_t result; recv_data(&result);
-		ASSERT(result==0x55,"PS/2 Controller self-test failed!"); //0xFC is failure
+		assert_term(result!=0xFC,"PS/2 Controller self-test failed!");
+		assert_term(result==0x55,"PS/2 Controller self-test failed (undefined error %d)!",static_cast<int>(result));
 	}
 
 	//Step 7: Determine if there are two channels
@@ -69,7 +66,7 @@ ControllerPS2::ControllerPS2(void) {
 
 		ConfigurationByte config_byte = _get_configuration_byte();
 		//If the following fails, then can't be a two-port PS/2 controller, since just enabled the second port.
-		ASSERT(!config_byte.second_port_clock_disabled,"Not a two-port PS/2 controller!");
+		assert_term(!config_byte.second_port_clock_disabled,"Not a two-port PS/2 controller!");
 
 		//Disable second PS/2 port again
 		send_command(0xA7); //No response expected
@@ -81,11 +78,11 @@ ControllerPS2::ControllerPS2(void) {
 			recv_data(&result);\
 			switch (result) {\
 				case 0x00: break;\
-				case 0x01: ASSERT(false,"Port "#PORT" interface test failed (clock line stuck low)!");\
-				case 0x02: ASSERT(false,"Port "#PORT" interface test failed (clock line stuck high)!");\
-				case 0x03: ASSERT(false,"Port "#PORT" interface test failed (data line stuck low)!");\
-				case 0x04: ASSERT(false,"Port "#PORT" interface test failed (data line stuck high)!");\
-				default: ASSERT(false,"Port "#PORT" interface test failed (unknown)!");\
+				case 0x01: assert_term(false,"Port " #PORT " interface test failed (clock line stuck low)!");\
+				case 0x02: assert_term(false,"Port " #PORT " interface test failed (clock line stuck high)!");\
+				case 0x03: assert_term(false,"Port " #PORT " interface test failed (data line stuck low)!");\
+				case 0x04: assert_term(false,"Port " #PORT " interface test failed (data line stuck high)!");\
+				default: assert_term(false,"Port " #PORT " interface test failed (unknown)!");\
 			}
 
 		uint8_t result;

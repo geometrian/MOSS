@@ -1,4 +1,5 @@
 #pragma once
+
 #include "../../../includes.h"
 
 #define MOSS_MAX_PS2_ATTEMPTS 3
@@ -22,7 +23,7 @@ class ControllerPS2 {
 			StatusRegister  = 0x0064u,
 			CommandRegister = 0x0064u
 		};
-		class StatusByte { public:  //"Compaq status byte" (not actually Compaq-specific (anymore).
+		class StatusByte final { public:  //"Compaq status byte" (not actually Compaq-specific (anymore).
 			union {
 				struct {
 					bool                output_buffer_full : 1;
@@ -37,7 +38,8 @@ class ControllerPS2 {
 				uint8_t data_byte;
 			};
 		};
-		class ConfigurationByte { public:
+		static_assert(sizeof(StatusByte)==1,"Status byte was the wrong size!");
+		class ConfigurationByte final { public:
 			union {
 				struct {
 					bool  first_port_interrupts_enabled : 1;
@@ -52,6 +54,7 @@ class ControllerPS2 {
 				uint8_t data_byte;
 			};
 		};
+		static_assert(sizeof(ConfigurationByte)==1,"Configuration byte was the wrong size!");
 	public:
 #if 0
 		//http://www.virtualbox.org/svn/vbox/trunk/src/VBox/Devices/Input/DevPS2.cpp

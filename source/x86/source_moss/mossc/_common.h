@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../includes.h"
+
 
 #define MOSS_DECL_FP1(FUNCTION_NAME)\
 	      float FUNCTION_NAME(      float x);\

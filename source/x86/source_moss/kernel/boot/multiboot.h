@@ -26,7 +26,7 @@ namespace MOSS { namespace Boot {
 #ifndef ASM
 /* Do not include here in boot.S. */
 
-class multiboot_header_t { public:
+class multiboot_header_t final { public:
 	unsigned long magic;
 	unsigned long flags;
 	unsigned long checksum;
@@ -37,21 +37,21 @@ class multiboot_header_t { public:
 	unsigned long entry_addr;
 };
 
-class aout_symbol_table_t { public:
+class aout_symbol_table_t final { public:
 	unsigned long tabsize;
 	unsigned long strsize;
 	unsigned long addr;
 	unsigned long reserved;
 };
 
-class elf_section_header_table_t { public:
+class elf_section_header_table_t final { public:
 	unsigned long num;
 	unsigned long size;
 	unsigned long addr;
 	unsigned long shndx;
 };
 
-class multiboot_info_t { public:
+class multiboot_info_t final { public:
 	unsigned long flags;
 	unsigned long mem_lower;
 	unsigned long mem_upper;
@@ -67,7 +67,7 @@ class multiboot_info_t { public:
 	unsigned long mmap_addr;
 };
 
-class module_t { public:
+class module_t final { public:
 	unsigned long mod_start;
 	unsigned long mod_end;
 	unsigned long string;
@@ -75,7 +75,7 @@ class module_t { public:
 };
 
 //Be careful that the offset 0 is base_addr_low but no size.
-class memory_map_t { public:
+class memory_map_t final { public:
 	unsigned long size;
 	unsigned long base_addr_low;
 	unsigned long base_addr_high;

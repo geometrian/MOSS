@@ -33,6 +33,6 @@ def main():
     ])
 
     call([
-        "..\\..\resources\\nircmd\\nircmd.exe","win","activate","title","MOSS [Running] - Oracle VM VirtualBox"
+        "..\\..\\resources\\nircmd\\nircmd.exe","win","activate","title","MOSS [Running] - Oracle VM VirtualBox"
     ])
 if __name__ == "__main__": main()

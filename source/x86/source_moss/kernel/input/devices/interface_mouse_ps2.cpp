@@ -1,5 +1,7 @@
 #include "interface_mouse_ps2.h"
 
+#include "../../../mossc/_misc.h"
+
 #include "../../graphics/vesa/controller.h"
 #include "../../io/io.h"
 #include "../../kernel.h"
@@ -9,19 +11,12 @@
 #include "controller_ps2.h"
 
 
-#include "../../../mossc/_misc.h"
-
-#include "../../kernel.h"
-
-
 namespace MOSS { namespace Input { namespace Devices {
 
 
 //TODO: timeouts for all this!
 
 InterfaceDevicePS2Mouse::InterfaceDevicePS2Mouse(ControllerPS2* controller, int device_index, const DeviceType& device_type) : InterfaceDevicePS2Base(controller,device_index,device_type) {
-	ASSERT(sizeof(received_data)==4,"Mouse data packet is the wrong size!");
-
 	mouse_cycle = 0;
 	x = last_x = 0;
 	y = last_y = 0;
@@ -63,7 +58,7 @@ bool InterfaceDevicePS2Mouse::handle_irq(void) /*override*/ {
 }
 
 void InterfaceDevicePS2Mouse::set_position(int x, int y) {
-	ASSERT(kernel->graphics!=nullptr&&kernel->graphics->current_mode!=nullptr,"Mouse pointer can only be operated in a graphics mode!"); //But only because we need to check where to not move it.
+	assert_term(kernel->graphics!=nullptr&&kernel->graphics->current_mode!=nullptr,"Mouse pointer can only be operated in a graphics mode!"); //But only because we need to check where to not move it.
 	if      (x <                       0) x=                         0;
 	else if (x>=kernel->graphics-> width) x=kernel->graphics-> width-1;
 	if      (y <                       0) y=                         0;
@@ -90,7 +85,7 @@ void InterfaceDevicePS2Mouse::set_sample_rate(int hz) {
 	switch (hz) {
 		case 10: case 20: case 40: case 60: case 80: case 100: case 200: break;
 		default:
-			ASSERT(false,"Invalid samping rate %d (must be one of 10, 20, 40, 60, 80, 100, 200)!",hz);
+			assert_term(false,"Invalid samping rate %d (must be one of 10, 20, 40, 60, 80, 100, 200)!",hz);
 	}
 	#endif
 

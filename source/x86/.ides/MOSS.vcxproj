@@ -97,6 +97,7 @@
     <ClInclude Include="..\source_moss\kernel\kernel.h" />
     <ClInclude Include="..\source_moss\kernel\memory\gdt.h" />
     <ClInclude Include="..\source_moss\kernel\memory\simple.h" />
+    <ClInclude Include="..\source_moss\kernel\setup.h" />
     <ClInclude Include="..\source_moss\kernel\text_mode_terminal.h" />
     <ClInclude Include="..\source_moss\mossc\math.h" />
     <ClInclude Include="..\source_moss\mossc\math\trig.h" />
@@ -116,7 +117,6 @@
     <ClInclude Include="..\source_moss\mosst\linked_list.h" />
     <ClInclude Include="..\source_moss\mosst\string.h" />
     <ClInclude Include="..\source_moss\mosst\vector.h" />
-    <ClInclude Include="..\source_moss\ppm\ppm.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\source_moss\grub\e2fs_stage1_5" />

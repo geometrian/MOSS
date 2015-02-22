@@ -1,6 +1,6 @@
 #pragma once
 
-#include <stddef.h>
+#include "../includes.h"
 
 
 namespace MOSSC {
@@ -77,7 +77,7 @@ class Kernel final {
 		void handle_mouse_click(const Input::Mouse::EventMouseClick& event);
 		void handle_mouse_unclick(const Input::Mouse::EventMouseUnclick& event);
 
-		void write(const char* format, ...);
+		void write(char const* format, ...);
 
 		void init(void);
 		void main(void);

@@ -3,13 +3,11 @@
 #include "../../../mossc/cstdio"
 
 #include "../../input/mouse.h"
-
-#include "../color.h"
-#include "../vesa/framebuffer.h"
-
-
 #include "../../kernel.h"
+
 #include "../vesa/controller.h"
+#include "../vesa/framebuffer.h"
+#include "../color.h"
 
 
 namespace MOSS { namespace Graphics { namespace GUI { namespace Buttons {

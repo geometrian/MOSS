@@ -1,18 +1,16 @@
 #include "string.h"
 
+#include "../mossc/cstring"
+
 
 namespace MOSST {
 
 
-String::String(void) : Vector() {
-}
-String::String(const char* data) : Vector() {
+String::String(char const* data) : Vector() {
 	*this += data;
 }
-String::~String(void) {
-}
 
-void String::insert_back(const char& object) /*override*/ {
+void String::insert_back(char const& object) /*override*/ {
 	Vector::insert_back(object);
 
 	//Push a null character onto the string, but pretend it doesn't exist.
@@ -20,13 +18,15 @@ void String::insert_back(const char& object) /*override*/ {
 	--size;
 }
 
-String String::operator+(const String& other) {
+String String::operator+(String const& other) {
 	String result(this->c_str());
 	result += other.c_str();
 	return result;
 }
 
-String& String::operator+=(const char* other) {
+String& String::operator+=(char const* other) {
+	reserve(MOSSC::strlen(other));
+
 	int i = 0;
 	LOOP:
 		char c = other[i];
@@ -35,17 +35,21 @@ String& String::operator+=(const char* other) {
 			++i;
 			goto LOOP;
 		}
+
 	return *this;
 }
-String& String::operator+=(const String& other) {
+String& String::operator+=(String const& other) {
+	reserve(size + other.size);
+
 	for (int i=0;i<other.size;++i) {
 		insert_back(other[i]);
 	}
+
 	return *this;
 }
 
-const char* String::c_str(void) const {
-	return (const char*)(this->_data);
+char const* String::c_str(void) const {
+	return reinterpret_cast<char const*>(_data);
 }
 
 

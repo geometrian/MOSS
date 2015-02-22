@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../includes.h"
+
 #include "math/trig.h"
 
 
@@ -18,9 +20,9 @@ template <typename type> inline type abs(type x) {
 	return x<0 ? -x : x;
 }
 
-template <typename type_num> type_num min(type_num num1, type_num num2) {
-	return num1<num2 ? num1 : num2;
+template <typename type_num> inline type_num min(type_num num0, type_num num1) {
+	return num0<num1 ? num0 : num1;
 }
-template <typename type_num> type_num max(type_num num1, type_num num2) {
-	return num1<num2 ? num2 : num1;
+template <typename type_num> inline type_num max(type_num num0, type_num num1) {
+	return num0<num1 ? num1 : num0;
 }

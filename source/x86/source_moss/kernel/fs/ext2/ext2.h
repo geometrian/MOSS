@@ -1,4 +1,7 @@
 #pragma once
+
+#include "../../../includes.h"
+
 #include "../fs.h"
 
 #include "../../../mossc/cstring"
@@ -31,7 +34,7 @@ uint32_t get_blockgroup(const Superblock* superblock, addrinode addr) {
 }
 
 //Does not necessarily fit into one block, so it doesn't subclass BlockBase.
-class BlockGroupDescriptorTable {
+class BlockGroupDescriptorTable final {
 	public:
 		const Superblock*const superblock;
 
@@ -45,14 +48,13 @@ class BlockGroupDescriptorTable {
 			uint16_t num_directories;
 			uint8_t unused[32-18];
 
-			BlockGroupDescriptor(void) {}
-			~BlockGroupDescriptor(void) {}
+			inline BlockGroupDescriptor(void) {}
+			inline ~BlockGroupDescriptor(void) {}
 		} __attribute__((packed));
+		static_assert(sizeof(BlockGroupDescriptor)==32,"Block group descriptor is the wrong size!");
 		BlockGroupDescriptor* groups;
 	public:
 		BlockGroupDescriptorTable(const Superblock* superblock) : superblock(superblock) {
-			ASSERT(sizeof(BlockGroupDescriptor)==32,"Block group descriptor is the wrong size!");
-
 			//TODO: is this implementation correct for weird sizes?
 			addrblock addr; //address of block group descriptor table, which is the block immediately following the superblock
 			if (superblock->block_size<=1024) {
@@ -81,16 +83,17 @@ class BlockGroupDescriptorTable {
 				goto LOOP1;
 			END:;
 		}
-		~BlockGroupDescriptorTable(void) {
+		inline ~BlockGroupDescriptorTable(void) {
 			delete [] groups;
 		}
 };
 
 //http://www.nongnu.org/ext2-doc/ext2.html#DISK-ORGANISATION
-class InterfaceFileSystemEXT2 : public InterfaceFileSystemBase {
+class InterfaceFileSystemEXT2 final : public InterfaceFileSystemBase {
 	private:
 		Superblock superblock;
 		BlockGroupDescriptorTable* blockgroup_descriptor_table;
+
 	public:
 		InterfaceFileSystemEXT2(void) : superblock() {
 			kernel->write("Setting up ext2 filesystem!\n");

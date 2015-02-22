@@ -64,9 +64,6 @@
     <Filter Include="source_moss\grub">
       <UniqueIdentifier>{08a35c83-8c5c-4c19-b431-8f0a04e9165e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="source_moss\ppm">
-      <UniqueIdentifier>{ffb3377c-268a-4825-9d63-c2ce8d5d3d5f}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\source_moss\kernel\ata\ata.cpp">
@@ -353,11 +350,11 @@
     <ClInclude Include="..\source_moss\mosst\vector.h">
       <Filter>source_moss\mosst</Filter>
     </ClInclude>
-    <ClInclude Include="..\source_moss\ppm\ppm.h">
-      <Filter>source_moss\ppm</Filter>
-    </ClInclude>
     <ClInclude Include="..\source_moss\includes.h">
       <Filter>source_moss</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\kernel\setup.h">
+      <Filter>source_moss\kernel</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

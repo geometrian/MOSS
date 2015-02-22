@@ -1,4 +1,5 @@
 #pragma once
+
 #include "../../includes.h"
 
 #include "../../mosst/string.h"
@@ -13,7 +14,7 @@ class File {
 		MOSST::Vector<uint8_t> data;
 
 	public:
-		File(const char* path) {
+		File(char const* path) {
 			this->path = path;
 		}
 		~File(void) {
@@ -28,7 +29,7 @@ class InterfaceFileSystemBase {
 		}
 
 		//TODO:
-		//virtual File* read_new(const char* path) = 0;
+		//virtual File* read_new(char const* path) = 0;
 		//virtual void write(const File* file) = 0;
 };
 

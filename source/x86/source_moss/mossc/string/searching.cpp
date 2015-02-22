@@ -4,35 +4,37 @@
 namespace MOSSC {
 
 
-const void* memchr(const void* ptr, int value, size_t num) {
-	const unsigned char* ptr2 = (const unsigned char*)(ptr);
-	for (size_t i=0u;i<num;++i) {
-		if (ptr2[i]==(unsigned char)(value)) return ptr2+i;
+void const* memchr(void const* ptr, int value, size_t num) {
+	uint8_t const* ptr2 = reinterpret_cast<uint8_t const*>(ptr);
+	for (size_t i=0;i<num;++i) {
+		if (ptr2[i]==static_cast<uint8_t>(value)) return ptr2+i;
 	}
 	return nullptr;
 }
-      void* memchr(      void* ptr, int value, size_t num) {
-	return (void*)(memchr((const void*)(ptr), value, num));
+void*       memchr(void*       ptr, int value, size_t num) {
+	return const_cast<void*>(memchr(const_cast<void const*>(ptr), value, num));
 }
 
-const char* strchr(const char* str, int character) {
+char const* strchr(char const* str, int character) {
 	LOOP:
 		char c = *str;
-		if (c==(char)(character)) return str;
-		if (c=='\0') return nullptr;
-		++str;
-		goto LOOP;
+		if (c==static_cast<char>(character)) return str;
+		if (c!='\0') {
+			++str;
+			goto LOOP;
+		}
+	return nullptr;
 }
-      char* strchr(      char* str, int character) {
-	return (char*)(strchr((const char*)(str),character));
+char*       strchr(char*       str, int character) {
+	return const_cast<char*>(strchr(const_cast<char const*>(str), character));
 }
 
-size_t strcspn(const char* str1, const char* str2) {
+size_t strcspn(char const* str1, char const* str2) {
 	//Includes null-characters in the search
-	size_t i = 0u;
+	size_t i = 0;
 	LOOP1:
 		char c1 = str1[i];
-		size_t j = 0u;
+		size_t j = 0;
 		LOOP2:
 			char c2 = str2[j];
 			if (c1==c2) return i;
@@ -44,13 +46,13 @@ size_t strcspn(const char* str1, const char* str2) {
 		goto LOOP1;
 }
 
-const char* strpbrk(const char* str1, const char* str2) {
+char const* strpbrk(char const* str1, char const* str2) {
 	//Does not include null-characters in the search
-	size_t i = 0u;
+	size_t i = 0;
 	LOOP1:
 		char c1 = str1[i];
 		if (c1=='\0') return nullptr;
-		size_t j = 0u;
+		size_t j = 0;
 		LOOP2:
 			char c2 = str2[j];
 			if (c2!='\0') {
@@ -61,31 +63,32 @@ const char* strpbrk(const char* str1, const char* str2) {
 		++i;
 		goto LOOP1;
 }
-      char* strpbrk(      char* str1, const char* str2) {
-	return (char*)(strpbrk((const char*)(str1),str2));
+char*       strpbrk(char*       str1, char const* str2) {
+	return const_cast<char*>(strpbrk(const_cast<char const*>(str1),str2));
 }
 
-const char* strrchr(const char* str, int character) {
+char const* strrchr(char const* str, int character) {
+	char const* last = nullptr;
 	LOOP:
 		char c = *str;
-		if (c==(char)(character)) return str;
+		if (c==static_cast<char>(character)) last=str;
 		if (c!='\0') {
 			++str;
 			goto LOOP;
 		}
-	return nullptr;
+	return last;
 }
-      char* strrchr(      char* str, int character) {
-	return (char*)(strrchr((const char*)(str),character));
+char*       strrchr(char*       str, int character) {
+	return const_cast<char*>(strrchr(const_cast<char const*>(str), character));
 }
 
-size_t strspn(const char* str1, const char* str2) {
-	size_t i = 0u;
+size_t strspn(char const* str1, char const* str2) {
+	size_t i = 0;
 	LOOP1:
 		char c1 = str1[i];
 		if (c1=='\0') return i;
 
-		size_t j = 0u;
+		size_t j = 0;
 		LOOP2:
 			char c2 = str2[j];
 			if (c2!='\0') {
@@ -100,23 +103,26 @@ size_t strspn(const char* str1, const char* str2) {
 		return i;
 }
 
-const char* strstr(const char* str1, const char* str2) {
-	size_t i = 0u;
+char const* strstr(char const* str1, char const* str2) {
+	size_t i = 0;
 	LOOP:
 		char c2 = str2[i];
-		if (c2=='\0') {
-			return str1;
-		}
+		if (c2=='\0') return str1;
+
 		char c1 = str1[i];
 		if (c1=='\0') return nullptr;
+
 		if (c1!=c2) {
 			++str1;
-			i = 0u;
+			i = 0;
+		} else {
+			++i;
 		}
+
 		goto LOOP;
 }
-      char* strstr(      char* str1, const char* str2) {
-	return (char*)(strstr((const char*)(str1),str2));
+char*       strstr(char*       str1, char const* str2) {
+	return const_cast<char*>(strstr(const_cast<char const*>(str1), str2));
 }
 
 

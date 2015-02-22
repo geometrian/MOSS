@@ -2,6 +2,7 @@
 
 #include "../../kernel/memory/simple.h"
 #include "../../kernel/kernel.h"
+
 #include "../string/other.h"
 
 
@@ -10,26 +11,20 @@ namespace MOSSC {
 
 void* calloc(size_t num, size_t size) {
 	void* result = malloc(num*size);
-	memset(result,0,size);
+	memset(result, 0, size);
 	return result;
 }
 void* malloc(size_t size) {
-	#ifdef MOSS_DEBUG
-	ASSERT(MOSS::kernel->memory!=nullptr,"Cannot allocate memory; memory manager does not exist!");
-	#endif
+	assert_term(MOSS::kernel->memory!=nullptr,"Cannot allocate memory; memory manager does not exist!");
 	return MOSS::kernel->memory->malloc(size);
 }
 void* realloc(void* ptr, size_t size) {
 	free(ptr);
-	if (size==0u) {
-		return nullptr;
-	}
+	if (size==0) return nullptr;
 	return malloc(size);
 }
 void free(void* ptr) {
-	#ifdef MOSS_DEBUG
-	ASSERT(MOSS::kernel->memory!=nullptr,"Cannot delete memory; memory manager does not exist!");
-	#endif
+	assert_term(MOSS::kernel->memory!=nullptr,"Cannot delete memory; memory manager does not exist!");
 	MOSS::kernel->memory->free(ptr);
 }
 

@@ -1,19 +1,17 @@
 #include "interface_device_ps2.h"
 
 #include "../../io/io.h"
+#include "../../kernel.h"
 
 #include "controller_ps2.h"
 #include "interface_keyboard_ps2.h"
 #include "interface_mouse_ps2.h"
 
 
-#include "../../kernel.h"
-
-
 namespace MOSS { namespace Input { namespace Devices {
 
 
-InterfaceDevicePS2Base::InterfaceDevicePS2Base(ControllerPS2* controller, int device_index, const DeviceType& device_type) : controller(controller), device_index(device_index), device_type(device_type) {
+InterfaceDevicePS2Base::InterfaceDevicePS2Base(ControllerPS2* controller, int device_index, DeviceType const& device_type) : controller(controller), device_index(device_index), device_type(device_type) {
 }
 InterfaceDevicePS2Base::~InterfaceDevicePS2Base(void) {
 }
@@ -45,7 +43,7 @@ InterfaceDevicePS2Base* InterfaceDevicePS2Base::get_new_device(ControllerPS2* co
 			//kernel->write("%d ",response);
 			if (response==0xAA) got_affirm=true;
 		}
-		ASSERT(got_affirm,"  PS/2 device (index %d) does not exist or reset failed!",device_index);
+		assert_term(got_affirm,"  PS/2 device (index %d) does not exist or reset failed!",device_index);
 	}
 
 	//Get device's ID and new device subclass instance based off of it
@@ -56,10 +54,10 @@ InterfaceDevicePS2Base* InterfaceDevicePS2Base::get_new_device(ControllerPS2* co
 		//Expects no data bytes
 		send_command_device(controller,device_index, 0xF2);
 		uint8_t response, byte1,byte2;
-		controller->recv_data(&response); ASSERT(response==0xFA,"  Device ID ACK failed!"); //http://wiki.osdev.org/PS/2_Keyboard#Special_Bytes seems to imply that this can only return ACK?
+		controller->recv_data(&response); assert_term(response==0xFA,"  Device ID ACK failed!"); //http://wiki.osdev.org/PS/2_Keyboard#Special_Bytes seems to imply that this can only return ACK?
 		if (controller->recv_data(&byte1, 10000)) {
 			if (controller->recv_data(&byte2, 10000)) {
-				ASSERT(byte1==0xAB,"  Unrecognized PS/2 Device (device id %u %u)!",byte1,byte2);
+				assert_term(byte1==0xAB,"  Unrecognized PS/2 Device (device id %u %u)!",byte1,byte2);
 				switch (byte2) {
 					case 0x41:
 					case 0xC1:
@@ -73,7 +71,7 @@ InterfaceDevicePS2Base* InterfaceDevicePS2Base::get_new_device(ControllerPS2* co
 						new_device = new InterfaceDevicePS2Keyboard(controller,device_index,DeviceType::DeviceKeyboardMF2);
 						break;
 					default:
-						ASSERT(byte1==0xAB,"  PS/2 Device %d (id %u %u) unrecognized!",device_index,byte1,byte2);
+						assert_term(byte1==0xAB,"  PS/2 Device %d (id %u %u) unrecognized!",device_index,byte1,byte2);
 				}
 			}
 			else {
@@ -112,19 +110,19 @@ InterfaceDevicePS2Base* InterfaceDevicePS2Base::get_new_device(ControllerPS2* co
 						new_device = new InterfaceDevicePS2Mouse(controller,device_index,DeviceType::DeviceMouse5);
 						break;
 					default:
-						ASSERT(false,"  PS/2 Device %d (id %u) unrecognized!",device_index,byte1);
+						assert_term(false,"  PS/2 Device %d (id %u) unrecognized!",device_index,byte1);
 						break;
 				}
 			}
 		} else {
 			//None: Ancient AT keyboard with translation enabled in the PS/Controller (not possible for the second PS/2 port)
-			ASSERT(false,"  Assuming PS/2 device %d (id none) is AT keyboard; not supported!",device_index);
+			assert_term(false,"  Assuming PS/2 device %d (id none) is AT keyboard; not supported!",device_index);
 		}
 	}
 
 	//Set to default values, and then the values that MOSS wants.
 	{
-		if (new_device==nullptr) ASSERT(false,"PS/2 device was null somehow!");
+		if (new_device==nullptr) assert_term(false,"PS/2 device was null somehow!");
 		new_device->set_defaults();
 		switch (new_device->device_type) {
 			case DeviceKeyboardMF2:
@@ -136,7 +134,7 @@ InterfaceDevicePS2Base* InterfaceDevicePS2Base::get_new_device(ControllerPS2* co
 			case DeviceMouse5:
 				break;
 			default:
-				ASSERT(false,"Unrecognized device type!");
+				assert_term(false,"Unrecognized device type!");
 		}
 	}
 
@@ -203,7 +201,7 @@ void InterfaceDevicePS2Base::wait_response(ControllerPS2* controller, uint8_t wa
 	//	For mice, most commands return 0xFA (ACK).  The only one that (might) not is the reset command.
 	uint8_t response;
 	controller->recv_data(&response);
-	ASSERT(response==wait_byte,"Command to device failed (expected %d, got %d)!",wait_byte,response);
+	assert_term(response==wait_byte,"Command to device failed (expected %d, got %d)!",wait_byte,response);
 }
 
 

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../includes.h"
+
 #include "string/comparison.h"
 #include "string/concatenation.h"
 #include "string/copying.h"

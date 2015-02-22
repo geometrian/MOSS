@@ -1,4 +1,5 @@
 #pragma once
+
 #include "../../../includes.h"
 
 
@@ -24,7 +25,7 @@ class InterfaceDevicePS2Base {
 		const DeviceType device_type;
 
 	protected:
-		InterfaceDevicePS2Base(ControllerPS2* controller, int device_index, const DeviceType& device_type);
+		InterfaceDevicePS2Base(ControllerPS2* controller, int device_index, DeviceType const& device_type);
 	public:
 		virtual ~InterfaceDevicePS2Base(void);
 

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../../../includes.h"
+
 
 namespace MOSS { namespace Graphics {
 	namespace VESA {
@@ -8,7 +10,7 @@ namespace MOSS { namespace Graphics {
 namespace GUI {
 
 
-class Mouse {
+class Mouse final {
 	public:
 		int x,y;
 		bool buttons[5];

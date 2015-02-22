@@ -1,14 +1,12 @@
 #include "io.h"
 
-#include "../../includes.h"
-
 
 namespace MOSS { namespace IO {
 
 
-template <> uint8_t recv(unsigned short port) {
+template <>  uint8_t recv(uint16_t port                ) {
 	uint8_t value;
-	asm volatile(
+	__asm__ __volatile__(
 		"inb  %1, %0"
 		:"=a"(value)
 		:"Nd"(port)
@@ -16,9 +14,9 @@ template <> uint8_t recv(unsigned short port) {
 	);
 	return value;
 }
-template <> uint16_t recv(unsigned short port) {
+template <> uint16_t recv(uint16_t port                ) {
 	uint16_t value;
-	asm volatile(
+	__asm__ __volatile__(
 		"inw  %1, %0"
 		:"=a"(value)
 		:"Nd"(port)
@@ -26,9 +24,9 @@ template <> uint16_t recv(unsigned short port) {
 	);
 	return value;
 }
-template <> uint32_t recv(unsigned short port) {
+template <> uint32_t recv(uint16_t port                ) {
 	uint32_t value;
-	asm volatile(
+	__asm__ __volatile__(
 		"inl  %1, %0"
 		:"=a"(value)
 		:"Nd"(port)
@@ -36,24 +34,24 @@ template <> uint32_t recv(unsigned short port) {
 	);
 	return value;
 }
-template <> void send(unsigned short port, uint8_t value) {
-	asm volatile(
+template <>     void send(uint16_t port,  uint8_t value) {
+	__asm__ __volatile__(
 		"outb  %0, %1"
 		:
 		:"a"(value), "Nd"(port)
 		:
 	);
 }
-template <> void send(unsigned short port, uint16_t value) {
-	asm volatile(
+template <>     void send(uint16_t port, uint16_t value) {
+	__asm__ __volatile__(
 		"outw  %0, %1"
 		:
 		:"a"(value),"Nd"(port)
 		:
 	);
 }
-template <> void send(unsigned short port, uint32_t value) {
-	asm volatile(
+template <>     void send(uint16_t port, uint32_t value) {
+	__asm__ __volatile__(
 		"outl  %0, %1"
 		:
 		:"a"(value),"Nd"(port)
@@ -62,7 +60,7 @@ template <> void send(unsigned short port, uint32_t value) {
 }
 
 /*void wait(void) {
-	asm volatile(
+	__asm__ __volatile__(
 		"jmp 1f"
 		"1:jmp 2f"
 		"2:"
@@ -71,7 +69,7 @@ template <> void send(unsigned short port, uint32_t value) {
 void wait(void) {
 	//port 0x80 is used for "checkpoints" during POST.
 	//The Linux kernel seems to think it is free for use :-/
-	asm volatile(
+	__asm__ __volatile__(
 		"outb %%al, $0x80"
 		:
 		:"a"(0)

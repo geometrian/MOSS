@@ -1,39 +1,41 @@
 #pragma once
 
+#include "../../includes.h"
+
 
 namespace MOSS { namespace Interrupts {
 
 
-class regs16_t { public:
-	unsigned short di;
-	unsigned short si;
+class regs16_t final { public:
+	uint16_t di;
+	uint16_t si;
 
-	unsigned short bp;
-	unsigned short sp;
+	uint16_t bp;
+	uint16_t sp;
 
 	union {
-		unsigned short bx;
+		uint16_t bx;
 		struct { unsigned char bl; unsigned char bh; }; //note little-endian
 	};
 	union {
-		unsigned short dx;
+		uint16_t dx;
 		struct { unsigned char dl; unsigned char dh; }; //note little-endian
 	};
 	union {
-		unsigned short cx;
+		uint16_t cx;
 		struct { unsigned char cl; unsigned char ch; }; //note little-endian
 	};
 	union {
-		unsigned short ax;
+		uint16_t ax;
 		struct { unsigned char al; unsigned char ah; }; //note little-endian
 	};
 
-	unsigned short gs;
-	unsigned short fs;
-	unsigned short es;
-	unsigned short ds;
+	uint16_t gs;
+	uint16_t fs;
+	uint16_t es;
+	uint16_t ds;
 
-	unsigned short eflags;
+	uint16_t eflags;
 } __attribute__((packed));
 
 

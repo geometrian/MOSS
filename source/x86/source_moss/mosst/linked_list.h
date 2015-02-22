@@ -1,122 +1,123 @@
 #pragma once
 
-#include <stddef.h>
+#include "../includes.h"
 
 
 namespace MOSST {
 
 
-template <typename type> class LinkedList {
-	friend class Node;
+template <typename type> class LinkedList final {
 	public:
-		class Node { public:
-			LinkedList*const parent;
+		class Node final {
+			private:
+				LinkedList*const _parent;
 
-			Node* prev;
-			Node* next;
+			public:
+				Node*restrict prev;
+				Node*restrict next;
 
-			type data;
+				type data;
 
-			Node(LinkedList* parent, Node* prev,Node* next, const type& data) : parent(parent), prev(prev),next(next), data(data) {
-				if (prev==nullptr) {
-					parent->first = this;
-				} else {
-					prev->next = this;
-				}
-				if (next==nullptr) {
-					parent->last = this;
-				} else {
-					next->prev = this;
-				}
+			public:
+				Node(LinkedList* parent, Node*restrict prev,Node*restrict next, type const& data) : _parent(parent), prev(prev),next(next), data(data) {
+					if (prev==nullptr) {
+						_parent->_head = this;
+					} else {
+						prev->next = this;
+					}
+					if (next==nullptr) {
+						_parent->_tail = this;
+					} else {
+						next->prev = this;
+					}
 
-				++parent->size;
-			}
-			~Node(void) {
-				if (parent->first==this) {
-					parent->first = this->next;
+					++_parent->size;
 				}
-				if (parent->last==this) {
-					parent->last = this->prev;
-				}
+				~Node(void) {
+					if (_parent->_head==this) {
+						_parent->_head = next;
+					}
+					if (_parent->_tail==this) {
+						_parent->_tail = prev;
+					}
 
-				if (prev!=nullptr) {
-					prev->next = next;
-				}
-				if (next!=nullptr) {
-					next->prev = prev;
-				}
+					if (prev!=nullptr) {
+						prev->next = next;
+					}
+					if (next!=nullptr) {
+						next->prev = prev;
+					}
 
-				--parent->size;
-			}
-		};
+					--_parent->size;
+				}
+			};
 	protected:
-		Node* first;
-		Node*  last;
+		Node*restrict _head;
+		Node*restrict _tail;
 	public:
+		//User can read but should not change.
 		int size;
 
 	public:
 		LinkedList(void) {
-			first = nullptr;
-			last  = nullptr;
+			_head = nullptr;
+			_tail = nullptr;
 			size = 0;
 		}
-		virtual ~LinkedList(void) {
-			while (last!=nullptr) {
-				remove_back();
-			}
+		inline virtual ~LinkedList(void) {
+			while (_tail!=nullptr) remove_back();
 		}
 
-		void insert_front(const type& object) {
-			new Node(this, nullptr,first, object); //adds itself
+		inline void insert_front(type const& object) {
+			new Node(this, nullptr,_head, object); //adds itself
 		}
-		void insert_back(const type& object) {
-			new Node(this, last,nullptr, object); //adds itself
+		inline void insert_back(type const& object) {
+			new Node(this, _tail,nullptr, object); //adds itself
 		}
-		void insert(const type& object, int after_index) {
-			if (after_index==-1) insert_front(object);
-			else {
-				Node* node = _get_node(after_index);
+		void insert(type const& object, int after_index) {
+			assert_term(after_index>=-1&&after_index<size,"Invalid index!");
+			if (after_index==-1) {
+				assert_term(size==0,"Invalid index!");
+				insert_front(object);
+			} else {
+				Node* node = _get_node_at(after_index);
 				new Node(this, node,node->next, object); //adds itself
 			}
 		}
 		type remove_front(void) {
-			//ASSERT(size>0,"Tried to pop an empty linked list!");
-			//if (size==0) return;
-			type object = first->data;
-			delete first; //removes itself
+			assert_term(size>0,"Tried to pop an empty linked list!");
+			type object = _head->data;
+			delete _head; //removes itself
 			return object;
 		}
 		type remove_back(void) {
-			//ASSERT(size>0,"Tried to pop an empty linked list!");
-			//if (size==0) return;
-			type object = last->data;
-			delete last; //removes itself
+			assert_term(size>0,"Tried to pop an empty linked list!");
+			type object = _tail->data;
+			delete _tail; //removes itself
 			return object;
 		}
 		type remove(int index) {
-			Node* node = _get_node(index);
+			Node* node = _get_node_at(index);
 			type object = node->data;
 			delete node; //removes itself
 			return object;
 		}
 
+		inline type&       operator[](int index)       {
+			return _get_node_at(index)->data;
+		}
+		inline type const& operator[](int index) const {
+			return _get_node_at(index)->data;
+		}
+
 	private:
-		Node* _get_node(int index) const {
-			//ASSERT(index<size,"Tried to access a linked list out of bounds!");
-			//if (index>=size) return;
-			Node* result = first;
+		Node* _get_node_at(int index) const {
+			assert_term(index>0&&index<size,"Tried to access a linked list (size %d) out of bounds (index %d)!",size,index);
+			Node* result = _head;
 			for (int i=0;i<index;++i) {
 				result = result->next;
 			}
 			return result;
-		}
-	public:
-		type& operator[](int index) {
-			return _get_node(index)->data;
-		}
-		const type& operator[](int index) const {
-			return _get_node(index)->data;
 		}
 };
 

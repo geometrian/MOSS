@@ -35,9 +35,9 @@ void Channel::handle_irq(void) {
 	got_irq = true;
 }
 void Channel::_read_sector(void) {
-	ASSERT(current!=nullptr,"Current drive was null somehow!");
+	assert_term(current!=nullptr,"Current drive was null somehow!");
 	Drive::StatusByte status = current->get_status();
-	ASSERT(!status.err,"Read sectors got ERR!");
+	assert_term(!status.err,"Read sectors got ERR!");
 
 	//Transfer 256 words, a word at a time, into buffer from I/O port 0x01F0. (In assembler, REP INSW works well for this).
 	for (int j=0;j<512;j+=2) {
@@ -74,8 +74,6 @@ void Channel::drive_select(DriveType drive) {
 
 
 Drive::Drive(Channel* channel, Channel::DriveType type) : channel(channel), type(type) {
-	ASSERT(sizeof(StatusByte)==1,"StatusByte is the wrong size!");
-
 	switch (type) {
 		case Channel::Master:
 			switch (channel->type) {
@@ -96,9 +94,9 @@ Drive::Drive(Channel* channel, Channel::DriveType type) : channel(channel), type
 	interrupts = true;
 
 	StatusByte status = get_status();
-	ASSERT(!status.err,"Drive status was ERR on startup!");
-	ASSERT(!status.bsy,"Drive status was BSY on startup!");
-	ASSERT(!status.drq,"Drive status was DRQ on startup!");
+	assert_term(!status.err,"Drive status was ERR on startup!");
+	assert_term(!status.bsy,"Drive status was BSY on startup!");
+	assert_term(!status.drq,"Drive status was DRQ on startup!");
 }
 Drive::~Drive(void) {}
 
@@ -115,7 +113,7 @@ void Drive::update_control_register(void) {
 	//Bit 3 is "HOB" (1=read back the High Order Byte of the last LBA48 value sent to an IO port)
 
 	//Drive must be current to accept changes to nIEN.
-	ASSERT(channel->current!=nullptr,"Channel does not have a current drive!");
+	assert_term(channel->current!=nullptr,"Channel does not have a current drive!");
 	Channel::DriveType temp = channel->current->type;
 	channel->drive_select(type);
 	switch (type) {
@@ -166,8 +164,8 @@ Drive::StatusByte Drive::get_status(void) const {
 }
 
 void Drive::read_sectors(uint64_t lba, uint8_t* data_buffer,unsigned int num_sectors) {
-	ASSERT(lba<=562949953421311ull,"LBA is larger than (2^49)-1!"); //Only have 48 bits (equals maximum (2^49)-1 addresses = 512TiB)
-	ASSERT(num_sectors<=65536,"Number of sectors was larger than 65536!"); //Can't be unsigned short, since 65536 is valid (we have to pass it as zero though):
+	assert_term(lba<=562949953421311ull,"LBA is larger than (2^49)-1!"); //Only have 48 bits (equals maximum (2^49)-1 addresses = 512TiB)
+	assert_term(num_sectors<=65536,"Number of sectors was larger than 65536!"); //Can't be unsigned short, since 65536 is valid (we have to pass it as zero though):
 	unsigned short num_sectors_arg = num_sectors==65536 ? 0 : num_sectors;
 
 	//http://wiki.osdev.org/ATA_PIO_Mode#x86_Directions
@@ -239,7 +237,7 @@ const uint8_t* Controller::read_sector(uint64_t lba) {
 	return buffer;
 }
 void Controller::read_sectors(uint64_t lba, uint8_t* data_buffer,unsigned int num_sectors) {
-	ASSERT(channel0->current!=nullptr,"No HDD current!");
+	assert_term(channel0->current!=nullptr,"No HDD current!");
 	channel0->current->read_sectors(lba, data_buffer, num_sectors);
 }
 

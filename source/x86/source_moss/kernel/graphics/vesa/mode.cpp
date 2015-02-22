@@ -1,10 +1,9 @@
 #include "mode.h"
 
-#include "../../../mossc/cstring"
 #include "../../../mossc/cstdio"
+#include "../../../mossc/cstring"
 
 #include "../../interrupt/int32.h"
-
 #include "../../kernel.h"
 
 
@@ -12,9 +11,9 @@ namespace MOSS { namespace Graphics { namespace VESA {
 
 
 Mode::Mode(uint16_t index) : index(index) {
-	MODE_INFO* info2 = (MODE_INFO*)(0x500);
+	MODE_INFO* info2 = reinterpret_cast<MODE_INFO*>(0x500);
 
-	MOSSC::memset(info2,0,sizeof(MODE_INFO));
+	MOSSC::memset(info2, 0, sizeof(MODE_INFO));
 	int ptr = (int)(info2);
 
 	Interrupts::regs16_t regs;

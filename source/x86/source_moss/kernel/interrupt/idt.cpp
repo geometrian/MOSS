@@ -1,7 +1,5 @@
 #include "idt.h"
 
-#include "isr.h" //TODO: this is only for asserts
-
 
 namespace MOSS { namespace Interrupts {
 
@@ -14,7 +12,7 @@ namespace MOSS { namespace Interrupts {
 //		the offset is not used and the selector is the TSS selector.
 //	See http://www.brokenthorn.com/Resources/OSDev15.html
 //	See http://wiki.osdev.org/IDT
-class EntryIDT {
+class EntryIDT final {
 	private:
 		uint32_t       offset_low : 16; //See above
 		uint16_t         selector : 16; //See above
@@ -50,6 +48,7 @@ class EntryIDT {
 
 		static void construct(EntryIDT* entry, uint32_t offset, Type::TypeByte::GateType type, int privilege);
 } __attribute__((packed));
+static_assert(sizeof(EntryIDT)==8,"EntryIDT is the wrong size!");
 
 void EntryIDT::set_offset(uint32_t offset) {
 	offset_low  =  offset&0x0000FFFF       ;
@@ -112,11 +111,6 @@ static EntryIDT idt_entries[256];
 void load_idt(void) {
 	uint32_t base  = (uint32_t)(&idt_entries);
 	uint16_t limit = sizeof(EntryIDT)*256 - 1;
-
-	//kernel->write((int)(sizeof(EntryIDT)));
-	ASSERT(sizeof(EntryIDT)==8,"EntryIDT is the wrong size!");
-	ASSERT(sizeof(Interrupts::ErrorCode)==4,"Interrupt error code (normal type) is the wrong size!");
-	ASSERT(sizeof(Interrupts::ErrorCodePF)==4,"Interrupt error code (for page faults) is the wrong size!");
 
 	#define IDT_SET_GATE(N) EntryIDT::construct(idt_entries+N, (uint32_t)(isr##N##_asm), EntryIDT::Type::TypeByte::Interrupt32, 0);
 	MOSS_INTERRUPT(IDT_SET_GATE)

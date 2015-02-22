@@ -1,4 +1,5 @@
 #pragma once
+
 #include "../../../includes.h"
 
 
@@ -20,13 +21,13 @@ class BlockBase {
 
 		static BlockBase* get_new(Superblock* superblock, uint64_t block_index);
 };
-class BlockDirect : public BlockBase {
+class BlockDirect final : public BlockBase {
 };
-class BlockIndirect1 : public BlockBase {
+class BlockIndirect1 final : public BlockBase {
 };
-class BlockIndirect2 : public BlockBase {
+class BlockIndirect2 final : public BlockBase {
 };
-class BlockIndirect3 : public BlockBase {
+class BlockIndirect3 final : public BlockBase {
 };
 
 

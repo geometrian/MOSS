@@ -1,14 +1,15 @@
 #pragma once
 
-#include <stdarg.h>
+#include "../../includes.h"
 
 
 namespace MOSSC {
 
 
-int sprintf(char* str, const char* format, ...);
+int sprintf(char* str, char const* format, ...);
 
-int vsprintf(char* buffer, const char* format, va_list args);
+//TODO: can "buffer" and "format" overlap?
+int vsprintf(char* buffer, char const* format, va_list args);
 
 
 }

@@ -1,9 +1,9 @@
 #include "framebuffer.h"
 
+#include "../../../mossc/cmath"
 #include "../../../mossc/cstdio"
 #include "../../../mossc/cstdlib"
 #include "../../../mossc/cstring"
-#include "../../../mossc/cmath"
 
 #include "../color.h"
 #include "../font.h"
@@ -15,26 +15,26 @@ namespace MOSS { namespace Graphics { namespace PixelUtil {
 
 
 //See http://wiki.osdev.org/Bochs_Graphics_Adaptor#Memory_layout_of_video_modes
-class _Pixel15Channels { public:
+class _Pixel15Channels final { public:
 	uint32_t      b : 5;
 	uint32_t      g : 5;
 	uint32_t      r : 5;
 	uint32_t unused : 1;
 } __attribute__((packed));
-class _Pixel16Channels { public:
+class _Pixel16Channels final { public:
 	uint32_t b : 5;
 	uint32_t g : 6;
 	uint32_t r : 5;
 } __attribute__((packed));
 #define CHANNEL_SCALE(CHANNEL, SRC,DST, MAX_SRC_SIZE,MAX_DST_SIZE)\
 	DST.CHANNEL = (uint32_t)( MAX_DST_SIZE##.0f*(float)(SRC.CHANNEL)/MAX_SRC_SIZE##.0f )
-class Pixel15 { public:
+class Pixel15 final { public:
 	union {
 		_Pixel15Channels channels;
 		uint16_t color;
 	};
-	inline Pixel15(const Color& color) {  CHANNEL_SCALE(r, color,channels, 255,31);  CHANNEL_SCALE(g, color,channels, 255,31);  CHANNEL_SCALE(b, color,channels, 255,31);  channels.unused=0u;  }
-	inline Pixel15(const void* addr) : color(*( (uint16_t*)(addr) )) {}
+	inline Pixel15(Color const& color) {  CHANNEL_SCALE(r, color,channels, 255,31);  CHANNEL_SCALE(g, color,channels, 255,31);  CHANNEL_SCALE(b, color,channels, 255,31);  channels.unused=0u;  }
+	inline Pixel15(void const* addr) : color(*( (uint16_t*)(addr) )) {}
 	inline Color get(void) const {
 		Color result;
 		CHANNEL_SCALE(r, channels,result, 31,255);  CHANNEL_SCALE(g, channels,result, 31,255);  CHANNEL_SCALE(b, channels,result, 31,255);
@@ -43,13 +43,14 @@ class Pixel15 { public:
 	}
 	inline void set(void* addr) const { *((uint16_t*)(addr))=color; }
 };
-class Pixel16 { public:
+static_assert(sizeof(PixelUtil::Pixel15)==2,"Pixel15 is the wrong size!");
+class Pixel16 final { public:
 	union {
 		_Pixel16Channels channels;
 		uint16_t color;
 	};
-	inline Pixel16(const Color& color) {  CHANNEL_SCALE(r, color,channels, 255,31);  CHANNEL_SCALE(g, color,channels, 255,63);  CHANNEL_SCALE(b, color,channels, 255,31);  }
-	inline Pixel16(const void* addr) : color(*( (uint16_t*)(addr) )) {}
+	inline Pixel16(Color const& color) {  CHANNEL_SCALE(r, color,channels, 255,31);  CHANNEL_SCALE(g, color,channels, 255,63);  CHANNEL_SCALE(b, color,channels, 255,31);  }
+	inline Pixel16(void const* addr) : color(*( (uint16_t*)(addr) )) {}
 	inline Color get(void) const {
 		Color result;
 		CHANNEL_SCALE(r, channels,result, 31,255);  CHANNEL_SCALE(g, channels,result, 63,255);  CHANNEL_SCALE(b, channels,result, 31,255);
@@ -58,18 +59,20 @@ class Pixel16 { public:
 	}
 	inline void set(void* addr) const { *((uint16_t*)(addr))=color; }
 };
-class Pixel24 { public:
+static_assert(sizeof(PixelUtil::Pixel16)==2,"Pixel16 is the wrong size!");
+class Pixel24 final { public:
 	struct {
 		uint8_t b;
 		uint8_t g;
 		uint8_t r;
 	} channels;
-	inline Pixel24(const Color& color) { channels.r=color.r; channels.g=color.g; channels.b=color.b; }
-	inline Pixel24(const void* addr) { const unsigned char* addr2=(const unsigned char*)(addr); channels.r=addr2[2]; channels.g=addr2[1]; channels.b=addr2[0]; }
+	inline Pixel24(Color const& color) { channels.r=color.r; channels.g=color.g; channels.b=color.b; }
+	inline Pixel24(void const* addr) { unsigned char const* addr2=(unsigned char const*)(addr); channels.r=addr2[2]; channels.g=addr2[1]; channels.b=addr2[0]; }
 	inline Color get(void) const { return Color(channels.r,channels.g,channels.b,255u); }
 	inline void set(void* addr) const { unsigned char* addr2=(unsigned char*)(addr); addr2[2]=channels.r; addr2[1]=channels.g; addr2[0]=channels.b; }
 } __attribute__((packed));
-class Pixel32 { public:
+static_assert(sizeof(PixelUtil::Pixel24)==3,"Pixel24 is the wrong size!");
+class Pixel32 final { public:
 	union {
 		struct {
 			uint8_t b;
@@ -79,11 +82,12 @@ class Pixel32 { public:
 		} channels;
 		uint32_t bgra;
 	};
-	inline Pixel32(const Color& color) { channels.r=color.r; channels.g=color.g; channels.b=color.b; channels.a=color.a; }
-	inline Pixel32(const void* addr) : bgra(*( (uint32_t*)(addr) )) {}
+	inline Pixel32(Color const& color) { channels.r=color.r; channels.g=color.g; channels.b=color.b; channels.a=color.a; }
+	inline Pixel32(void const* addr) : bgra(*( (uint32_t*)(addr) )) {}
 	inline Color get(void) const { return Color(channels.r,channels.g,channels.b,channels.a); }
 	inline void set(void* addr) const { *((uint32_t*)(addr))=bgra; }
 } __attribute__((packed));
+static_assert(sizeof(PixelUtil::Pixel32)==4,"Pixel32 is the wrong size!");
 #undef CHANNEL_SCALE
 
 static void* get_address(VESA::Framebuffer* framebuffer, int x,int y) {
@@ -110,7 +114,7 @@ static void* get_address(VESA::Framebuffer* framebuffer, int x,int y) {
 	return (void*)( (unsigned long)(framebuffer->buffer) + y*framebuffer->mode->info.BytesPerScanLine + x*bytes_per_pixel );
 }
 static Color get_at(VESA::Framebuffer* framebuffer, int x,int y) {
-	const void* addr = get_address(framebuffer, x,y);
+	void const* addr = get_address(framebuffer, x,y);
 	switch (framebuffer->mode->info.BitsPerPixel) {
 		case 4:
 		case 8:
@@ -122,7 +126,7 @@ static Color get_at(VESA::Framebuffer* framebuffer, int x,int y) {
 	}
 	return Color(255u,0u,255u,255u); //Error color is magenta
 }
-static void set_at(VESA::Framebuffer* framebuffer, int x,int y, const Color& color) {
+static void set_at(VESA::Framebuffer* framebuffer, int x,int y, Color const& color) {
 	void* addr = get_address(framebuffer, x,y);
 	switch (framebuffer->mode->info.BitsPerPixel) {
 		case 4:
@@ -140,21 +144,6 @@ static void set_at(VESA::Framebuffer* framebuffer, int x,int y, const Color& col
 
 
 Framebuffer::Framebuffer(Mode* mode) : mode(mode),size(mode->info.BytesPerScanLine*mode->info.YResolution) {
-	#ifdef MOSS_DEBUG
-	#define MUST_SIZE(TYPE,SIZE)\
-		if (sizeof(PixelUtil::TYPE)!=SIZE) {\
-			char buffer[256];\
-			MOSSC::sprintf(buffer,#TYPE" was the wrong size (expected "#SIZE", but is %u!)\n",sizeof(PixelUtil::TYPE));\
-			/*Kernel::graphics->fill(Color(255u,0u,255u,255u));*/\
-			ASSERT(false,buffer);\
-		}
-	MUST_SIZE(Pixel15,2)
-	MUST_SIZE(Pixel16,2)
-	MUST_SIZE(Pixel24,3)
-	MUST_SIZE(Pixel32,4)
-	#undef MUST_SIZE
-	#endif
-
 	buffer = MOSSC::malloc(size);
 
 	complete = false;
@@ -170,10 +159,10 @@ Framebuffer::~Framebuffer(void) {
 	regs.dx = bank_number;
 	int32(0x10,&regs);
 }*/
-void Framebuffer::draw_fill(const Color& color) {
+void Framebuffer::draw_fill(Color const& color) {
 	draw_rect(0,0,mode->info.XResolution,mode->info.YResolution, color);
 }
-void Framebuffer::draw_rect(int x,int y,int w,int h, const Color& color) {
+void Framebuffer::draw_rect(int x,int y,int w,int h, Color const& color) {
 	int x_start = max(x,0);
 	int y_start = max(y,0);
 	int x_end = min(x+w,(int)(mode->info.XResolution));
@@ -185,10 +174,10 @@ void Framebuffer::draw_rect(int x,int y,int w,int h, const Color& color) {
 	}
 }
 
-void Framebuffer::draw_text(int x,int y, char text, const Color& color) {
+void Framebuffer::draw_text(int x,int y, char text, Color const& color) {
 	draw_text(x,y, text, color,Color(255,0,255,0));
 }
-void Framebuffer::draw_text(int x,int y, char text, const Color& color,const Color& background) {
+void Framebuffer::draw_text(int x,int y, char text, Color const& color,Color const& background) {
 	uint64_t chr = Font::font[(unsigned int)(text)];
 	uint64_t i = 0;
 
@@ -206,10 +195,10 @@ void Framebuffer::draw_text(int x,int y, char text, const Color& color,const Col
 		}
 	}
 }
-void Framebuffer::draw_text(int x,int y, const char* text, const Color& color) {
+void Framebuffer::draw_text(int x,int y, char const* text, Color const& color) {
 	draw_text(x,y, text, color,Color(255,0,255,0));
 }
-void Framebuffer::draw_text(int x,int y, const char* text, const Color& color,const Color& background) {
+void Framebuffer::draw_text(int x,int y, char const* text, Color const& color,Color const& background) {
 	int i = 0;
 	LOOP:
 		char c = text[i];
@@ -219,7 +208,7 @@ void Framebuffer::draw_text(int x,int y, const char* text, const Color& color,co
 		goto LOOP;
 }
 
-void Framebuffer::draw_line(int x0,int y0,int x1,int y1, const Color& color) {
+void Framebuffer::draw_line(int x0,int y0,int x1,int y1, Color const& color) {
 	//http://tech-algorithm.com/articles/drawing-line-using-bresenham-algorithm/
 	int x = x0;
 	int y = y0;
@@ -268,7 +257,7 @@ Color Framebuffer::get_pixel(int x,int y) {
 	//TODO: technically I think sometimes you aren't allowed to read from this memory?
 	return PixelUtil::get_at(this, x,y);
 }
-void Framebuffer::set_pixel(int x,int y, const Color& color) {
+void Framebuffer::set_pixel(int x,int y, Color const& color) {
 	//Some drawing operations do this, and it's much more convenient to just discard
 	//the pixels here than to check them in each higher level call.
 	if (x<0 || x>=mode->info.XResolution) return;
@@ -277,7 +266,7 @@ void Framebuffer::set_pixel(int x,int y, const Color& color) {
 	return PixelUtil::set_at(this, x,y, color);
 }
 
-void Framebuffer::blend_pixel(int x,int y, const Color& color) {
+void Framebuffer::blend_pixel(int x,int y, Color const& color) {
 	//Some drawing operations do this, and it's much more convenient to just discard
 	//the pixels here than to check them in each higher level call.
 	if (x<0 || x>=mode->info.XResolution) return;

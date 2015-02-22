@@ -8,7 +8,7 @@ namespace MOSS { namespace FS {
 
 
 Superblock::Superblock(void) {
-	ASSERT(sizeof(data)==1024,"Superblock is wrong size %d!",sizeof(data));
+	assert_term(sizeof(data)==1024,"Superblock is wrong size %d!",sizeof(data));
 
 	//Superblock is at LBA 2, 3 (it's 1024 bytes big and starts at byte 1024).
 	kernel->write("Loading superblock . . .\n");
@@ -18,7 +18,7 @@ Superblock::Superblock(void) {
 	for (int i=0;i<512;++i) data.bytes[i+512]=sector3[i];
 	kernel->write("Loaded!\n");
 
-	ASSERT(data.magic==0xEF53,"Superblock contains wrong magic number (got %p)!",data.magic);
+	assert_term(data.magic==0xEF53,"Superblock contains wrong magic number (got %p)!",data.magic);
 
 	block_size = 1024 << data.block_size_iv;
 
@@ -29,7 +29,7 @@ Superblock::Superblock(void) {
 		int num_blockgroups2 = data.total_inodes/data.blockgroup_num_inodes;
 		if (data.total_inodes%data.blockgroup_num_inodes!=0) ++num_blockgroups2;
 
-		ASSERT(num_blockgroups1==num_blockgroups2,"Block group size check failed!");
+		assert_term(num_blockgroups1==num_blockgroups2,"Block group size check failed!");
 		num_blockgroups = num_blockgroups1;
 	}
 }

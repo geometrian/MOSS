@@ -22,10 +22,10 @@ function wait_for_enter() {
 
 echo "######## MOSS beginning setup for release . . ."
 
-export remake_disk=1
-export remake_partitions=1
-export remake_fs=1
-export remake_grub=1
+export remake_disk=0
+export remake_partitions=0
+export remake_fs=0
+export remake_grub=0
 
 #Note: on changing these, change also the Bochs configuration files.
 export CYLINDERS=100
@@ -60,17 +60,6 @@ then
 	-0
 	EOF
 
-	#cat <<-EOF | fdisk -u -C$((CYLINDERS)) -S$((SECTORS_PER_TRACK)) -H$((HEADS)) .build/moss-disk.bin
-	#o
-	#n
-	#p
-	#1
-#
-#
-	#p
-	#w
-	#EOF
-
 	wait_for_enter
 else
 	echo "######## NOT making a partition table."
@@ -81,7 +70,7 @@ fi
 echo "######## Making disk image and its partitions into devices . . ."
 sudo losetup /dev/loop0 ~/moss_disk_temp
 sudo kpartx  -v -a -s  /dev/loop0 #See note at top of file
-wait_for_enter
+#wait_for_enter
 
 
 #Make a file system on first partition
@@ -89,13 +78,10 @@ if [ $remake_fs -eq 1 ]
 then
 	echo "######## Making a filesystem . . ."
 
-	sudo mkfs.ext2 /dev/mapper/loop0p1
-	##"m" is reserved blocks percentage.
-	##sudo mkfs  -t ext2  -m 1  -v  /dev/loop0
-	#sudo mke2fs /dev/mapper/loop0p1
-	##sudo mkfs  -t vfat  -F 32  /dev/loop0
-	##sudo mkdosfs -F32 /dev/mapper/loop0p1
-	##Note: may have to unmount loops, restart, and then remount loops here.  See http://forum.osdev.org/viewtopic.php?f=1&t=26907
+	#"m" is reserved blocks percentage.
+	sudo mkfs  -t ext2  -m 1  -v  /dev/mapper/loop0p1
+	#sudo mkfs  -t vfat  -F 32  /dev/mapper/loop0p1
+	#Note: may have to unmount loops, restart, and then remount loops here.  See http://forum.osdev.org/viewtopic.php?f=1&t=26907
 
 	wait_for_enter
 else
@@ -113,8 +99,8 @@ echo "######## Filling disk . . ."
 
 #Mount the first partition onto "/mnt"
 sudo mount -t ext2 /dev/mapper/loop0p1 /mnt #If you get an error here, see comment at top of file.
-#sudo mount -t vfat /dev/mapper/loop0 /mnt
-wait_for_enter
+#sudo mount -t vfat /dev/mapper/loop0p1 /mnt
+#wait_for_enter
 
 #Set up first partition's /boot directory
 echo "######## Copying over GrUB files . . ."
@@ -128,7 +114,7 @@ sudo mkdir -p /mnt/boot/grub
 sudo cp source_moss/grub/stage1 /mnt/boot/grub/stage1
 sudo cp source_moss/grub/stage2 /mnt/boot/grub/stage2
 sudo cp source_moss/grub/e2fs_stage1_5 /mnt/boot/grub/e2fs_stage1_5
-wait_for_enter
+#wait_for_enter
 
 #Copy the kernel over and the facility to boot it
 echo "######## Copying over kernel files . . ."
@@ -137,7 +123,7 @@ sudo cp source_moss/grub/menu.lst /mnt/boot/grub/menu.lst
 echo "######## Copying over kernel data files . . ."
 sudo mkdir -p /mnt/files
 sudo cp -r files /mnt/files
-wait_for_enter
+#wait_for_enter
 
 #Setup GrUB device map.  I've done this before, but never passing /dev/null in . . .
 if [ $remake_grub -eq 1 ]
@@ -150,25 +136,26 @@ then
 	setup (hd0)
 	quit
 	EOF
+	wait_for_enter
 else
 	echo "######## NOT setting up GrUB."
 fi
-wait_for_enter
 
 #Unmount the first partition from "/mnt"
 sudo umount /dev/mapper/loop0p1
-wait_for_enter
+#wait_for_enter
 
 
 #Unmake the disk image and its partitions into devices
 echo "######## Unmaking disk image and its partitions as devices . . ."
 sudo kpartx -d /dev/loop0
 sudo losetup -d /dev/loop0
-wait_for_enter
+#wait_for_enter
 
 
 #Copy final result
-mv ~/moss_disk_temp .build/moss-disk.bin
+#	Note not moving so that can avoid e.g. remaking it if we rerun this script
+cp ~/moss_disk_temp .build/moss-disk.bin
 
 
 #Done

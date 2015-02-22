@@ -1,8 +1,5 @@
 #include "fmt_io.h"
 
-#include <stddef.h>
-#include <stdint.h>
-
 #include "../string/copying.h"
 #include "../string/other.h"
 
@@ -40,12 +37,12 @@ class SpecifierBase {
 		bool valid;
 
 	protected:
-		SpecifierBase(va_list* args, const char* specifier_str,int specifier_length) : args(args) {
+		SpecifierBase(va_list* args, char const* specifier_str,int specifier_length) : args(args) {
 			valid = true;
 			#define FAIL { valid=false; return; }
 
 			//specifier_str looks like "%[flags][width][.precision][length]specifier"
-			const char* expected_end = specifier_str + specifier_length;
+			char const* expected_end = specifier_str + specifier_length;
 
 			//Skip %
 			++specifier_str;
@@ -89,13 +86,13 @@ class SpecifierBase {
 			#undef FAIL
 		}
 	public:
-		virtual ~SpecifierBase(void) {}
+		inline virtual ~SpecifierBase(void) {}
 
 	public:
 		virtual char* write(char* buffer) = 0;
 
 	private:
-		const char* parse_flags(const char* specifier_str) {
+		char const* parse_flags(char const* specifier_str) {
 			flag_ljst = false;
 			flag_sign =     0;
 			flag_hash = false;
@@ -132,7 +129,7 @@ class SpecifierBase {
 				++specifier_str;
 				goto LOOP;
 		}
-		const char* parse_numorstar(const char* specifier_str, int* num,bool* got_num) {
+		char const* parse_numorstar(char const* specifier_str, int* num,bool* got_num) {
 			if (*specifier_str=='*') {
 				*num = va_arg(*args,int);
 				*got_num = true;
@@ -155,7 +152,7 @@ class SpecifierBase {
 				++specifier_str;
 				goto LOOP;
 		}
-		const char* parse_length(const char* specifier_str) {
+		char const* parse_length(char const* specifier_str) {
 			switch (specifier_str[0]) {
 				case 'h':
 					switch (specifier_str[1]) {
@@ -237,7 +234,7 @@ class SpecifierBase {
 			return buffer;
 		}
 
-		char* write_data(char* buffer, const char* temp,uint64_t temp_length) {
+		char* write_data(char* buffer, char const* temp,uint64_t temp_length) {
 			//Actually write the type!
 			//	The algorithm is to write into a temporary buffer, then copy it into the real string.  This allows for
 			//	padding to take place, as necessary.  Since the way it gets put into the temporary buffer may be unique
@@ -265,11 +262,11 @@ class SpecifierBase {
 };
 class SpecifierIntegralBase : public SpecifierBase {
 	protected:
-		SpecifierIntegralBase(va_list* args, const char* specifier_str,int specifier_length) : SpecifierBase(args, specifier_str,specifier_length) {
+		SpecifierIntegralBase(va_list* args, char const* specifier_str,int specifier_length) : SpecifierBase(args, specifier_str,specifier_length) {
 			if (precision>20) valid=false; //That's larger than any integer, and would cause a problem with the 20 char buffer in .write_uint(...)!
 		}
 	public:
-		virtual ~SpecifierIntegralBase(void) {}
+		inline virtual ~SpecifierIntegralBase(void) {}
 
 	protected:
 		char* write_uint(char* buffer, uint64_t value) {
@@ -299,12 +296,12 @@ class SpecifierIntegralBase : public SpecifierBase {
 			return buffer;
 		}
 };
-class SpecifierSignedIntegral : public SpecifierIntegralBase {
+class SpecifierSignedIntegral final : public SpecifierIntegralBase {
 	public:
-		SpecifierSignedIntegral(va_list* args, const char* specifier_str,int specifier_length) : SpecifierIntegralBase(args, specifier_str,specifier_length) {
+		SpecifierSignedIntegral(va_list* args, char const* specifier_str,int specifier_length) : SpecifierIntegralBase(args, specifier_str,specifier_length) {
 			if (flag_hash) valid=false;
 		}
-		virtual ~SpecifierSignedIntegral(void) {}
+		inline virtual ~SpecifierSignedIntegral(void) {}
 
 		char* write(char* buffer) override {
 			int value = va_arg(*args,int);
@@ -313,12 +310,12 @@ class SpecifierSignedIntegral : public SpecifierIntegralBase {
 			return write_data(buffer, temp,num_written);
 		}
 };
-class SpecifierUnsignedIntegral : public SpecifierIntegralBase {
+class SpecifierUnsignedIntegral final : public SpecifierIntegralBase {
 	public:
-		SpecifierUnsignedIntegral(va_list* args, const char* specifier_str,int specifier_length) : SpecifierIntegralBase(args, specifier_str,specifier_length) {
+		SpecifierUnsignedIntegral(va_list* args, char const* specifier_str,int specifier_length) : SpecifierIntegralBase(args, specifier_str,specifier_length) {
 			if (flag_hash) valid=false;
 		}
-		~SpecifierUnsignedIntegral(void) {}
+		inline virtual ~SpecifierUnsignedIntegral(void) {}
 
 		char* write(char* buffer) override {
 			unsigned int value = va_arg(*args,unsigned int);
@@ -327,14 +324,14 @@ class SpecifierUnsignedIntegral : public SpecifierIntegralBase {
 			return write_data(buffer, temp,num_written);
 		}
 };
-class SpecifierPointer : public SpecifierIntegralBase {
+class SpecifierPointer final : public SpecifierIntegralBase {
 	public:
-		SpecifierPointer(va_list* args, const char* specifier_str,int specifier_length) : SpecifierIntegralBase(args, specifier_str,specifier_length) {
+		SpecifierPointer(va_list* args, char const* specifier_str,int specifier_length) : SpecifierIntegralBase(args, specifier_str,specifier_length) {
 			if (flag_sign!=0) valid=false;
 			else if (flag_hash) valid=false;
 			else if (precision!=-1) valid=false;
 		}
-		~SpecifierPointer(void) {}
+		inline virtual ~SpecifierPointer(void) {}
 
 		char* write(char* buffer) override {
 			void* value = va_arg(*args,void*);
@@ -357,14 +354,14 @@ class SpecifierPointer : public SpecifierIntegralBase {
 			return buffer;
 		}
 };
-class SpecifierCharacter : public SpecifierBase {
+class SpecifierCharacter final : public SpecifierBase {
 	public:
-		SpecifierCharacter(va_list* args, const char* specifier_str,int specifier_length) : SpecifierBase(args, specifier_str,specifier_length) {
+		SpecifierCharacter(va_list* args, char const* specifier_str,int specifier_length) : SpecifierBase(args, specifier_str,specifier_length) {
 			if (flag_sign!=0) valid=false;
 			else if (flag_hash) valid=false;
 			else if (precision!=-1) valid=false;
 		}
-		~SpecifierCharacter(void) {}
+		inline virtual ~SpecifierCharacter(void) {}
 
 		char* write(char* buffer) override {
 			char value = (int)(va_arg(*args,int));
@@ -378,14 +375,14 @@ class SpecifierCharacter : public SpecifierBase {
 			return buffer;
 		}
 };
-class SpecifierString : public SpecifierBase {
+class SpecifierString final : public SpecifierBase {
 	public:
-		SpecifierString(va_list* args, const char* specifier_str,int specifier_length) : SpecifierBase(args, specifier_str,specifier_length) {
+		SpecifierString(va_list* args, char const* specifier_str,int specifier_length) : SpecifierBase(args, specifier_str,specifier_length) {
 			if (flag_sign!=0) valid=false;
 			else if (flag_hash) valid=false;
 			else if (precision!=-1) valid=false;
 		}
-		virtual ~SpecifierString(void) {}
+		inline virtual ~SpecifierString(void) {}
 
 		char* write(char* buffer) override {
 			char* value = va_arg(*args,char*);
@@ -404,12 +401,12 @@ class SpecifierString : public SpecifierBase {
 			return buffer;
 		}
 };
-class SpecifierFloat : public SpecifierBase {
+class SpecifierFloat final : public SpecifierBase {
 	public:
-		SpecifierFloat(va_list* args, const char* specifier_str,int specifier_length) : SpecifierBase(args, specifier_str,specifier_length) {
+		SpecifierFloat(va_list* args, char const* specifier_str,int specifier_length) : SpecifierBase(args, specifier_str,specifier_length) {
 			if (precision==-1) precision = 6;
 		}
-		virtual ~SpecifierFloat(void) {}
+		inline virtual ~SpecifierFloat(void) {}
 
 		char* write(char* buffer) override {
 			double value = va_arg(*args,double);
@@ -540,7 +537,7 @@ static void write_fmtspecifier_error(char* str, char specifier) {
 		str[i] = message[i];
 	} while (++i!=n);
 }
-static char* write_fmtspecifier(char* str, const char* specifier_str,int specifier_length, va_list* args) {
+static char* write_fmtspecifier(char* str, char const* specifier_str,int specifier_length, va_list* args) {
 	//specifier_str looks like "%[flags][width][.precision][length]specifier"
 
 	char specifier_ch = specifier_str[specifier_length-1];
@@ -588,7 +585,7 @@ static char* write_fmtspecifier(char* str, const char* specifier_str,int specifi
 		return nullptr;
 }
 
-static bool string_contains(const char* string, char character) {
+static bool string_contains(char const* string, char character) {
 	int i = 0;
 	LOOP:
 		char c = string[i];
@@ -599,7 +596,7 @@ static bool string_contains(const char* string, char character) {
 }
 
 
-int sprintf(char* buffer, const char* format, ...) {
+int sprintf(char* buffer, char const* format, ...) {
 	va_list args;
 	va_start(args,format);
 
@@ -610,7 +607,7 @@ int sprintf(char* buffer, const char* format, ...) {
 	return return_value;
 }
 
-int vsprintf(char* buffer, const char* format, va_list args) {
+int vsprintf(char* buffer, char const* format, va_list args) {
 	int return_value = 0;
 	char* buffer_original = buffer;
 
@@ -618,7 +615,7 @@ int vsprintf(char* buffer, const char* format, va_list args) {
 		char c1 = format[0];
 
 		if (c1=='%') {
-			const static char* specifiers = "diuoxXfFeEgGaAcspn%";
+			static char const* specifiers = "diuoxXfFeEgGaAcspn%";
 			int i = 1;
 			LOOP2:
 				char c2 = format[i];

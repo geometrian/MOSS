@@ -1,11 +1,12 @@
 #pragma once
+
 #include "../../../includes.h"
 
 
 namespace MOSS { namespace FS {
 
 
-class INode {
+class INode final {
 	uint16_t type_and_permissions;
 	uint16_t user_id;
 	uint32_t size_lower; //lower 32 bits of size in bytes

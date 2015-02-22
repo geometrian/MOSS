@@ -1,23 +1,23 @@
 #include "concatenation.h"
 
 #include "copying.h"
+#include "other.h"
 
 
 namespace MOSSC {
 
 
-char* strcat(char* destination, const char* source) {
-	size_t i = 0u;
-	while (destination[i]!='\0') ++i;
+char*  strcat(char*restrict destination, char const*restrict source            ) {
+	size_t i = strlen(destination);
+
 	strcpy(destination+i,source);
+
 	return destination;
 }
-char* strncat(char* destination, const char* source, size_t num) {
-	char* destination2 = destination;
+char* strncat(char*restrict destination, char const*restrict source, size_t num) {
+	char* destination2 = destination + strlen(destination);
 
-	while (*destination2!='\0') ++destination2;
-
-	size_t i = 0u;
+	size_t i = 0;
 	for (;i<num;++i) {
 		char c = source[i];
 		if (c=='\0') break;

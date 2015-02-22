@@ -1,14 +1,16 @@
 #pragma once
 
+#include "../../includes.h"
+
 
 namespace MOSS { namespace Interrupts {
 
 
 void disable_hw_int(void) {
-	asm("cli");
+	__asm__ __volatile__("cli");
 }
 void enable_hw_int(void) {
-	asm("sti");
+	__asm__ __volatile__("sti");
 }
 
 /*void fire(int n) {
@@ -26,7 +28,7 @@ void enable_hw_int(void) {
 	);
 }*/
 void fire_int13h(void) {
-	asm("int  $0x13");
+	__asm__ __volatile__("int  $0x13");
 }
 
 

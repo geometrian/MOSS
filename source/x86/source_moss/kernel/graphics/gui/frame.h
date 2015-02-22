@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../../../includes.h"
+
 #include "../../../mosst/string.h"
 
 #include "component.h"
@@ -19,7 +21,7 @@ namespace GUI {
 	}
 
 
-class Frame : public ComponentBase {
+class Frame final : public ComponentBase {
 	private:
 		MOSST::String title;
 		bool visible;

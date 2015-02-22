@@ -1,8 +1,12 @@
-#include "boot/multiboot.h"
+#include "setup.h"
 
 #include "../mossc/_misc.h"
 
 #include "ata/ata.h"
+
+#include "boot/multiboot.h"
+
+#include "fs/ext2/ext2.h"
 
 #include "graphics/gui/manager.h"
 #include "graphics/vesa/controller.h"
@@ -21,8 +25,6 @@
 
 #include "kernel.h"
 
-#include "fs/ext2/ext2.h"
-
 
 namespace MOSS {
 
@@ -32,7 +34,7 @@ extern "C" void __cxa_pure_virtual(void) {
 	//If, during runtime, the kernel detects that a call to a pure virtual function couldn't be made, it calls the above
 	//function.  This function should actually never be called, because without corruption/undefined behavior, it is not
 	//possible to instantiate a class that doesn't define all pure virtual functions.
-	ASSERT(false,"__cxa_pure_virtual got called somehow!");
+	assert_term(false,"__cxa_pure_virtual got called somehow!");
 }
 
 
@@ -78,9 +80,9 @@ extern "C" void kernel_entry(unsigned long magic, unsigned long addr) {
 
 	//Check boot went okay
 	Boot::multiboot_info_t* mbi = (Boot::multiboot_info_t*)(addr);
-	ASSERT(magic==MULTIBOOT_BOOTLOADER_MAGIC,"Invalid multiboot magic number!\n");
-	ASSERT(mbi->flags&(1<<0),"Invalid GRUB memory flag!\n");
-	ASSERT(mbi->flags&(1<<6),"Invalid GRUB memory map!\n");
+	assert_term(magic==MULTIBOOT_BOOTLOADER_MAGIC,"Invalid multiboot magic number!\n");
+	assert_term(mbi->flags&(1<<0),"Invalid GRUB memory flag!\n");
+	assert_term(mbi->flags&(1<<6),"Invalid GRUB memory map!\n");
 
 	//Setup dynamic memory (some of the setup requires it, i.e. PS/2, so do it first)
 	Memory::MemoryManager memory(mbi);

@@ -2,7 +2,6 @@
 
 #include "../boot/boot_memorymap.h"
 #include "../boot/multiboot.h"
-
 #include "../kernel.h"
 
 
@@ -83,7 +82,7 @@ MemoryManager::MemoryManager(const Boot::multiboot_info_t* mbi) {
 		mmap = (Boot::multiboot_memory_map_t*)( (unsigned long)(mmap) + mmap->size + sizeof(mmap->size) );
 	}
 
-	ASSERT(found,"MemoryManager expected kernel to be loaded at 1MiB and contain a valid memory segment starting there!");
+	assert_term(found,"MemoryManager expected kernel to be loaded at 1MiB and contain a valid memory segment starting there!");
 }
 MemoryManager::~MemoryManager(void) {}
 
@@ -98,7 +97,7 @@ void* MemoryManager::malloc(size_t size) {
 
 		block = block->header.next;
 		if ((uint64_t)(block)==end) {
-			ASSERT(false,"Cannot allocate more space!  Out of space!");
+			assert_term(false,"Cannot allocate more space!  Out of space!");
 			return nullptr; //No more space!
 		}
 

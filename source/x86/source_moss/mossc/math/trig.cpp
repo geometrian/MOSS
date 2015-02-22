@@ -3,10 +3,8 @@
 
 namespace MOSSC {
 
+
 #if 0
-#include <stdint.h>
-
-
 float cos(float x) {
 	//Taylor series is (-1)^(k)*(x^(2k))/((2k)!)
 	//1 - x*x/(2!) + x*x*x*x/(4!) - ...

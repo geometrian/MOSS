@@ -1,4 +1,5 @@
 #pragma once
+
 #include "../../includes.h"
 
 
@@ -14,14 +15,14 @@ class Controller;
 
 class Drive;
 
-class Channel {
+class Channel final {
 	private:
 		Controller*const controller;
 	public:
-		const enum ChannelType {
+		enum ChannelType {
 			Primary,
 			Secondary
-		} type;
+		} const type;
 		enum DriveType {
 			Master,
 			Slave
@@ -47,11 +48,11 @@ class Channel {
 		void drive_select(DriveType drive);
 };
 
-class Drive {
+class Drive final {
 	private:
 		Channel*const channel;
 	public:
-		const Channel::DriveType type;
+		Channel::DriveType const type;
 		uint16_t drive_iobase;
 
 		class StatusByte { public:
@@ -70,6 +71,7 @@ class Drive {
 				uint8_t byte;
 			};
 		} __attribute__((packed));
+		static_assert(sizeof(StatusByte)==1,"StatusByte is the wrong size!");
 
 	private:
 		bool interrupts;
@@ -88,7 +90,7 @@ class Drive {
 		void read_sectors(uint64_t lba, uint8_t* data_buffer,unsigned int num_sectors);
 };
 
-class Controller {
+class Controller final {
 	public:
 		Channel* channel0;
 		Channel* channel1;

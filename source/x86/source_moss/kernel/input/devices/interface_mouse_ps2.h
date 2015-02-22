@@ -1,4 +1,5 @@
 #pragma once
+
 #include "../../../includes.h"
 
 #include "interface_device_ps2.h"
@@ -13,7 +14,7 @@ namespace MOSS { namespace Input { namespace Devices {
 
 class ControllerPS2;
 
-class InterfaceDevicePS2Mouse : public InterfaceDevicePS2Base {
+class InterfaceDevicePS2Mouse final : public InterfaceDevicePS2Base {
 	private:
 		int mouse_cycle;
 
@@ -44,6 +45,7 @@ class InterfaceDevicePS2Mouse : public InterfaceDevicePS2Base {
 				uint32_t      byte4 : 8; //Only exists for Intellimouse Extensions
 			};
 		} received_data;
+		static_assert(sizeof(received_data)==4,"Mouse data packet is the wrong size!");
 
 	public:
 		int x,y;
