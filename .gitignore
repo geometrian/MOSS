@@ -1,0 +1,12 @@
+.build/
+
+.ides/*.cscope_file_list
+.ides/*.depend
+.ides/*.layout
+
+.ides/ipch/
+.ides/*.opensdf
+.ides/*.psess
+.ides/*.vsp
+.ides/*.sdf
+.ides/*.suo
