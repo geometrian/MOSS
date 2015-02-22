@@ -21,8 +21,7 @@ namespace VESA {
 //See http://wiki.osdev.org/Memory_Map_%28x86%29
 
 class Mode {
-	friend class Controller;
-	private:
+	public:
 		bool valid;
 
 		class MODE_INFO { public:
@@ -67,6 +66,7 @@ class Mode {
 		Mode(uint16_t index);
 		~Mode(void);
 
+		void get_printable(char* buffer) const;
 		void print(Terminal::TextModeTerminal* terminal) const;
 };
 
@@ -105,10 +105,12 @@ class Controller {
 		bool set_mode(Mode* mode);
 
 		void fill(const Color& color);
+		void draw_rect(int x,int y,int w,int h, const Color& color);
 		void draw_text(int x,int y, char text, const Color& color);
 		void draw_text(int x,int y, char text, const Color& color,const Color& background);
 		void draw_text(int x,int y, const char* text, const Color& color);
 		void draw_text(int x,int y, const char* text, const Color& color,const Color& background);
+		Color get_pixel(int x,int y);
 		void set_pixel(int x,int y, const Color& color);
 		void blend_pixel(int x,int y, const Color& color);
 };
