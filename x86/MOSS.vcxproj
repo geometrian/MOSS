@@ -1,0 +1,80 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="MOSS\kernel\kernel.cpp" />
+    <ClCompile Include="MOSS\kernel\ui\console.cpp" />
+    <ClCompile Include="MOSS\kernel\ui\console.h" />
+    <ClCompile Include="MOSS\kernel\ui\graphics.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="MOSS\asm_helpers\print.asm" />
+    <None Include="MOSS\bootloader\bootloader.asm" />
+    <None Include="MOSS\kernel\gdt_idt\gdt.asm" />
+    <None Include="MOSS\kernel\gdt_idt\idt.asm" />
+    <None Include="MOSS\kernel\gdt_idt\isr.asm" />
+    <None Include="MOSS\kernel\jump.asm" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="MOSS\kernel\file_system\file.h" />
+    <ClInclude Include="MOSS\kernel\gdt_idt\gdt.h" />
+    <ClInclude Include="MOSS\kernel\gdt_idt\idt.h" />
+    <ClInclude Include="MOSS\kernel\gdt_idt\isr.h" />
+    <ClInclude Include="MOSS\kernel\interrupt.h" />
+    <ClInclude Include="MOSS\kernel\lib\clib.h" />
+    <ClInclude Include="MOSS\kernel\lib\DynamicArray.h" />
+    <ClInclude Include="MOSS\kernel\lib\Mutex.h" />
+    <ClInclude Include="MOSS\kernel\lib\String.h" />
+    <ClInclude Include="MOSS\kernel\memory\memory.h" />
+    <ClInclude Include="MOSS\kernel\stdinc.h" />
+    <ClInclude Include="MOSS\kernel\ui\graphics.h" />
+    <ClInclude Include="MOSS\kernel\ui\keyboard\keyboard.h" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{04E3B400-FC69-4F9F-91F2-75302098AADC}</ProjectGuid>
+    <Keyword>MakeFileProj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <NMakeBuildCommandLine>_build_install_run_vb.py</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine>_build_install_run_vb.py</NMakeReBuildCommandLine>
+    <NMakePreprocessorDefinitions>WIN32;_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <NMakeBuildCommandLine>__build_all_run_win.py</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine>__build_all_run_win.py</NMakeReBuildCommandLine>
+    <NMakePreprocessorDefinitions>WIN32;NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
