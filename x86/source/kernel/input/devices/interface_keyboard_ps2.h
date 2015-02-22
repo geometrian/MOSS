@@ -1,7 +1,7 @@
 #pragma once
 #include "../../../includes.h"
 
-#include "device.h"
+#include "interface_device_ps2.h"
 
 
 namespace MOSS { namespace Input { namespace Devices {
@@ -26,7 +26,7 @@ namespace MOSS { namespace Input { namespace Devices {
 
 class ControllerPS2;
 
-class DevicePS2Keyboard : public DevicePS2Base {
+class InterfaceDevicePS2Keyboard : public InterfaceDevicePS2Base {
 	private:
 		bool lock_scroll;
 		bool lock_num;
@@ -35,8 +35,8 @@ class DevicePS2Keyboard : public DevicePS2Base {
 		bool keys[256];
 
 	public:
-		DevicePS2Keyboard(ControllerPS2* controller, int device_index, const DeviceType& device_type);
-		virtual ~DevicePS2Keyboard(void);
+		InterfaceDevicePS2Keyboard(ControllerPS2* controller, int device_index, const DeviceType& device_type);
+		virtual ~InterfaceDevicePS2Keyboard(void);
 
 		bool handle_irq(void) override;
 

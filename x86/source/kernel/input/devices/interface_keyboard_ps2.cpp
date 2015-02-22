@@ -1,4 +1,4 @@
-#include "keyboard.h"
+#include "interface_keyboard_ps2.h"
 
 #include "../../io/io.h"
 #include "../../kernel.h"
@@ -11,7 +11,7 @@
 namespace MOSS { namespace Input { namespace Devices {
 
 
-DevicePS2Keyboard::DevicePS2Keyboard(ControllerPS2* controller, int device_index, const DeviceType& device_type) : DevicePS2Base(controller,device_index,device_type) {
+InterfaceDevicePS2Keyboard::InterfaceDevicePS2Keyboard(ControllerPS2* controller, int device_index, const DeviceType& device_type) : InterfaceDevicePS2Base(controller,device_index,device_type) {
 	lock_scroll = false;
 	lock_num = false;
 	lock_caps = false;
@@ -20,10 +20,10 @@ DevicePS2Keyboard::DevicePS2Keyboard(ControllerPS2* controller, int device_index
 		keys[i] = false;
 	}
 }
-DevicePS2Keyboard::~DevicePS2Keyboard(void) {}
+InterfaceDevicePS2Keyboard::~InterfaceDevicePS2Keyboard(void) {}
 
-bool DevicePS2Keyboard::handle_irq(void) /*override*/ {
-	if (!DevicePS2Base::handle_irq()) return false;
+bool InterfaceDevicePS2Keyboard::handle_irq(void) /*override*/ {
+	if (!InterfaceDevicePS2Base::handle_irq()) return false;
 
 	//Must read port 0x60 to clear the keyboard interrupt
 	//Also, we want the scan code!
@@ -58,11 +58,11 @@ bool DevicePS2Keyboard::handle_irq(void) /*override*/ {
 	return true;
 }
 
-bool DevicePS2Keyboard::get_shift_state(void) const {
+bool InterfaceDevicePS2Keyboard::get_shift_state(void) const {
 	return lock_caps ^ keys[Keys::Codes::KEY_SHIFT_L] ^ keys[Keys::Codes::KEY_SHIFT_R];
 }
 
-bool DevicePS2Keyboard::set_LEDs(void) {
+bool InterfaceDevicePS2Keyboard::set_LEDs(void) {
 	//Set the keyboard's LEDs -> 0xFA(ACK)/0xFE(resend)
 	//Expects one data byte:
 	//	0b00000[caps][num][scroll]
@@ -77,7 +77,7 @@ bool DevicePS2Keyboard::set_LEDs(void) {
 	return true;
 }
 #if 0
-bool DevicePS2Keyboard::echo(void) const {
+bool InterfaceDevicePS2Keyboard::echo(void) const {
 	//Echo command (for diagnostic purposes/device removal detection) -> 0xEE(Echo)/0xFE(resend)
 	//Expects no data bytes
 	for (int i=0;i<MOSS_MAX_PS2_ATTEMPTS;++i) {
@@ -87,7 +87,7 @@ bool DevicePS2Keyboard::echo(void) const {
 	return false;
 }
 #endif
-int DevicePS2Keyboard::get_scancode(void) {
+int InterfaceDevicePS2Keyboard::get_scancode(void) {
 	//Retrieves the scancode the keyboard is currently using -> 0xFA(ACK),[scan code set number]/0xFE(resend)
 	//Expects one data byte (0x00, the get flag of the 0xF0 command)
 	//This method returns the scancode number on success, -1 on failure.
@@ -96,7 +96,7 @@ int DevicePS2Keyboard::get_scancode(void) {
 	ASSERT(false,"Not implemented!");
 	return -1;
 }
-void DevicePS2Keyboard::set_scancode(int scancode) {
+void InterfaceDevicePS2Keyboard::set_scancode(int scancode) {
 	//Sets the keyboard's scancode -> 0xFA(ACK)/0xFE(resend)
 	//Expects one data byte (the scancode set, which should be 0x01/0x02/0x03 for scancode sets 1/2/3)
 	send_command_device(    0xF0);
@@ -113,7 +113,7 @@ class _TypeMaticByte { public:
 	uint8_t delay_before_repeats : 2;
 	bool                  unused : 1;
 } __attribute__((packed));
-bool DevicePS2Keyboard::set_typematic(int delay_before_typematic_ms, int repeat_rate_hz) {
+bool InterfaceDevicePS2Keyboard::set_typematic(int delay_before_typematic_ms, int repeat_rate_hz) {
 	//Set autorepeat ("typematic") delay and repeat rate -> 0xFA(ACK)/0xFE(resend)
 	//Expects one data byte (see _TypeMaticByte).
 	//delay_before_typematic_ms must be one of {250,500,750,1000}.
@@ -132,7 +132,7 @@ bool DevicePS2Keyboard::set_typematic(int delay_before_typematic_ms, int repeat_
 	}
 	return false;
 }
-bool DevicePS2Keyboard::scanning_enable(void) {
+bool InterfaceDevicePS2Keyboard::scanning_enable(void) {
 	//Enable scanning (keyboard will send scan codes) -> 0xFA(ACK)/0xFE(resend)
 	//Expects no data bytes
 	for (int i=0;i<MOSS_MAX_PS2_ATTEMPTS;++i) {
@@ -142,7 +142,7 @@ bool DevicePS2Keyboard::scanning_enable(void) {
 	return false;
 }
 
-bool DevicePS2Keyboard::scanning_disable(void) {
+bool InterfaceDevicePS2Keyboard::scanning_disable(void) {
 	//Disable scanning (keyboard will not send scan codes) -> 0xFA(ACK)/0xFE(resend)
 	//Expects no data bytes
 	for (int i=0;i<MOSS_MAX_PS2_ATTEMPTS;++i) {
@@ -152,7 +152,7 @@ bool DevicePS2Keyboard::scanning_disable(void) {
 	return false;
 }
 //TODO: OSDev thinks that 0xF6 sets default parameters, but BrokenThorn thinks it also enables scanning.
-bool DevicePS2Keyboard::reset(void) {
+bool InterfaceDevicePS2Keyboard::reset(void) {
 	//Resets keyboard to defaults -> 0xFA(ACK)/0xFE(resend)
 	//Expects no data bytes
 	for (int i=0;i<MOSS_MAX_PS2_ATTEMPTS;++i) {
@@ -161,7 +161,7 @@ bool DevicePS2Keyboard::reset(void) {
 	}
 	return false;
 }
-bool DevicePS2Keyboard::self_test(void) {
+bool InterfaceDevicePS2Keyboard::self_test(void) {
 	//Reset keyboard to power on state and start self test -> 0xAA(passed)/0xFC(failed)/0xFD(failed)/0xFE(resend)
 	//Expects no data bytes
 	for (int i=0;i<MOSS_MAX_PS2_ATTEMPTS;++i) {

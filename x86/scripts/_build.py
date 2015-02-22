@@ -46,7 +46,7 @@ def get_should_compile(in_name):
 def compile_cpp(in_name,out_name):
     if get_should_compile(in_name):
         print("    Compiling:  \""+in_name+"\"")
-        command = ["i586-elf-g++","-c",in_name,"-o",out_name]
+        command = ["/home/ian/opt/cross/bin/i586-elf-g++","-c",in_name,"-o",out_name]
         command += args_compile.split(" ")
         call(command)
     else:
@@ -90,7 +90,7 @@ def compile_directory(directory):
             compile_directory(filename)
 
 def link():
-    command = ["i586-elf-gcc","-T",root_source+"linker.ld","-o",root_build+"MOSS.bin"]
+    command = ["/home/ian/opt/cross/bin/i586-elf-gcc","-T",root_source+"linker.ld","-o",root_build+"MOSS.bin"]
     command += args_link.split(" ")
     for file in link_files:
         command.append(file)

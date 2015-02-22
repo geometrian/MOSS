@@ -4,7 +4,7 @@
 #include "../../includes.h"
 #include "../kernel.h"
 #include "../input/devices/controller_ps2.h"
-#include "../input/devices/keyboard.h"
+#include "../input/devices/interface_keyboard_ps2.h"
 
 
 namespace MOSS { namespace Input { namespace Keys {
@@ -21,7 +21,7 @@ bool is_printable(Codes::MossKey key) {
 }
 
 const char* get_printable(Codes::MossKey key) {
-	Devices::DevicePS2Keyboard* keyboard = (Devices::DevicePS2Keyboard*)(kernel->controller->device0); //TODO: kinda blecherous
+	Devices::InterfaceDevicePS2Keyboard* keyboard = (Devices::InterfaceDevicePS2Keyboard*)(kernel->controller_ps2->device0); //TODO: kinda blecherous
 	ASSERT(keyboard!=NULL,"Cannot convert to a printable value; keyboard does not exist yet!");
 	switch (key) {
 		#define CASE_STRING(NAME,SHIFT_NAME, DESC,SHIFT_DESC, SC)\

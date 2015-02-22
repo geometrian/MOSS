@@ -1,7 +1,7 @@
 #pragma once
 #include "../../../includes.h"
 
-#include "device.h"
+#include "interface_device_ps2.h"
 
 
 namespace MOSS { namespace Input { namespace Devices {
@@ -13,7 +13,7 @@ namespace MOSS { namespace Input { namespace Devices {
 
 class ControllerPS2;
 
-class DevicePS2Mouse : public DevicePS2Base {
+class InterfaceDevicePS2Mouse : public InterfaceDevicePS2Base {
 	private:
 		int mouse_cycle;
 
@@ -52,8 +52,8 @@ class DevicePS2Mouse : public DevicePS2Base {
 		bool buttons[5];
 
 	public:
-		DevicePS2Mouse(ControllerPS2* controller, int device_index, const DeviceType& device_type);
-		virtual ~DevicePS2Mouse(void);
+		InterfaceDevicePS2Mouse(ControllerPS2* controller, int device_index, const DeviceType& device_type);
+		virtual ~InterfaceDevicePS2Mouse(void);
 
 		bool handle_irq(void) override;
 

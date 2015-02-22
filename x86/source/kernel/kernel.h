@@ -9,6 +9,9 @@ namespace MOSSC {
 	void* realloc(void* ptr, size_t size);
 	void free(void* ptr);
 } namespace MOSS {
+	namespace ATA {
+		class Controller;
+	}
 	namespace Graphics {
 		namespace GUI {
 			class Manager;
@@ -56,7 +59,9 @@ class Kernel {
 		Graphics::VESA::Controller* graphics;
 		Graphics::GUI::Manager* gui;
 
-		Input::Devices::ControllerPS2* controller;
+		Input::Devices::ControllerPS2* controller_ps2;
+
+		ATA::Controller* controller_ata;
 
 	private:
 		Memory::MemoryManager* memory;

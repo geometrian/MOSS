@@ -3,21 +3,22 @@
 #ifndef SIMPLE
 #include <stdio.h>
 #include <string.h>
-
-#include <vector>
 #endif
 
 #include "../source/mossc/cstdio"
 
 
 int main(int argc, char* argv[]) {
-	std::vector
+	char buffer[1024]; char* buffer2=buffer;
 
-
-	char buffer[1024];
-
+	for (int i=0;i<256;++i) {
+		buffer2[0]=' ';
+		++buffer2;
+		buffer2 += MOSSC::sprintf(buffer2,"%u",i);
+	}
+	int num_printed = buffer2 - buffer;
 	//int num_printed = MOSSC::sprintf(buffer,"Hello|%5.3d|there!",-61);
-	int num_printed = MOSSC::sprintf(buffer,"%+3d",4);
+	//int num_printed = MOSSC::sprintf(buffer,"%+3d",4);
 	//int num_printed = MOSSC::sprintf(buffer,"%03u",67);
 	//int num_printed = MOSSC::sprintf(buffer,"%c",'H');
 	//int num_printed = MOSSC::sprintf(buffer,"|%4s|","He");

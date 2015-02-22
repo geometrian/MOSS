@@ -12,7 +12,7 @@ namespace MOSS { namespace Input { namespace Devices {
 //http://wiki.osdev.org/%228042%22_PS/2_Controller#Overview.
 
 
-class DevicePS2Base;
+class InterfaceDevicePS2Base;
 
 //http://wiki.osdev.org/%228042%22_PS/2_Controller
 class ControllerPS2 {
@@ -103,8 +103,8 @@ class ControllerPS2 {
 		};
 #endif
 
-		DevicePS2Base* device0;
-		DevicePS2Base* device1;
+		InterfaceDevicePS2Base* device0;
+		InterfaceDevicePS2Base* device1;
 
 	public:
 		ControllerPS2(void);

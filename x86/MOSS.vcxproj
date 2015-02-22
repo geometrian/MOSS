@@ -34,6 +34,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\includes.cpp" />
+    <ClCompile Include="source\kernel\graphics\bg.cpp" />
+    <ClCompile Include="source\kernel\graphics\font.cpp" />
     <ClCompile Include="source\kernel\graphics\gui\button.cpp" />
     <ClCompile Include="source\kernel\graphics\gui\component.cpp" />
     <ClCompile Include="source\kernel\graphics\gui\frame.cpp" />
@@ -44,9 +46,9 @@
     <ClCompile Include="source\kernel\graphics\vesa\mode.cpp" />
     <ClCompile Include="source\kernel\graphics\vesa\controller.cpp" />
     <ClCompile Include="source\kernel\input\devices\controller_ps2.cpp" />
-    <ClCompile Include="source\kernel\input\devices\device.cpp" />
-    <ClCompile Include="source\kernel\input\devices\keyboard.cpp" />
-    <ClCompile Include="source\kernel\input\devices\mouse.cpp" />
+    <ClCompile Include="source\kernel\input\devices\interface_device_ps2.cpp" />
+    <ClCompile Include="source\kernel\input\devices\interface_keyboard_ps2.cpp" />
+    <ClCompile Include="source\kernel\input\devices\interface_mouse_ps2.cpp" />
     <ClCompile Include="source\kernel\input\keys.cpp" />
     <ClCompile Include="source\kernel\interrupt\idt.cpp" />
     <ClCompile Include="source\kernel\interrupt\isr.cpp" />
@@ -71,8 +73,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\includes.h" />
+    <ClInclude Include="source\kernel\ata\ata.h" />
     <ClInclude Include="source\kernel\boot\boot_memorymap.h" />
     <ClInclude Include="source\kernel\boot\multiboot.h" />
+    <ClInclude Include="source\kernel\graphics\bg.h" />
     <ClInclude Include="source\kernel\graphics\color.h" />
     <ClInclude Include="source\kernel\graphics\font.h" />
     <ClInclude Include="source\kernel\graphics\gui\button.h" />
@@ -85,9 +89,9 @@
     <ClInclude Include="source\kernel\graphics\vesa\mode.h" />
     <ClInclude Include="source\kernel\graphics\vesa\controller.h" />
     <ClInclude Include="source\kernel\input\devices\controller_ps2.h" />
-    <ClInclude Include="source\kernel\input\devices\device.h" />
-    <ClInclude Include="source\kernel\input\devices\keyboard.h" />
-    <ClInclude Include="source\kernel\input\devices\mouse.h" />
+    <ClInclude Include="source\kernel\input\devices\interface_device_ps2.h" />
+    <ClInclude Include="source\kernel\input\devices\interface_keyboard_ps2.h" />
+    <ClInclude Include="source\kernel\input\devices\interface_mouse_ps2.h" />
     <ClInclude Include="source\kernel\input\keys.h" />
     <ClInclude Include="source\kernel\input\mouse.h" />
     <ClInclude Include="source\kernel\interrupt\idt.h" />

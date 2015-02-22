@@ -2,6 +2,8 @@
 
 #include "../mossc/_misc.h"
 
+#include "ata/ata.h"
+
 #include "graphics/gui/manager.h"
 #include "graphics/vesa/controller.h"
 
@@ -35,6 +37,8 @@ extern "C" void __cxa_pure_virtual(void) {
 extern Kernel* kernel;
 
 extern "C" void kernel_entry(unsigned long magic, unsigned long addr) {
+	while (true);
+
 	//Allocate the kernel on the stack
 	Kernel kernel2;
 	kernel = &kernel2;
@@ -43,6 +47,9 @@ extern "C" void kernel_entry(unsigned long magic, unsigned long addr) {
 	Terminal::TextModeTerminal terminal;
 	kernel->terminal = &terminal;
 	terminal.set_color_text(Terminal::TextModeTerminal::COLOR_RED);
+
+	kernel->write("Hello world");
+	while (true);
 
 	//Check boot went okay
 	Boot::multiboot_info_t* mbi = (Boot::multiboot_info_t*)(addr);
@@ -75,9 +82,14 @@ extern "C" void kernel_entry(unsigned long magic, unsigned long addr) {
 	MOSS::Interrupts::PIC::remap(32,40);
 
 	//Setup PS/2 devices
-	kernel->write("Setting up PS/2 controller\n\n");
-	Input::Devices::ControllerPS2 controller;
-	kernel->controller = &controller;
+	/*kernel->write("Setting up PS/2 controller\n\n");
+	Input::Devices::ControllerPS2 controller_ps2;
+	kernel->controller_ps2 = &controller_ps2;*/
+
+	//Setup ATA
+	kernel->write("Setting up ATA controller\n\n");
+	ATA::Controller controller_ata;
+	kernel->controller_ata = &controller_ata;
 
 	//Enable hardware interrupts
 	kernel->write("Enabling hardware interrupts\n");
@@ -95,6 +107,23 @@ extern "C" void kernel_entry(unsigned long magic, unsigned long addr) {
 	//Set up the GUI manager
 	Graphics::GUI::Manager gui;
 	kernel->gui = &gui;
+
+
+
+
+	kernel->write("Reading bootsector from HDD\n");
+	const uint8_t* data = kernel->controller_ata->read_sector(0);
+	kernel->write("Writing data . . .\n");
+	for (int i=0;i<512;++i) {
+		kernel->write("%d ",data[i]);
+	}
+	//kernel->write("Bytes at index 510, 511: %u %u\n",data[510],data[511]); //For MBR should be 0x55 0xAA
+	kernel->write("Complete!\n");
+
+	while (true);
+
+
+
 
 	kernel->init();
 	kernel->main();

@@ -1,3 +1,0 @@
-#http://askubuntu.com/questions/59551/how-to-burn-iso-to-usb-device
-
-sudo dd if=/media/sf_C++/MOSS/VM/MOSS-flat.iso of=/dev/sdb

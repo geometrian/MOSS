@@ -1,10 +1,10 @@
-#include "device.h"
+#include "interface_device_ps2.h"
 
 #include "../../io/io.h"
 
 #include "controller_ps2.h"
-#include "keyboard.h"
-#include "mouse.h"
+#include "interface_keyboard_ps2.h"
+#include "interface_mouse_ps2.h"
 
 
 #include "../../kernel.h"
@@ -13,12 +13,12 @@
 namespace MOSS { namespace Input { namespace Devices {
 
 
-DevicePS2Base::DevicePS2Base(ControllerPS2* controller, int device_index, const DeviceType& device_type) : controller(controller), device_index(device_index), device_type(device_type) {
+InterfaceDevicePS2Base::InterfaceDevicePS2Base(ControllerPS2* controller, int device_index, const DeviceType& device_type) : controller(controller), device_index(device_index), device_type(device_type) {
 }
-DevicePS2Base::~DevicePS2Base(void) {
+InterfaceDevicePS2Base::~InterfaceDevicePS2Base(void) {
 }
 
-DevicePS2Base* DevicePS2Base::get_new_device(ControllerPS2* controller, int device_index) {
+InterfaceDevicePS2Base* InterfaceDevicePS2Base::get_new_device(ControllerPS2* controller, int device_index) {
 	//http://wiki.osdev.org/%228042%22_PS/2_Controller#Detecting_PS.2F2_Device_Types
 	//Following my idea from my post here: http://forum.osdev.org/viewtopic.php?f=1&t=26889
 
@@ -41,7 +41,7 @@ DevicePS2Base* DevicePS2Base::get_new_device(ControllerPS2* controller, int devi
 		} while (response!=0xAA);*/
 		uint8_t response;
 		bool got_affirm = false;
-		while (controller->recv_data(&response,100000)) {
+		while (controller->recv_data(&response,500000)) {
 			//kernel->write("%d ",response);
 			if (response==0xAA) got_affirm=true;
 		}
@@ -49,7 +49,7 @@ DevicePS2Base* DevicePS2Base::get_new_device(ControllerPS2* controller, int devi
 	}
 
 	//Get device's ID and new device subclass instance based off of it
-	DevicePS2Base* new_device = NULL;
+	InterfaceDevicePS2Base* new_device = NULL;
 	{
 		//http://wiki.osdev.org/%228042%22_PS/2_Controller#Detecting_PS.2F2_Device_Types
 		//Asks the PS/2 device to identify itself -> 0xFA(ACK),[none, 1, or 2 bytes]
@@ -65,12 +65,12 @@ DevicePS2Base* DevicePS2Base::get_new_device(ControllerPS2* controller, int devi
 					case 0xC1:
 						//MF2 keyboard with translation enabled in the PS/Controller (not possible for the second PS/2 port)
 						kernel->write("  PS/2 device %d (id %u %u) recognized as MF2 keyboard (with translation)!\n",device_index,byte1,byte2);
-						new_device = new DevicePS2Keyboard(controller,device_index,DeviceType::DeviceKeyboardMF2Trans);
+						new_device = new InterfaceDevicePS2Keyboard(controller,device_index,DeviceType::DeviceKeyboardMF2Trans);
 						break;
 					case 0x83:
 						//MF2 keyboard
 						kernel->write("  PS/2 device %d (id %u %u) recognized as MF2 keyboard!\n",device_index,byte1,byte2);
-						new_device = new DevicePS2Keyboard(controller,device_index,DeviceType::DeviceKeyboardMF2);
+						new_device = new InterfaceDevicePS2Keyboard(controller,device_index,DeviceType::DeviceKeyboardMF2);
 						break;
 					default:
 						ASSERT(byte1==0xAB,"  PS/2 Device %d (id %u %u) unrecognized!",device_index,byte1,byte2);
@@ -81,13 +81,13 @@ DevicePS2Base* DevicePS2Base::get_new_device(ControllerPS2* controller, int devi
 					case 0x00: //Standard PS/2 mouse
 						//Awww sadface.  Let's configure it and try again.
 						kernel->write("  PS/2 device %d (id %u) recognized as basic mouse!\n",device_index,byte1);
-						new_device = new DevicePS2Mouse(controller,device_index,DeviceType::DeviceMouseBasic);
+						new_device = new InterfaceDevicePS2Mouse(controller,device_index,DeviceType::DeviceMouseBasic);
 						if (!attempted_ps2_mouse_config1) { //but only if we haven't tried that before
 							//http://wiki.osdev.org/Mouse_Input#Init.2FDetection_Command_Sequences
 							kernel->write("  Checking to see if it's actually better . . .\n");
-							((DevicePS2Mouse*)(new_device))->set_sample_rate(200);
-							((DevicePS2Mouse*)(new_device))->set_sample_rate(100);
-							((DevicePS2Mouse*)(new_device))->set_sample_rate( 80);
+							((InterfaceDevicePS2Mouse*)(new_device))->set_sample_rate(200);
+							((InterfaceDevicePS2Mouse*)(new_device))->set_sample_rate(100);
+							((InterfaceDevicePS2Mouse*)(new_device))->set_sample_rate( 80);
 							delete new_device;
 							attempted_ps2_mouse_config1 = true;
 							goto START;
@@ -96,20 +96,20 @@ DevicePS2Base* DevicePS2Base::get_new_device(ControllerPS2* controller, int devi
 					case 0x03: //Mouse with scroll wheel
 						//Less of a sadface, but still.  Let's configure it and try again.
 						kernel->write("  PS/2 device %d (id %u) recognized as scrollwheel mouse!\n",device_index,byte1);
-						new_device = new DevicePS2Mouse(controller,device_index,DeviceType::DeviceMouseScroll);
+						new_device = new InterfaceDevicePS2Mouse(controller,device_index,DeviceType::DeviceMouseScroll);
 						if (!attempted_ps2_mouse_config2) { //but only if we haven't tried that before
 							//http://wiki.osdev.org/Mouse_Input#Init.2FDetection_Command_Sequences
 							kernel->write("  Checking to see if it's actually better . . .\n");
-							((DevicePS2Mouse*)(new_device))->set_sample_rate(200);
-							((DevicePS2Mouse*)(new_device))->set_sample_rate(200);
-							((DevicePS2Mouse*)(new_device))->set_sample_rate( 80);
+							((InterfaceDevicePS2Mouse*)(new_device))->set_sample_rate(200);
+							((InterfaceDevicePS2Mouse*)(new_device))->set_sample_rate(200);
+							((InterfaceDevicePS2Mouse*)(new_device))->set_sample_rate( 80);
 							attempted_ps2_mouse_config2 = true;
 							goto START;
 						}
 						break;
 					case 0x04: //5-button mouse
 						kernel->write("  PS/2 device %d (id %u) recognized as five-button mouse!\n",device_index,byte1);
-						new_device = new DevicePS2Mouse(controller,device_index,DeviceType::DeviceMouse5);
+						new_device = new InterfaceDevicePS2Mouse(controller,device_index,DeviceType::DeviceMouse5);
 						break;
 					default:
 						ASSERT(false,"  PS/2 Device %d (id %u) unrecognized!",device_index,byte1);
@@ -129,7 +129,7 @@ DevicePS2Base* DevicePS2Base::get_new_device(ControllerPS2* controller, int devi
 		switch (new_device->device_type) {
 			case DeviceKeyboardMF2:
 			case DeviceKeyboardMF2Trans:
-				((DevicePS2Keyboard*)(new_device))->set_scancode(1); //TODO: lame!
+				((InterfaceDevicePS2Keyboard*)(new_device))->set_scancode(1); //TODO: lame!
 				break;
 			case DeviceMouseBasic:
 			case DeviceMouseScroll:
@@ -143,7 +143,7 @@ DevicePS2Base* DevicePS2Base::get_new_device(ControllerPS2* controller, int devi
 	return new_device;
 }
 
-void DevicePS2Base::set_defaults(void) {
+void InterfaceDevicePS2Base::set_defaults(void) {
 	//Tell the device, whatever it may be, to use its default settings
 	//	Mouse: disables streaming, sets the packet rate to 100 per second and resolution to 4 pixels per mm.
 	//	Keyboard: Typematic delay 500 ms.  Typematic rate 10.9 cps.  Scan code set 2.  Set all keys typematic/make/break.
@@ -152,14 +152,14 @@ void DevicePS2Base::set_defaults(void) {
 	wait_response();
 }
 
-bool DevicePS2Base::handle_irq(void) {
+bool InterfaceDevicePS2Base::handle_irq(void) {
 	//Check that the interrupt was genuine
 	if (!controller->is_outputbuffer_full()) return false;
 
 	return true;
 }
 
-void DevicePS2Base:: enable(void) {
+void InterfaceDevicePS2Base:: enable(void) {
 	//Enables the device to automatically send data about itself; to be called
 	//after setup and after after interrupts are enabled.
 	//	Mouse: Enable packet streaming
@@ -167,7 +167,7 @@ void DevicePS2Base:: enable(void) {
 	send_command_device(0xF4);
 	wait_response();
 }
-void DevicePS2Base::disable(void) {
+void InterfaceDevicePS2Base::disable(void) {
 	//	Mouse: Disable packet streaming
 	//	Keyboard: Disable scanning (Note: may also restore default parameters)
 	//		TODO: OSDev seems to think that 0xF5 disables scanning, possibly also resetting to default parameters, whereas http://www.brokenthorn.com/Resources/OSDev19.html
@@ -177,10 +177,10 @@ void DevicePS2Base::disable(void) {
 }
 
 //List of commands: http://wiki.osdev.org/Mouse_Input#Useful_Mouse_Command_Set
-void DevicePS2Base::send_command_device(uint8_t command) {
+void InterfaceDevicePS2Base::send_command_device(uint8_t command) {
 	send_command_device(controller,device_index, command);
 }
-void DevicePS2Base::send_command_device(ControllerPS2* controller,int device_index, uint8_t command) {
+void InterfaceDevicePS2Base::send_command_device(ControllerPS2* controller,int device_index, uint8_t command) {
 	//kernel->write("Sending device command %d\n",command);
 
 	//Commands are sent on port 0x60, and by default go to device 0.  To send a command
@@ -195,10 +195,10 @@ void DevicePS2Base::send_command_device(ControllerPS2* controller,int device_ind
 	//Write command to PS/2 controller, which will now redirect it to the device port
 	controller->send_data(command); //Caller should check for a response, iff applicable!
 }
-void DevicePS2Base::wait_response(uint8_t wait_byte/*=0xFA*/) {
+void InterfaceDevicePS2Base::wait_response(uint8_t wait_byte/*=0xFA*/) {
 	wait_response(controller,wait_byte);
 }
-void DevicePS2Base::wait_response(ControllerPS2* controller, uint8_t wait_byte/*=0xFA*/) {
+void InterfaceDevicePS2Base::wait_response(ControllerPS2* controller, uint8_t wait_byte/*=0xFA*/) {
 	//Generally called after most commands.
 	//	For mice, most commands return 0xFA (ACK).  The only one that (might) not is the reset command.
 	uint8_t response;

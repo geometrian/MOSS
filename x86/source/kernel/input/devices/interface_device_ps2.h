@@ -7,7 +7,9 @@ namespace MOSS { namespace Input { namespace Devices {
 
 class ControllerPS2;
 
-class DevicePS2Base {
+//Handles interfacing with a PS/2 device
+
+class InterfaceDevicePS2Base {
 	protected:
 		enum DeviceType {
 			DeviceMouseBasic, //Standard PS/2 mouse
@@ -22,11 +24,11 @@ class DevicePS2Base {
 		const DeviceType device_type;
 
 	protected:
-		DevicePS2Base(ControllerPS2* controller, int device_index, const DeviceType& device_type);
+		InterfaceDevicePS2Base(ControllerPS2* controller, int device_index, const DeviceType& device_type);
 	public:
-		virtual ~DevicePS2Base(void);
+		virtual ~InterfaceDevicePS2Base(void);
 
-		static DevicePS2Base* get_new_device(ControllerPS2* controller, int device_index);
+		static InterfaceDevicePS2Base* get_new_device(ControllerPS2* controller, int device_index);
 
 		void set_defaults(void);
 

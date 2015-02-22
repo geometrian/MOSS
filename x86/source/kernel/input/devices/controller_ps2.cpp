@@ -4,7 +4,7 @@
 
 #include "../../kernel.h"
 
-#include "device.h"
+#include "interface_device_ps2.h"
 
 
 namespace MOSS { namespace Input { namespace Devices {
@@ -114,8 +114,8 @@ ControllerPS2::ControllerPS2(void) {
 		//	Get the device's id
 		//	Allocate a subclass based on the particular id that handles the device
 		//	Return as base pointer
-		device0 = DevicePS2Base::get_new_device(this, 0);
-		device1 = DevicePS2Base::get_new_device(this, 1);
+		device0 = InterfaceDevicePS2Base::get_new_device(this, 0);
+		device1 = InterfaceDevicePS2Base::get_new_device(this, 1);
 	}
 
 	//Step 11: Enable interrupts

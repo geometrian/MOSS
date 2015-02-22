@@ -1,13 +1,16 @@
 #include "kernel.h"
 
+#include "../mossc/cstdio"
+
 #include "graphics/gui/manager.h"
 #include "graphics/color.h"
 #include "graphics/vesa/controller.h"
 #include "graphics/vesa/framebuffer.h"
 
-#include "../mossc/cstdio"
+#include "ata/ata.h"
+
 #include "input/devices/controller_ps2.h"
-#include "input/devices/mouse.h"
+//#include "input/devices/mouse_ps2.h"
 #include "input/keys.h"
 #include "input/mouse.h"
 
@@ -27,7 +30,9 @@ Kernel::Kernel(void) {
 		graphics = NULL;
 		gui = NULL;
 
-		controller = NULL;
+		controller_ps2 = NULL;
+
+		controller_ata = NULL;
 
 		memory = NULL;
 	#endif
@@ -73,17 +78,19 @@ void Kernel::write(const char* format, ...) {
 }
 
 void Kernel::init(void) {
-	/*for (int i=0;i<graphics->numof_modes;++i) {
-		graphics->modes[i]->print(terminal);
-		delay(1000);
-	}*/
-	//Graphics::VESA::Mode* mode = graphics->get_mode_closest( 800,600,32);
-	Graphics::VESA::Mode* mode = graphics->get_mode_closest(1024,768,32);
-	//Graphics::VESA::Mode* mode = graphics->get_mode_closest(1152,864,32);
+	#if 0
+		/*for (int i=0;i<graphics->numof_modes;++i) {
+			graphics->modes[i]->print(terminal);
+			delay(1000);
+		}*/
+		//Graphics::VESA::Mode* mode = graphics->get_mode_closest( 800,600,32);
+		Graphics::VESA::Mode* mode = graphics->get_mode_closest(1024,768,32);
+		//Graphics::VESA::Mode* mode = graphics->get_mode_closest(1152,864,32);
 
-	//write("Setting mode "); mode->print(terminal); write(" . . .\n"); delay(5000);
-	graphics->set_mode(mode);
-	//graphics->set_pixel(5,5, 255,0,0,255);
+		//write("Setting mode "); mode->print(terminal); write(" . . .\n"); delay(5000);
+		graphics->set_mode(mode);
+		//graphics->set_pixel(5,5, 255,0,0,255);
+	#endif
 }
 void Kernel::main(void) {
 	#if 0
@@ -113,7 +120,7 @@ void Kernel::main(void) {
 			}
 		}
 	#endif
-	#if 0
+	#if 1
 		terminal->write("Hanging in kernel!\n"); while (true);
 	#endif
 

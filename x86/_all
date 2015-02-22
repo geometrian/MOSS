@@ -1,4 +1,0 @@
-echo "Building"
-python ./_build.py
-echo "Installing"
-./_install

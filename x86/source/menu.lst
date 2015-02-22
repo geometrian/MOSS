@@ -1,0 +1,6 @@
+default=0
+timeout=0
+
+title MOSS
+root (hd0,0)
+kernel /boot/MOSS.bin

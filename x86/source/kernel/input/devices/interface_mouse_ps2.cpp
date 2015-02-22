@@ -1,4 +1,4 @@
-#include "mouse.h"
+#include "interface_mouse_ps2.h"
 
 #include "../../graphics/vesa/controller.h"
 #include "../../io/io.h"
@@ -19,7 +19,7 @@ namespace MOSS { namespace Input { namespace Devices {
 
 //TODO: timeouts for all this!
 
-DevicePS2Mouse::DevicePS2Mouse(ControllerPS2* controller, int device_index, const DeviceType& device_type) : DevicePS2Base(controller,device_index,device_type) {
+InterfaceDevicePS2Mouse::InterfaceDevicePS2Mouse(ControllerPS2* controller, int device_index, const DeviceType& device_type) : InterfaceDevicePS2Base(controller,device_index,device_type) {
 	ASSERT(sizeof(received_data)==4,"Mouse data packet is the wrong size!");
 
 	mouse_cycle = 0;
@@ -28,11 +28,11 @@ DevicePS2Mouse::DevicePS2Mouse(ControllerPS2* controller, int device_index, cons
 
 	for (int i=0;i<5;++i) buttons[i]=false;
 }
-DevicePS2Mouse::~DevicePS2Mouse(void) {
+InterfaceDevicePS2Mouse::~InterfaceDevicePS2Mouse(void) {
 }
 
-bool DevicePS2Mouse::handle_irq(void) /*override*/ {
-	if (!DevicePS2Base::handle_irq()) return false;
+bool InterfaceDevicePS2Mouse::handle_irq(void) /*override*/ {
+	if (!InterfaceDevicePS2Base::handle_irq()) return false;
 
 	//http://forum.osdev.org/viewtopic.php?t=10247
 	//http://www.computer-engineering.org/ps2mouse/
@@ -62,7 +62,7 @@ bool DevicePS2Mouse::handle_irq(void) /*override*/ {
 	return true;
 }
 
-void DevicePS2Mouse::set_position(int x, int y) {
+void InterfaceDevicePS2Mouse::set_position(int x, int y) {
 	ASSERT(kernel->graphics!=NULL&&kernel->graphics->current_mode!=NULL,"Mouse pointer can only be operated in a graphics mode!"); //But only because we need to check where to not move it.
 	if      (x <                       0) x=                         0;
 	else if (x>=kernel->graphics-> width) x=kernel->graphics-> width-1;
@@ -79,13 +79,13 @@ void DevicePS2Mouse::set_position(int x, int y) {
 		kernel->handle_mouse_move(Mouse::EventMouseMove(this->x,this->y,dx,dy));
 	}
 }
-void DevicePS2Mouse::  click(int button_index) {
+void InterfaceDevicePS2Mouse::  click(int button_index) {
 	kernel->handle_mouse_click(Mouse::EventMouseClick(button_index));
 }
-void DevicePS2Mouse::unclick(int button_index) {
+void InterfaceDevicePS2Mouse::unclick(int button_index) {
 	kernel->handle_mouse_unclick(Mouse::EventMouseUnclick(button_index));
 }
-void DevicePS2Mouse::set_sample_rate(int hz) {
+void InterfaceDevicePS2Mouse::set_sample_rate(int hz) {
 	#ifdef MOSS_DEBUG
 	switch (hz) {
 		case 10: case 20: case 40: case 60: case 80: case 100: case 200: break;
@@ -111,7 +111,7 @@ void DevicePS2Mouse::set_sample_rate(int hz) {
 	//kernel->write(">>Done!\n");
 }
 
-void DevicePS2Mouse::_handle_current_packet(void) {
+void InterfaceDevicePS2Mouse::_handle_current_packet(void) {
 	//http://wiki.osdev.org/PS/2_Mouse
 
 	if (received_data.dx_overflowed || received_data.dy_overflowed) return; //Just give up.

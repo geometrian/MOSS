@@ -3,7 +3,9 @@
 #include "../../includes.h" //For magic breakpoint
 
 #include "../input/devices/controller_ps2.h"
-#include "../input/devices/device.h"
+#include "../input/devices/interface_device_ps2.h"
+
+#include "../ata/ata.h"
 
 #include "../kernel.h"
 
@@ -187,7 +189,7 @@ bool isr32(void) {
 bool isr33(void) {
 	//kernel->write("YAY!");
 	//ASSERT(false,"Handling IRQ 1 (stub)\n"); return false; //TODO: The line below is not properly implemented yet
-	return kernel->controller->device0->handle_irq();
+	return kernel->controller_ps2->device0->handle_irq();
 }
 
 //ISR 34 = IRQ 2 (Cascade (used internally by the two PICs. never raised))
@@ -242,7 +244,7 @@ bool isr43(void) {
 
 //ISR 44 = IRQ 12 (PS2 Mouse)
 bool isr44(void) {
-	return kernel->controller->device1->handle_irq();
+	return kernel->controller_ps2->device1->handle_irq();
 }
 
 //ISR 45 = IRQ 13 (FPU / Coprocessor / Inter-processor)
@@ -252,7 +254,9 @@ bool isr45(void) {
 
 //ISR 46 = IRQ 14 (Primary ATA Hard Disk)
 bool isr46(void) {
-	ASSERT(false,"Handling IRQ 14 (stub)\n"); return false;
+	//ASSERT(false,"Handling IRQ 14 (stub)\n"); return false;
+	kernel->controller_ata->handle_irq();
+	return true;
 }
 
 //ISR 47 = IRQ 15 (Secondary ATA Hard Disk)
@@ -359,7 +363,7 @@ void isr_common(State* state) {
 			case 43: isr43(); break;
 			case 44: handled&=isr44(); break;
 			case 45: isr45(); break;
-			case 46: isr46(); break;
+			case 46: handled&=isr46(); break;
 			case 47: isr47(); break;
 		}
 		if (handled) {

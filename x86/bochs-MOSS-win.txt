@@ -1,6 +1,0 @@
-ata0-master: type=cdrom, path="C:/dev/C++/MOSS/VM/MOSS-flat.iso", status=inserted
-boot: cdrom, disk
-mouse: enabled=0, toggle=ctrl+f10
-romimage: file=$BXSHARE/BIOS-bochs-latest
-vga: extension=vbe
-vgaromimage: file=$BXSHARE/VGABIOS-lgpl-latest
