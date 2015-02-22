@@ -50,19 +50,22 @@ void DevicePS2Keyboard::handle_irq(void) /*override*/ {
 
 	Keys::Codes::MossKey key = (Keys::Codes::MossKey)(scan_code);
 	if (keys[scan_code]) {
-		Keys::Event event(key,true);
-		Kernel::handle_key_down(event);
+		Kernel::handle_key_down(Keys::Event(key,true));
 	} else {
-		Keys::Event event(key,false);
-		Kernel::handle_key_up(event);
+		Kernel::handle_key_up(Keys::Event(key,false));
 	}
 }
 
-uint8_t DevicePS2Keyboard::get_command_register(void) const /*override*/ {
-	return CommandRegister;
+void DevicePS2Keyboard::send(uint8_t byte) const {
+	//Since commands sent to the device are sent to the controller first, the controller must be
+	//ready for the command (at least for the keyboard encoder?)
+	controller->wait_for_inputbuffer_clear();
+	IO::send<uint8_t>(CommandRegister,byte);
 }
-uint8_t DevicePS2Keyboard::get_inputbuffer(void) const /*override*/ {
-	return InputBuffer;
+//Read device (e.g. keyboard encoder) buffer
+uint8_t DevicePS2Keyboard::recv(void) const {
+	controller->wait_for_outputbuffer_full();
+	return IO::recv<uint8_t>(InputBuffer);
 }
 
 bool DevicePS2Keyboard::get_shift_state(void) const {

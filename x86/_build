@@ -1,9 +1,10 @@
 mkdir -p build
 mkdir -p build/kernel
 mkdir -p build/kernel/boot
+mkdir -p build/kernel/graphics
+mkdir -p build/kernel/graphics/gui
 mkdir -p build/kernel/input
 mkdir -p build/kernel/input/devices
-mkdir -p build/kernel/gui
 mkdir -p build/kernel/interrupt
 mkdir -p build/kernel/io
 mkdir -p build/kernel/memory
@@ -20,11 +21,14 @@ export ARGS_LINK="-ffreestanding -O2 -nostdlib"
 
 echo "  Compiling kernel/boot/*"
 nasm -felf      source/kernel/boot/boot.asm -o build/kernel/boot/boot.o
-echo "  Compiling kernel/gui/*"
+echo "  Compiling kernel/graphics/gui/*"
+echo "  Compiling kernel/graphics/*"
+i586-elf-g++ -c source/kernel/graphics/vesa.cpp -o build/kernel/graphics/vesa.o $ARGS_CMPL
 echo "  Compiling kernel/input/devices/*"
 i586-elf-g++ -c source/kernel/input/devices/controller_ps2.cpp -o build/kernel/input/devices/controller_ps2.o $ARGS_CMPL
 i586-elf-g++ -c source/kernel/input/devices/device.cpp -o build/kernel/input/devices/device.o $ARGS_CMPL
 i586-elf-g++ -c source/kernel/input/devices/keyboard.cpp -o build/kernel/input/devices/keyboard.o $ARGS_CMPL
+i586-elf-g++ -c source/kernel/input/devices/mouse.cpp -o build/kernel/input/devices/mouse.o $ARGS_CMPL
 echo "  Compiling kernel/input/*"
 i586-elf-g++ -c source/kernel/input/keys.cpp -o build/kernel/input/keys.o $ARGS_CMPL
 echo "  Compiling kernel/interrupt/*"
@@ -48,7 +52,6 @@ echo "  Compiling kernel/*"
 i586-elf-g++ -c source/kernel/kernel.cpp             -o build/kernel/kernel.o $ARGS_CMPL
 i586-elf-g++ -c source/kernel/setup.cpp              -o build/kernel/setup.o $ARGS_CMPL
 i586-elf-g++ -c source/kernel/text_mode_terminal.cpp -o build/kernel/text_mode_terminal.o $ARGS_CMPL
-i586-elf-g++ -c source/kernel/vesa.cpp               -o build/kernel/vesa.o $ARGS_CMPL
 echo "  Compiling stdlib/*"
 i586-elf-g++ -c source/stdlib/stdlib.cpp -o build/stdlib/stdlib.o $ARGS_CMPL
 echo "  Compiling *"
@@ -65,9 +68,11 @@ i586-elf-gcc\
 \
 \
 	build/kernel/boot/boot.o\
+	build/kernel/graphics/vesa.o\
 	build/kernel/input/devices/controller_ps2.o\
 	build/kernel/input/devices/device.o\
 	build/kernel/input/devices/keyboard.o\
+	build/kernel/input/devices/mouse.o\
 	build/kernel/input/keys.o\
 	build/kernel/interrupt/idt1.o\
 	build/kernel/interrupt/idt2.o\
@@ -83,7 +88,6 @@ i586-elf-gcc\
 	build/kernel/kernel.o\
 	build/kernel/setup.o\
 	build/kernel/text_mode_terminal.o\
-	build/kernel/vesa.o\
 \
 	build/stdlib/stdlib.o\
 \

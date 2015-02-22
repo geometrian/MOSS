@@ -1,5 +1,9 @@
 #include "boot/multiboot.h"
 
+#include "../stdlib/stdlib.h" //TODO: remove
+
+#include "graphics/vesa.h"
+
 #include "input/devices/controller_ps2.h"
 
 #include "interrupt/idt.h"
@@ -72,9 +76,19 @@ extern "C" void kernel_entry(unsigned long magic, unsigned long addr) {
 	MOSS::Interrupts::fire_int13h();
 	terminal->write("fired!\n");*/
 
-	//set_vesa_mode(640,400,8);
-	//set_vesa_mode(800,600,32);
-	//set_vesa_pixel(5,5, 255,0,0,255);
+	//The VESA controller needs access to loawer memory (less than 1MiB) load information.  Therefore, it
+	//needs to come after all of the information we want is out of the bootloader.
+	Graphics::VESA::Controller graphics2;
+	graphics = &graphics2;
+	/*for (int i=0;i<graphics->numof_modes;++i) {
+		graphics->modes[i]->print(terminal);
+		delay(1000);
+	}*/
+	//Graphics::VESA::Mode* mode = graphics->get_mode_closest( 800,600,32);
+	Graphics::VESA::Mode* mode = graphics->get_mode_closest(1024,768,32);
+	//Graphics::VESA::Mode* mode = graphics->get_mode_closest(1152,864,32);
+	graphics->set_mode(mode);
+	//graphics->set_pixel(5,5, 255,0,0,255);
 
 	kernel_main();
 }

@@ -25,14 +25,6 @@ class DevicePS2Base {
 		virtual ~DevicePS2Base(void);
 
 		virtual void handle_irq(void) = 0;
-
-		//Send a command byte or command data byte to device (e.g. keyboard encoder).
-		void send(uint8_t byte) const;
-		//Read device (e.g. keyboard encoder) buffer
-		uint8_t recv(void) const;
-
-		virtual uint8_t get_command_register(void) const = 0;
-		virtual uint8_t get_inputbuffer(void) const = 0;
 };
 
 

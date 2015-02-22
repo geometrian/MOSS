@@ -24,7 +24,10 @@ namespace MOSS { namespace Input { namespace Devices {
 //data buffers of the PS/2 device or controller change, "const" implies their state should be
 //preserved.
 
+class ControllerPS2;
+
 class DevicePS2Keyboard : public DevicePS2Base {
+	friend class ControllerPS2;
 	private:
 		enum DeviceIO {
 			InputBuffer     = 0x60,
@@ -43,9 +46,13 @@ class DevicePS2Keyboard : public DevicePS2Base {
 
 		void handle_irq(void) override;
 
-		uint8_t get_command_register(void) const override;
-		uint8_t get_inputbuffer(void) const override;
+	private:
+		//Send a command byte or command data byte to keyboard encoder.
+		void send(uint8_t byte) const;
+		//Read keyboard encoder buffer
+		uint8_t recv(void) const;
 
+	public:
 		bool get_shift_state(void) const;
 
 		//http://wiki.osdev.org/PS/2_Keyboard#Commands

@@ -236,8 +236,9 @@ void isr43(void) {
 }
 
 //ISR 44 = IRQ 12 (PS2 Mouse)
-void isr44(void) {
-	Kernel::terminal->write("Handling IRQ 12 (stub)\n");
+bool isr44(void) {
+	//Kernel::terminal->write("Handling IRQ 12 (stub)\n"); return true;
+	return Kernel::controller->handle_irq_mouse();
 }
 
 //ISR 45 = IRQ 13 (FPU / Coprocessor / Inter-processor)
@@ -318,7 +319,7 @@ void isr_common(State* state) {
 			case 41: isr41(); break;
 			case 42: isr42(); break;
 			case 43: isr43(); break;
-			case 44: isr44(); break;
+			case 44: handled&=isr44(); break;
 			case 45: isr45(); break;
 			case 46: isr46(); break;
 			case 47: isr47(); break;

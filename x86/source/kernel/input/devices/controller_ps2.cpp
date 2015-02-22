@@ -3,6 +3,7 @@
 #include "../../io/io.h"
 
 #include "keyboard.h"
+#include "mouse.h"
 
 
 namespace MOSS { namespace Input { namespace Devices {
@@ -15,8 +16,12 @@ ControllerPS2::ControllerPS2(void) {
 	//Kernel::terminal->write("Keyboard using scancode "); Kernel::terminal->write((int)(keyboard->get_scancode())); Kernel::terminal->write("!\n");
 	//ASSERT(keyboard->set_scancode(2)==2,"Could not set keyboard scancode to 2!");
 	//ASSERT(test(),"PS/2 Controller test failed!");
+
+	mouse = new DevicePS2Mouse(this);
 }
 ControllerPS2::~ControllerPS2(void) {
+	delete mouse;
+
 	delete keyboard;
 }
 
@@ -25,6 +30,14 @@ bool ControllerPS2::handle_irq_keyboard(void) {
 	if (!is_outputbuffer_full()) return false;
 
 	keyboard->handle_irq();
+
+	return true;
+}
+bool ControllerPS2::handle_irq_mouse(void) {
+	//Check that the interrupt was genuine
+	if (!is_outputbuffer_full()) return false;
+
+	mouse->handle_irq();
 
 	return true;
 }

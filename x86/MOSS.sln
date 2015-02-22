@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MOSS", "MOSS.vcxproj", "{04E3B400-FC69-4F9F-91F2-75302098AADC}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestMOSSC", "TestMOSSC.vcxproj", "{ED853E3A-6E69-4303-ADF1-D5BC17EDDA39}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -13,6 +15,10 @@ Global
 		{04E3B400-FC69-4F9F-91F2-75302098AADC}.Debug|Win32.Build.0 = Debug|Win32
 		{04E3B400-FC69-4F9F-91F2-75302098AADC}.Release|Win32.ActiveCfg = Release|Win32
 		{04E3B400-FC69-4F9F-91F2-75302098AADC}.Release|Win32.Build.0 = Release|Win32
+		{ED853E3A-6E69-4303-ADF1-D5BC17EDDA39}.Debug|Win32.ActiveCfg = Debug|Win32
+		{ED853E3A-6E69-4303-ADF1-D5BC17EDDA39}.Debug|Win32.Build.0 = Debug|Win32
+		{ED853E3A-6E69-4303-ADF1-D5BC17EDDA39}.Release|Win32.ActiveCfg = Release|Win32
+		{ED853E3A-6E69-4303-ADF1-D5BC17EDDA39}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
