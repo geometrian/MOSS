@@ -3,20 +3,19 @@
 [global loader]
 [extern kernel_main]  ; defined in kernel.cpp
 
-; reserve initial kernel stack space
-STACKSIZE equ 0x4000                    ; that's 16k.
-
 jmp  loader
 
 %include "print.asm"
 %include "print_level2.asm"
 
+STACK_SIZE EQU 0x4000 ;16K
+
 loader:
 	PRINT  str_1, 0x7, 0x0
 
-	mov  esp, stack + STACKSIZE  ; set up the stack
+	mov  esp, stack+STACK_SIZE
 
-	;call  kernel_main            ; call kernel
+	;call  kernel_main       ; call kernel
 
 	.hang:
 		jmp  .hang
@@ -26,4 +25,4 @@ loader:
 section .bss
 
 align 4
-stack:  resb STACKSIZE                   ; reserve 16k stack on a doubleword boundary
+stack:  resb STACK_SIZE  ; reserve stack on a doubleword boundary

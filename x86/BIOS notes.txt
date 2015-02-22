@@ -2,6 +2,9 @@
 ;See http://cboard.cprogramming.com/tech-board/36192-writing-boot-sector-i-must-mad.html
 ;See http://forum.osdev.org/viewtopic.php?f=1&t=24305
 
+SEE http://m3os.googlecode.com/svn/trunk/boot/bootsect.asm
+This one is the best
+
 ;int 10h, function 00h – performs changing of video mode and clears screen
 ;int 10h, function 01h – sets the cursor type
 ;int 10h, function 13h – shows the string on the screen

@@ -1,3 +1,11 @@
+;MOSS bootloader
+;Ian Mallett
+
+ADDRESS_KERNEL  EQU 0x1000   ; Address that the kernel will be loaded to by the boot loader
+SEGMENT_ID_CODE EQU 0x08     ; Code segment ID is 8
+SEGMENT_ID_DATA EQU 0x10     ; Data segment ID is 16
+ADDRESS_STACK   EQU 0x90000  ; Top of conventional memory
+
 [BITS 16]
 [ORG 0x7C00]
 
@@ -65,10 +73,17 @@ main:
 	PRINTI  str_lk_4
 	FAIL    jc, str_f_load
 	;	Jump to kernel
-	jmp     0x0000:0x8000
+	;jmp     0x0000:0x8000
+	cli              ; we don't want to be interrupted right now
+	xor ax, ax
+	mov ds, ax       ; clear ds - this register is used by lgdt
+	lgdt [gdt_desc]  ; Load the GDT descriptor
 
-	;Kernel returned
-	FAIL    jmp, str_f_kr
+	mov eax, cr0     ; Copy the contents of CR0 into EAX
+	or eax, 1        ; Set bit 0
+	mov cr0, eax     ; Copy the contents of EAX into CR0
+
+	jmp SEGMENT_ID_CODE:clear_queue_and_jmp
 
 print_info:
 	push  esi
@@ -85,7 +100,30 @@ fail:
 	call  print_string
 	jmp   $
 
-DAP:            ; Disk Address Packet
+[BITS 32]
+;By far jumping we clear the prefetch queue, apparently.
+clear_queue_and_jmp:
+	; The first order of business is to set up the registers properly
+	; Set up the stack and data segments, and point at the screen buffer
+
+	; According to the GDT we defined, the Code Segment descriptor is 8 (0x08)
+	; and the data/stack segment descriptor is 16 (0x10). Point all segment 
+	; registers except for cs at the data segment.
+
+	mov  ax, SEGMENT_ID_DATA
+	mov  ds, ax
+	mov  es, ax
+	mov  fs, ax
+	mov  gs, ax
+	mov  ss, ax
+
+	; Point the stack pointer at the stack
+	mov  esp, ADDRESS_STACK
+
+	;Jump to the kernel!
+	jmp SEGMENT_ID_CODE:ADDRESS_KERNEL
+
+DAP:  ; Disk Address Packet
 	;Size of DAP
 	db  0x10
 	;Unused
@@ -97,8 +135,8 @@ DAP:            ; Disk Address Packet
 	;db  0x7C
 	;db  0x00    ; segment
 	;db  0x00
-	dw  0x8000  ; offset
-	dw  0x0000  ; segment
+	dw  ADDRESS_KERNEL  ; offset
+	dw  0x0000          ; segment
 	;LBA of start
 	dd  1       ; lower 4 bytes
 	dd  0       ; upper 4 bytes
@@ -113,10 +151,34 @@ str_lk_2  db "INT13 supported!",13,10,0
 str_lk_3  db "load start:",13,10,0
 str_lk_4  db "load done!",13,10,0
 
-str_f_kr     db "kernel returned!",0
 str_f_a20    db "no A20!",0
 str_f_int13  db "no INT13!",0
 str_f_load   db "load failed!",0
+
+
+gdt:       ; Address for the GDT
+gdt_null:  ; Null Segment
+	dd 0
+	dd 0
+gdt_code:  ; Code segment, read/execute, nonconforming
+	dw 0FFFFh
+	dw 0
+	db 0
+	db 10011010b
+	db 11001111b
+	db 0
+gdt_data:  ; Data segment, read/write, expand down
+	dw 0FFFFh
+	dw 0
+	db 0
+	db 10010010b
+	db 11001111b
+	db 0
+gdt_end:
+
+gdt_desc:                 ; The GDT descriptor
+	dw gdt_end - gdt - 1  ; Limit (size)
+	dd gdt                ; Address of the GDT
 
 ;Fill the rest of sector with 0
 TIMES  510 - ($ - $$) db 0
