@@ -1,15 +1,14 @@
-.build/
+*.cscope_file_list
+*.depend
+*.layout
 
-.ides/*.cscope_file_list
-.ides/*.depend
-.ides/*.layout
+*.opensdf
+*.psess
+*.vsp
+*.sdf
+*.suo
 
-.ides/ipch/
-.ides/*.opensdf
-.ides/*.psess
-.ides/*.vsp
-.ides/*.sdf
-.ides/*.suo
+*.pyc
 
 nircmd/
 
