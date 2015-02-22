@@ -5,6 +5,39 @@
 namespace MOSS { namespace Interrupts {
 
 
+class regs16_t { public:
+	unsigned short di;
+	unsigned short si;
+
+	unsigned short bp;
+	unsigned short sp;
+
+	union {
+		unsigned short bx;
+		struct { unsigned char bl; unsigned char bh; }; //note little-endian
+	};
+	union {
+		unsigned short dx;
+		struct { unsigned char dl; unsigned char dh; }; //note little-endian
+	};
+	union {
+		unsigned short cx;
+		struct { unsigned char cl; unsigned char ch; }; //note little-endian
+	};
+	union {
+		unsigned short ax;
+		struct { unsigned char al; unsigned char ah; }; //note little-endian
+	};
+
+	unsigned short gs;
+	unsigned short fs;
+	unsigned short es;
+	unsigned short ds;
+
+	unsigned short eflags;
+} __attribute__((packed));
+
+
 //http://www.rohitab.com/discuss/topic/35103-switch-between-real-mode-and-protected-mode/
 
 //tell compiler our int32 function is external

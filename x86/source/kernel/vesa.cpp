@@ -17,7 +17,7 @@ bool get_vesa_info(VESA_INFO* vesa_info) {
 	int ptr = (int)(vesa_info);
 
 	//terminal->write("Getting graphics modes . . .\n");
-	regs16_t regs;
+	Interrupts::regs16_t regs;
 	regs.ax = 0x4F00;
 	regs.di = ptr & 0xF;
 	regs.es = (ptr>>4) & 0xFFFF;
@@ -45,7 +45,7 @@ int get_mode_info(MODE_INFO* mode_info, uint16_t mode) {
 	memset(mode_info,0,sizeof(MODE_INFO));
 	int ptr = (int)(mode_info);
 
-	regs16_t regs;
+	Interrupts::regs16_t regs;
 	regs.ax = 0x4F01;
 	regs.di = ptr & 0xF;
 	regs.es = (ptr>>4) & 0xFFFF;
@@ -152,7 +152,7 @@ bool set_vesa_mode(int w, int h, int depth) {
 	int mode_number = find_vesa_mode(w, h, depth);
 	if (mode_number==-1) return false;
 
-	regs16_t regs;
+	Interrupts::regs16_t regs;
 	regs.ax = 0x4F02;
 	regs.bx = mode_number;
 	Interrupts::int32(0x10,&regs);
@@ -169,7 +169,7 @@ bool set_vesa_mode(int w, int h, int depth) {
 }
 
 /*void set_vesa_bank(int bank_number) {
-	regs16_t regs;
+	Interrupts::regs16_t regs;
 	regs.ax = 0x4F05;
 	regs.bx = 0;
 	regs.dx = bank_number;

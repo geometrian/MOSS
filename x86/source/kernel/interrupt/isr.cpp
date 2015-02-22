@@ -41,7 +41,12 @@ void isr_common(State* state) {
 	} else {
 		Kernel::terminal->write("    Is normal error code for exceptions:\n");
 		//state->err_code = 0x200212u;
-		ErrorCode code = *((ErrorCode*)(&state->err_code));
+		union {
+			uint32_t data;
+			ErrorCode code;
+		} convert;
+		convert.data = state->err_code;
+		ErrorCode code = convert.code;
 
 		if (code.external_event==0) {
 			Kernel::terminal->write("      0 : ?\n");

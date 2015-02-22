@@ -4,10 +4,10 @@
 namespace MOSS { namespace Interrupts {
 
 
-void disable(void) {
+void disable_hw_int(void) {
 	asm("cli");
 }
-void enable(void) {
+void enable_hw_int(void) {
 	asm("sti");
 }
 

@@ -112,9 +112,7 @@ void load_gdt(void) {
 	uint32_t base  = (uint32_t)(&gdt_entries);          //The linear address of the first gdt_entry_t struct.
 	uint16_t limit = sizeof(EntryGDT)*MOSS_NUM_GDT - 1; //The upper 16 bits of all selector limits.  Size of table minus 1.  sizeof(EntryGDT) should be 8.
 
-	#ifdef MOSS_DEBUG
-	moss_assert(sizeof(EntryGDT)==8,"EntryGDT is the wrong size!");
-	#endif
+	assert(sizeof(EntryGDT)==8,"EntryGDT is the wrong size!");
 
 	EntryGDT::construct(gdt_entries,   0x00000000u,         0u, EntryGDT::Access::AccessByte::          get_null()); //Null segment
 	EntryGDT::construct(gdt_entries+1, 0x00000000u,0xFFFFFFFFu, EntryGDT::Access::AccessByte::get_selector_code(0)); //Kernel code segment
@@ -156,13 +154,11 @@ void load_idt(void) {
 	uint16_t limit = sizeof(EntryIDT)*256 - 1;
 
 	//Kernel::terminal->write((int)(sizeof(EntryIDT)));
-	#ifdef MOSS_DEBUG
-	moss_assert(sizeof(EntryIDT)==8,"EntryIDT is the wrong size!");
-	moss_assert(sizeof(Interrupts::ErrorCode)==4,"Interrupt error code (normal type) is the wrong size!");
-	moss_assert(sizeof(Interrupts::ErrorCodePF)==4,"Interrupt error code (for page faults) is the wrong size!");
-	#endif
+	assert(sizeof(EntryIDT)==8,"EntryIDT is the wrong size!");
+	assert(sizeof(Interrupts::ErrorCode)==4,"Interrupt error code (normal type) is the wrong size!");
+	assert(sizeof(Interrupts::ErrorCodePF)==4,"Interrupt error code (for page faults) is the wrong size!");
 
-#define IDT_SET_GATE(N) EntryIDT::construct(idt_entries+N, (uint32_t)(isr##N##_asm), EntryIDT::Type::TypeByte::Interrupt32, 0);
+	#define IDT_SET_GATE(N) EntryIDT::construct(idt_entries+N, (uint32_t)(isr##N##_asm), EntryIDT::Type::TypeByte::Interrupt32, 0);
 	MOSS_INTERRUPT(IDT_SET_GATE)
 	#undef IDT_SET_GATE
 

@@ -6,6 +6,7 @@
 #include "memory/simple.h"
 #include "vesa.h"
 #include "text_mode_terminal.h"
+#include "interrupt/pic.h"
 
 
 namespace MOSS { namespace Kernel {
@@ -31,32 +32,31 @@ extern "C" void kernel_main(unsigned long magic, unsigned long addr) {
 
 	multiboot_info_t* mbi = (multiboot_info_t*)(addr);
 
-	#ifdef MOSS_DEBUG
-	moss_assert(magic==MULTIBOOT_BOOTLOADER_MAGIC,"Invalid multiboot magic number!\n");
-	moss_assert(mbi->flags&(1<<0),"Invalid GRUB memory flag!\n");
-	moss_assert(mbi->flags&(1<<6),"Invalid GRUB memory map!\n");
-	#endif
+	assert(magic==MULTIBOOT_BOOTLOADER_MAGIC,"Invalid multiboot magic number!\n");
+	assert(mbi->flags&(1<<0),"Invalid GRUB memory flag!\n");
+	assert(mbi->flags&(1<<6),"Invalid GRUB memory map!\n");
 
 	//The GRUB documentation http://www.gnu.org/software/grub/manual/multiboot/multiboot.html implies
 	//	that interrupts are already disabled.  That's good, because the following allows us to deal with
 	//	them for the first time.
 
-	terminal->write("Forcing disable interrupts\n");
-	MOSS::Interrupts::disable();
+	terminal->write("Forcing disable hardware interrupts\n");
+	MOSS::Interrupts::disable_hw_int();
 
 	terminal->write("Loading GDT\n");
 	MOSS::Interrupts::load_gdt();
 	terminal->write("Loading IDT\n");
 	MOSS::Interrupts::load_idt();
 
+	terminal->write("Remapping PIC\n");
+	MOSS::Interrupts::PIC::remap(32,40);
+
 	terminal->write("Reloading Segments\n");
 	MOSS::Interrupts::reload_segments();
 
-	terminal->write("Enabling Interrupts\n");
+	terminal->write("Enabling hardware interrupts\n");
 
-	MOSS::Interrupts::enable();
-
-	MOSS_DEBUG_BOCHSBREAK
+	MOSS::Interrupts::enable_hw_int();
 
 	/*terminal->write("Test firing . . .\n");
 	MOSS::Interrupts::fire_int13h();

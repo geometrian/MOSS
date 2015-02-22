@@ -24,11 +24,10 @@
 ;	--When the handler returns, the information that was pushed is popped.
 ;	--Returns from interrupt vector using special "iret" instruction.
 
-;Note: The ISRs/common subroutine do NOT issue "cli" or "sti".  This is because the CPU automatically pushes the original value
-;of "eflags" and then disables interrupts before entering an ISR for interrupts.  When leaving, "iret" pops "eflags" back, which
-;includes the original (enabled) state of the interrupts.  It does all this to avoid race conditions.  For an ISR for exceptions,
-;it makes sense to leave them enabled?  The practical upshot is that "cli" and "sti" are wastes of time.
-;See http://forum.osdev.org/viewtopic.php?f=1&t=20572.
+;Note: The ISRs/common subroutine do NOT issue "cli" or "sti".  So, if the ISR services an exception, the CPU could still be
+;interrupted by an IRQ.  However, if the ISR services an IRQ, the CPU automatically disables interrupts for the duration of
+;the ISR (when leaving, "iret" pops "eflags" back, which includes the original (enabled) state of the interrupts).  The
+;practical upshot is that "cli" and "sti" are wastes of time.  See http://forum.osdev.org/viewtopic.php?f=1&t=20572.
 
 ;Note: the original link pushed bytes onto the stack for the dummy error code and the interrupt index.  The stack is 4-byte
 ;aligned, so two bytes took up eight on the stack and the effect was the same.  However, this is much more clear.  See also
@@ -43,8 +42,7 @@
 	global isr%1_asm
 	extern isr%1
 	isr%1_asm:
-		xchg  bx, bx
-
+		;xchg  bx, bx   ;Bochs magic breakpoint
 		push  dword  0 ;dummy error code
 		push  dword %1 ;interrupt index
 		jmp   common_subroutine
@@ -54,9 +52,8 @@
 	global isr%1_asm
 	extern isr%1
 	isr%1_asm:
-		xchg  bx, bx
-
 		               ;error code was pushed here automatically by the CPU prior to entry
+		;xchg  bx, bx   ;Bochs magic breakpoint
 		push  dword %1 ;interrupt index
 		jmp   common_subroutine
 %endmacro
@@ -129,8 +126,15 @@ ISR_NOERROR 19
 	ISR_NOERROR i
 	%assign i i+1
 %endrep
-;	ISRs [32,255] are available for OS usage.  TODO: do they pass error codes or not?
+;	ISRs [32,255] are available for OS usage.
+;	ISRs [32,47] are the remapped 15 IRQs from the PIC.  These say they don't pass error codes: http://www.osdever.net/bkerndev/Docs/irqs.htm, http://forum.osdev.org/viewtopic.php?f=1&t=26875&p=224971#p224971
 %assign i 32
+%rep    16
+	ISR_NOERROR i
+	%assign i i+1
+%endrep
+;	ISRs [48,255] are unallocated.  TODO: do they pass error codes or not?
+%assign i 48
 %rep    224
 	ISR_NOERROR i
 	%assign i i+1
