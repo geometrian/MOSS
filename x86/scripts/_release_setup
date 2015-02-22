@@ -52,46 +52,41 @@ echo "######## Filling disk . . ."
 
 #Mount the disk image in a loop device
 sudo losetup /dev/loop0 build/moss-disk.bin
+
 #Make the disk image's partitions into devices
 sudo kpartx -v -a /dev/loop0
-#Mount the disk image's first partition in a loop device
-#	Note: normally you now would mount /dev/loop0p1 directly.  But, GrUB doesn't like that?
-sudo losetup /dev/loop1 /dev/mapper/loop0p1
-
 #Make a file system on first partition
 #	Note: source also explains how to set up FAT32
 if [ $remake_fs -eq 1 ]
 then
 echo "######## Making a filesystem . . ."
-sudo mke2fs /dev/loop1
-
+sudo mke2fs /dev/mapper/loop0p1
 #Note: may have to unmount loops, restart, and then remount loops here.  See http://forum.osdev.org/viewtopic.php?f=1&t=26907
 else
 echo "######## NOT making a filesystem."
 fi
-
 #Mount the first partition
-sudo mount -t ext2 /dev/loop1 /mnt
-
+sudo mount -t ext2 /dev/mapper/loop0p1 /mnt
 #Set up first partition's /boot directory
+echo "######## Copying over GrUB files . . ."
 sudo mkdir -p /mnt/boot/grub
-
 #I tried.  I really did, to use grub-install.  It just kept failing:
 #	http://forum.osdev.org/viewtopic.php?f=1&t=26907
 #	http://ebroder.net/2009/08/04/installing-grub-onto-a-disk-image/
 #	http://superuser.com/questions/619571/installing-grub-legacy-on-virtual-disk
 #At the suggestion of http://www.slideshare.net/sukhdotin/installing-grub-on-virtual-hard-disk-images-5094625,
 #just copy the needed files over.
-sudo cp /usr/lib/grub/x86_64-pc/stage1 /mnt/boot/grub/stage1
-sudo cp /usr/lib/grub/x86_64-pc/stage2 /mnt/boot/grub/stage2
-
+sudo cp source/grub/stage1 /mnt/boot/grub/stage1
+sudo cp source/grub/stage2 /mnt/boot/grub/stage2
+sudo cp source/grub/e2fs_stage1_5 /mnt/boot/grub/e2fs_stage1_5
 #Copy the kernel over and the facility to boot it
-echo "######## Copying kernel . . ."
+echo "######## Copying over kernel files . . ."
 sudo cp build/MOSS.bin /mnt/boot/MOSS.bin
-sudo cp source/menu.lst /mnt/boot/grub/menu.lst
-
+sudo cp source/grub/menu.lst /mnt/boot/grub/menu.lst
 #Unmount the first partition
-sudo umount /dev/loop1
+sudo umount /dev/mapper/loop0p1
+#Unmake the first partition as a device
+sudo kpartx -d /dev/loop0
 
 #Setup GrUB device map.  I've done this before, but never passing /dev/null in . . .
 if [ $remake_grub -eq 1 ]
@@ -108,10 +103,7 @@ else
 echo "######## NOT setting up GrUB."
 fi
 
-
-#Unmount the disk image from the loop devices
-sudo losetup -d /dev/loop1
-sudo kpartx -d /dev/loop0
+#Unmount the disk image
 sudo losetup -d /dev/loop0
 
 echo "######## Preparation for release complete!"

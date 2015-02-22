@@ -78,7 +78,7 @@ void Kernel::write(const char* format, ...) {
 }
 
 void Kernel::init(void) {
-	#if 0
+	#if 1
 		/*for (int i=0;i<graphics->numof_modes;++i) {
 			graphics->modes[i]->print(terminal);
 			delay(1000);
@@ -120,7 +120,7 @@ void Kernel::main(void) {
 			}
 		}
 	#endif
-	#if 1
+	#if 0
 		terminal->write("Hanging in kernel!\n"); while (true);
 	#endif
 

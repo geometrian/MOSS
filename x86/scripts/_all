@@ -1,4 +1,5 @@
 ./scripts/_build
 ./scripts/_release_setup
+./scripts/_install_vb
 ./scripts/_install_vm
 echo "NOT installing to USB!  If you want to do that, run ./scripts/_install_usb after carefully making sure it has the correct device."

@@ -6,11 +6,11 @@ root = ""
 root_build  = root+"build/"
 root_source = root+"source/"
 
-skip = 0
+skip = 1
 if skip == 0:
-    skip_recompile_directories = []
+    skip_recompile_directories = [root_source+"grub/"]
 else:
-    skip_recompile_directories = [root_source+"kernel/boot",root_source+"mossc/",root_source+"mosst/"]
+    skip_recompile_directories = [root_source+"grub/",root_source+"kernel/boot",root_source+"mossc/",root_source+"mosst/"]
 
 only = 0
 if only == 0:
