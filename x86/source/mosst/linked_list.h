@@ -102,7 +102,7 @@ template <typename type> class LinkedList {
 		}
 
 	private:
-		Node* _get_node(int index) {
+		Node* _get_node(int index) const {
 			//ASSERT(index<size,"Tried to access a linked list out of bounds!");
 			//if (index>=size) return;
 			Node* result = first;

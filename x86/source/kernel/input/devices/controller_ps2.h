@@ -7,6 +7,11 @@
 namespace MOSS { namespace Input { namespace Devices {
 
 
+//This class encapsulates the PS/2 controller, (sometimes referred to elsewhere as "keyboard controller"; a
+//misnomer since the PS/2 controller controls up to two devices).  This is a good diagram of the setup:
+//http://wiki.osdev.org/%228042%22_PS/2_Controller#Overview.
+
+
 class DevicePS2Keyboard;
 class DevicePS2Mouse;
 
@@ -14,20 +19,42 @@ class DevicePS2Mouse;
 class ControllerPS2 {
 	private:
 		enum ControllerIO {
-			StatusRegister  = 0x0064,
-			CommandRegister = 0x0064
+			DataPort        = 0x0060u,
+			StatusRegister  = 0x0064u,
+			CommandRegister = 0x0064u
 		};
-		enum StatusMask {
-			OutputBuffer    = 0x01, //00000001
-			InputBuffer     = 0x02, //00000010
-			System          = 0x04, //00000100
-			CommandData     = 0x08, //00001000
-			Locked          = 0x10, //00010000
-			AuxiliaryBuffer = 0x20, //00100000
-			Timeout         = 0x40, //01000000
-			Parity          = 0x80  //10000000
+		class StatusByte { public:  //"Compaq status byte" (not actually Compaq-specific (anymore).
+			union {
+				struct {
+					bool                output_buffer_full : 1;
+					bool                 input_buffer_full : 1;
+					uint8_t                    system_flag : 1;
+					uint8_t input_for_device_or_controller : 1; //Writes to input buffer for 0=PS/2 device, 1=PS/2 controller
+					uint8_t                        unknown : 1; //May be keyboard locked
+					uint8_t         data_from_which_device : 1; //http://wiki.osdev.org/Mouse_Input#Keyboard.2FAux_Data_Bit (0=keyboard, 1=mouse) //May be "receive time-out" or "second PS/2 port output buffer full" (first link implies it is definitely the second)
+					bool                     timeout_error : 1;
+					uint8_t                   parity_error : 1;
+				};
+				uint8_t data_byte;
+			};
+		};
+		class ConfigurationByte { public:
+			union {
+				struct {
+					bool  first_port_interrupts_enabled : 1;
+					bool second_port_interrupts_enabled : 1;
+					bool                    system_flag : 1;
+					uint8_t                       zero1 : 1;
+					bool      first_port_clock_disabled : 1;
+					bool     second_port_clock_disabled : 1;
+					bool         first_port_translation : 1; //from scan code set n to scan code set 1?
+					uint8_t                       zero2 : 1;
+				};
+				uint8_t data_byte;
+			};
 		};
 	public:
+#if 0
 		//http://www.virtualbox.org/svn/vbox/trunk/src/VBox/Devices/Input/DevPS2.cpp
 		enum ControllerCommand {
 			ReadCommand     = 0x20, //Read command byte
@@ -75,6 +102,7 @@ class ControllerPS2 {
 			0xDF //Enable A20 address line
 			0xF0-0xFF //Pulse output bit*/
 		};
+#endif
 
 		DevicePS2Keyboard* keyboard;
 		DevicePS2Mouse* mouse;
@@ -87,24 +115,21 @@ class ControllerPS2 {
 		bool handle_irq_keyboard(void);
 		bool handle_irq_mouse(void);
 
-		void disable_irq_keyboard(void);
-		void enable_irq_keyboard(void);
-
-		void disable_irq_mouse(void);
-		void enable_irq_mouse(void);
-
 	public:
-		void send_command(ControllerCommand command);
+		void send_command(uint8_t command);
+		void send_data(uint8_t data);
+		bool recv_data(uint8_t* data, int timeout_counter=-1);
 
-		uint8_t read_status(void) const;
-
-		bool is_inputbuffer_clear(void) const;
+		bool is_inputbuffer_full(void) const;
 		bool is_outputbuffer_full(void) const;
 		void wait_for_inputbuffer_clear(void) const;
 		void wait_for_outputbuffer_full(void) const;
 
-		bool test_self(void);
-		bool test_interfaces(void);
+	private:
+		StatusByte _get_status_byte(void) const;
+
+		ConfigurationByte _get_configuration_byte(void);
+		void _set_configuration_byte(const ConfigurationByte& config_byte);
 };
 
 

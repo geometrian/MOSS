@@ -6,7 +6,11 @@
 namespace MOSS { namespace Graphics { namespace GUI {
 
 
-ComponentBase::ComponentBase(ComponentBase* parent, const Rect& rect_component,const Rect& rect_client/*=Rect(0,0,0,0)*/) : parent(parent), rect_component(rect_component),rect_client(rect_client) {
+ComponentBase::ComponentBase(ComponentBase* parent, const Rect& rect_component,const Rect& rect_client/*=Rect(0,0,0,0)*/) :
+	parent(parent),
+	rect_component(rect_component),rect_client(rect_client),
+	alive(true)
+{
 	if (parent!=NULL) {
 		parent->children->insert_back(this);
 	}
@@ -25,7 +29,19 @@ ComponentBase::~ComponentBase(void) {
 	delete children;
 }
 
-bool ComponentBase::handle_mouse(const Input::Mouse::EventMove& event) {
+bool ComponentBase::handle_mouse(const Input::Mouse::EventMouseMove& event) {
+	for (int i=0;i<children->size;++i) {
+		if ((*children)[i]->handle_mouse(event)) return true;
+	}
+	return false;
+}
+bool ComponentBase::handle_mouse(const Input::Mouse::EventMouseClick& event) {
+	for (int i=0;i<children->size;++i) {
+		if ((*children)[i]->handle_mouse(event)) return true;
+	}
+	return false;
+}
+bool ComponentBase::handle_mouse(const Input::Mouse::EventMouseUnclick& event) {
 	for (int i=0;i<children->size;++i) {
 		if ((*children)[i]->handle_mouse(event)) return true;
 	}

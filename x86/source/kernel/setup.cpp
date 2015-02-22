@@ -77,7 +77,7 @@ extern "C" void kernel_entry(unsigned long magic, unsigned long addr) {
 	MOSS::Interrupts::fire_int13h();
 	terminal->write("fired!\n");*/
 
-	//The VESA controller needs access to loawer memory (less than 1MiB) load information.  Therefore, it
+	//The VESA controller needs access to lower memory (less than 1MiB) load information.  Therefore, it
 	//needs to come after all of the information we want is out of the bootloader.
 	Graphics::VESA::Controller graphics2;
 	graphics = &graphics2;

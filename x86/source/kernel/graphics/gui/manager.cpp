@@ -23,9 +23,32 @@ Manager::~Manager(void) {
 	}
 }
 
-void Manager::handle_mouse(const Input::Mouse::EventMove& event) {
+void Manager::update(void) {
+	for (int i=0;i<frames.size;++i) {
+		if (!frames[i]->alive) {
+			delete frames[i];
+			frames.remove(i);
+		}
+	}
+}
+
+void Manager::handle_mouse(const Input::Mouse::EventMouseMove& event) {
 	mouse->x = event.x;
 	mouse->y = event.y;
+
+	for (int i=0;i<frames.size;++i) {
+		if (frames[i]->handle_mouse(event)) break;
+	}
+}
+void Manager::handle_mouse(const Input::Mouse::  EventMouseClick& event) {
+	mouse->buttons[event.index] =  true;
+
+	for (int i=0;i<frames.size;++i) {
+		if (frames[i]->handle_mouse(event)) break;
+	}
+}
+void Manager::handle_mouse(const Input::Mouse::EventMouseUnclick& event) {
+	mouse->buttons[event.index] = false;
 
 	for (int i=0;i<frames.size;++i) {
 		if (frames[i]->handle_mouse(event)) break;

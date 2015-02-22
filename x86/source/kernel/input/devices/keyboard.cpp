@@ -25,6 +25,7 @@ DevicePS2Keyboard::~DevicePS2Keyboard(void) {}
 /*void send_key(uint8_t scancode) {
 
 }*/
+#if 1
 void DevicePS2Keyboard::handle_irq(void) /*override*/ {
 	//Must read port 0x60 to clear the keyboard interrupt
 	//Also, we want the scan code!
@@ -234,6 +235,7 @@ bool DevicePS2Keyboard::self_test(void) {
 	}
 	return false;
 }
+#endif
 
 
 }}}

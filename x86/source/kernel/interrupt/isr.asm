@@ -28,6 +28,8 @@
 
 ;Note: not enabling/disabling hardware interrupts with "sti"/"cli" is intentional.  See the notes for this section.
 
+;TODO: remove debugging markers (and in isr.cpp)
+
 
 ;ISR that DOES NOT pass its own error code
 %macro ISR_NOERROR 1
@@ -37,6 +39,8 @@
 		;xchg  bx, bx   ;Bochs magic breakpoint
 		push  dword  0 ;dummy error code
 		push  dword %1 ;interrupt index
+		push  dword 0xABCD1234 ;debug marker
+		;xchg  bx, bx   ;Bochs magic breakpoint
 		jmp   common_subroutine
 %endmacro
 ;ISR that DOES pass its own error code
@@ -47,6 +51,8 @@
 		               ;error code was pushed here automatically by the CPU prior to entry
 		;xchg  bx, bx   ;Bochs magic breakpoint
 		push  dword %1 ;interrupt index
+		push  dword 0xDEADBEEF ;debug marker
+		;xchg  bx, bx   ;Bochs magic breakpoint
 		jmp   common_subroutine
 %endmacro
 
@@ -87,6 +93,9 @@ common_subroutine:
 
 	;Clean up the pushed ISR number and the pushed error code (whether we pushed it xor the CPU pushed it automatically).
 	add  esp, 8
+
+	;Clean up debugging markers
+	add  esp, 4
 
 	;TODO: http://stackoverflow.com/questions/11756153/whats-the-difference-between-iret-and-iretd-iretq?
 	iret ;Special return instruction (pops 5 things at once: cs, eip, eflags, ss, and esp)

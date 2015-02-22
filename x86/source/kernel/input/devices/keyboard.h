@@ -27,7 +27,7 @@ namespace MOSS { namespace Input { namespace Devices {
 class ControllerPS2;
 
 class DevicePS2Keyboard : public DevicePS2Base {
-	friend class ControllerPS2;
+	//friend class ControllerPS2;
 	private:
 		enum DeviceIO {
 			InputBuffer     = 0x0060,
@@ -80,14 +80,6 @@ class DevicePS2Keyboard : public DevicePS2Base {
 		//0xFE //Resend last result
 		bool self_test(void);
 };
-
-
-//okay &= keyboard->read_buffer()==0x00;
-//0x00 = Success; no errors
-//0x01 = Keyboard clock line stuck low
-//0x02 = Keyboard clock line stuck high
-//0x03 = Keyboard data line stuck high
-//0xFF = General error
 
 //TODO: this
 /*// scan error codes ------------------------------------------

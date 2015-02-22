@@ -3,6 +3,7 @@
 #include "graphics/gui/manager.h"
 #include "graphics/color.h"
 #include "graphics/vesa/controller.h"
+#include "graphics/vesa/framebuffer.h"
 
 #include "../mossc/cstdio"
 #include "input/devices/controller_ps2.h"
@@ -41,16 +42,22 @@ void handle_key_up(const Input::Keys::Event&/* event*/) {
 
 }
 
-void handle_mouse_move(const Input::Mouse::EventMove& event) {
-	/*//terminal->write("Mouse position: %d, %d\n",event.x,event.y);
+void handle_mouse_move(const Input::Mouse::EventMouseMove& event) {
+	//terminal->write("Mouse position: %d, %d\n",event.x,event.y);
 
-	graphics->set_pixel(event.x,event.y, Graphics::Color(255u,0u,255u,255u));
+	/*graphics->current_framebuffer->set_pixel(event.x,event.y, Graphics::Color(255u,0u,255u,255u));
 
 	char buffer[64];
 	MOSSC::sprintf(buffer,"Mouse position: (%+5d,%+5d)",event.x,event.y);
 
-	graphics->draw_text(50,50, buffer, Graphics::Color(0u,255u,255u),Graphics::Color(32u,32u,32u));
-	//graphics->draw_text(50,50, "Hello World!", Graphics::Color(0u,255u,255u));*/
+	graphics->current_framebuffer->draw_text(50,50, buffer, Graphics::Color(0u,255u,255u),Graphics::Color(32u,32u,32u));*/
+	//graphics->draw_text(50,50, "Hello World!", Graphics::Color(0u,255u,255u));
+	gui->handle_mouse(event);
+}
+void handle_mouse_click(const Input::Mouse::EventMouseClick& event) {
+	gui->handle_mouse(event);
+}
+void handle_mouse_unclick(const Input::Mouse::EventMouseUnclick& event) {
 	gui->handle_mouse(event);
 }
 
@@ -88,9 +95,11 @@ void kernel_main(void) {
 		}
 	}*/
 
-	gui->add_frame("Hello world!", 50,50, 300,200);
+	gui->add_frame("Hello world!", 50,500, 300,200);
 
 	while (true) {
+		gui->update();
+
 		Kernel::graphics->frame_start();
 
 		gui->draw(Kernel::graphics->current_framebuffer);

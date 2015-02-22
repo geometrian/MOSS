@@ -32,6 +32,7 @@ class ErrorCodePF { public:
 class State { public:
 	uint32_t gs, fs, es, ds; //pushed the segs last
 	uint32_t edi, esi, ebp, esp, ebx, edx, ecx, eax; //pushed by "pusha"
+	uint32_t debug_marker; //TODO: remove in isr.asm
 	uint32_t int_ind;
 	uint32_t err_code; //One of the error code types.  Cast it because unfortunately it can't be the error code type we'll actually use
 	uint32_t eip, cs, eflags, useresp, ss; //pushed by the processor automatically

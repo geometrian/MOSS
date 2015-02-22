@@ -6,7 +6,8 @@
 namespace MOSS { namespace Interrupts {
 
 
-//IDT Entry or "gate".  Types can be interrupt gate, task gate, trap gate
+//IDT Entry or "gate".  Types can be interrupt gate, task gate, trap gate.
+//	The key difference between an interrupt gate an a trap gate is that interrupt gates disable interrupts before processing.
 //	When an interrupt fires, the entry is used to jump to the appropriate handler function.  For interrupt/trap gates, the offset
 //		and selector are the address of this function in the GDT or LDT.  Specifically, the selector should refer to the code
 //		segment where the handler function resides in the GDT, and the offset is where that function is within.  For task gates,
@@ -27,11 +28,11 @@ class EntryIDT {
 				//	they must be 0 for interrupt gates, but doesn't say anything about other cases.  I'm leaving the fifth bit separate
 				//	but leaving it zero as per BrokenThorn's direction.
 				enum GateType { //Be sure to update code for storage_elem if change this!  See also http://www.acm.uiuc.edu/sigops/roll_your_own/i386/systbl.html#SystemDesc
-					Task32      = (uint8_t)(0x5u),
-					Interrupt16 = (uint8_t)(0x6u),
-					Trap16      = (uint8_t)(0x7u),
-					Interrupt32 = (uint8_t)(0xEu),
-					Trap32      = (uint8_t)(0xFu),
+					Task32      = (uint8_t)(0x05u),
+					Interrupt16 = (uint8_t)(0x06u),
+					Trap16      = (uint8_t)(0x07u),
+					Interrupt32 = (uint8_t)(0x0Eu),
+					Trap32      = (uint8_t)(0x0Fu),
 				};// gate_type :  4; //See link above
 				uint8_t gate_type :  4; //TODO: this can't be of type GateType because of some weird alignment issue.
 				bool storage_elem :  1; //Initialized to 0

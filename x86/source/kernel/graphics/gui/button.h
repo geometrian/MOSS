@@ -14,12 +14,14 @@ class ButtonBase : public ComponentBase {
 	public:
 		int x,y;
 
+		bool hovering;
+
 	protected:
 		ButtonBase(ComponentBase* parent, const Rect& rect_button);
 	public:
 		virtual ~ButtonBase(void);
 
-		bool handle_mouse(const Input::Mouse::EventMove& event) override;
+		bool handle_mouse(const Input::Mouse::EventMouseMove& event) override;
 };
 class ButtonToggleBase : public ButtonBase {
 	private:
@@ -37,13 +39,13 @@ class ButtonSingleBase : public ButtonBase {
 		ButtonSingleBase(ComponentBase* parent, const Rect& rect_button);
 	public:
 		virtual ~ButtonSingleBase(void);
-
-		bool handle_mouse(const Input::Mouse::EventMove& event) override;
 };
 class ButtonClose : public ButtonSingleBase {
 	public:
 		ButtonClose(ComponentBase* parent);
 		virtual ~ButtonClose(void);
+
+		bool handle_mouse(const Input::Mouse::EventMouseClick& event) override;
 
 		void draw(VESA::Framebuffer* framebuffer) override;
 };

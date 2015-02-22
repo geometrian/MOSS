@@ -16,6 +16,8 @@ Frame::Frame(ComponentBase* parent, int x,int y, int w,int h) : ComponentBase(pa
 	set_position(x,y);
 	set_size(w,h);
 
+	alive = true;
+
 	button_close = new Buttons::ButtonClose(this);
 
 	visible = true; //TODO: false

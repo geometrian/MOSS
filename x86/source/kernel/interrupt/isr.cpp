@@ -1,5 +1,7 @@
 #include "isr.h"
 
+#include "../../includes.h" //For magic breakpoint
+
 #include "../input/devices/controller_ps2.h"
 #include "../kernel.h"
 #include "../text_mode_terminal.h"
@@ -181,8 +183,8 @@ bool isr32(void) {
 
 //ISR 33 = IRQ 1 (Keyboard Interrupt)
 bool isr33(void) {
-	//Kernel::terminal->write("keyboard!\n"); return true; //Will only work once because we don't read the data
-	return Kernel::controller->handle_irq_keyboard();
+	Kernel::terminal->write("keyboard!\n"); return true; //Will only work once because we don't read the data
+	//return Kernel::controller->handle_irq_keyboard();
 }
 
 //ISR 34 = IRQ 2 (Cascade (used internally by the two PICs. never raised))
@@ -237,7 +239,10 @@ void isr43(void) {
 
 //ISR 44 = IRQ 12 (PS2 Mouse)
 bool isr44(void) {
+	//MOSS_DEBUG_BOCHSBREAK;
 	//Kernel::terminal->write("Handling IRQ 12 (stub)\n"); return true;
+	//return true;
+	//Kernel::terminal->write("Handling IRQ 12 (mouse)\n");
 	return Kernel::controller->handle_irq_mouse();
 }
 
@@ -260,6 +265,8 @@ void isr47(void) {
 
 
 void isr_common(State* state) {
+	//MOSS_DEBUG_BOCHSBREAK;
+
 	//See sign-extending about unsigned bytes here: http://forum.osdev.org/viewtopic.php?f=1&t=23998&sid=98cd3b1e6b1256f0dbdb0885e84ba05f&start=15.
 	//Shouldn't be an issue since everything pushed is 32 bits.
 

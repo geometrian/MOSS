@@ -15,7 +15,9 @@ namespace MOSS {
 			class Event;
 		}
 		namespace Mouse {
-			class EventMove;
+			class EventMouseMove;
+			class EventMouseClick;
+			class EventMouseUnclick;
 		}
 	}
 	namespace Terminal {
@@ -37,7 +39,9 @@ extern Graphics::GUI::Manager* gui;
 void handle_key_down(const Input::Keys::Event& event);
 void handle_key_up(const Input::Keys::Event& event);
 
-void handle_mouse_move(const Input::Mouse::EventMove& event);
+void handle_mouse_move(const Input::Mouse::EventMouseMove& event);
+void handle_mouse_click(const Input::Mouse::EventMouseClick& event);
+void handle_mouse_unclick(const Input::Mouse::EventMouseUnclick& event);
 
 void kernel_main(void);
 
