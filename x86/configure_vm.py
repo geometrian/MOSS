@@ -5,7 +5,9 @@ from build_print_info import *
 
 print_info("Configuring virtual machine")
 call([
-    "C:\\Program Files\\Oracle\\VirtualBox\\VBoxManage.exe","modifyvm",
+##    "C:\\Program Files\\Oracle\\VirtualBox\\VBoxManage.exe",
+    "VBoxManage",
+    "modifyvm",
     "MOSS",
     "--bioslogofadein","off",
     "--bioslogodisplaytime","0",
@@ -13,5 +15,5 @@ call([
     "--biosbootmenu","disabled"
 ])
 
-print_info("Complete!")
+print_info("Complete!",1)
 time.sleep(1)

@@ -2,23 +2,23 @@ from subprocess import call
 import sys, time
 
 from build_print_info import *
+from which_nasm import *
 
 def assemble_compile_bootloader1():
     call([
-        "C:\\dev\\nasm\\nasm.exe",
-##        "nasm"
-        "MOSS/bootloader1/bootloader1.asm",
-        "-i","MOSS/bootloader1/",
+        nasm,
+        "MOSS/bootloader/bootloader.asm",
+        "-i","MOSS/bootloader/",
         "-i","MOSS/asm_helpers/",
         "-f","bin",
-        "-o","bootloader1.bin"
+        "-o","bootloader.bin"
     ])
 
 def main():
-    print_info("Assembling/Compiling bootloader 1")
+    print_info("Assembling/Compiling bootloader")
     assemble_compile_bootloader1()
 
-    print_info("Complete!")
+    print_info("Complete!",1)
 if __name__ == '__main__':
     main()
     time.sleep(2)

@@ -11,14 +11,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <None Include="MOSS\asm_helpers\print.asm" />
-    <None Include="MOSS\bootloader1\bootloader1.asm" />
-    <None Include="MOSS\bootloader1\print_level1.asm" />
-    <None Include="MOSS\bootloader2\bootloader2.asm" />
-    <None Include="MOSS\bootloader2\print_level2.asm" />
+    <ClCompile Include="MOSS\kernel\kernel.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="MOSS\kernel\kernel.c" />
+    <None Include="MOSS\asm_helpers\print.asm" />
+    <None Include="MOSS\bootloader\bootloader.asm" />
+    <None Include="MOSS\kernel\jump.asm" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{04E3B400-FC69-4F9F-91F2-75302098AADC}</ProjectGuid>
@@ -44,8 +42,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <NMakeBuildCommandLine>__build_all_run_win.py</NMakeBuildCommandLine>
-    <NMakeReBuildCommandLine>__build_all_run_win.py</NMakeReBuildCommandLine>
+    <NMakeBuildCommandLine>_build_install_run_vb.py</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine>_build_install_run_vb.py</NMakeReBuildCommandLine>
     <NMakePreprocessorDefinitions>WIN32;_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

@@ -1,0 +1,9 @@
+-Install gcc, make, flex, bison, iconv, gmp, mpfr, mpc
+-Extract binutils, gcc-core to Cygwin's /usr/src (for me: C:\dev\cygwin\usr\src)
+-Open a Cygwin BASH shell:
+-cd ../../dev/C++/MOSS/0.3/cross
+-Run the build shell scripts in order.
+
+Problems may be due to:
+-A stupid path being used.  echo $PATH and adjust line 32 of /etc/profile accordingly.
+-Cygwin's caching.  If something is cached and something changes (e.g. the path), kill the cache files.  Search config.cache and kill everything.  I thought that might fix it, but apparently not.

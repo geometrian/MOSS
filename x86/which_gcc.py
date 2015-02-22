@@ -1,0 +1,5 @@
+##gcc = "C:\\dev\\Perl\\c\\bin\\gcc.exe"
+##gcc = "C:\\dev\\cygwin\\usr\\src\\build-gcc\\gcc\\gcc-ar.exe"
+##gcc = "C:\\dev\\cygwin\\bin\\i686-pc-cygwin-gcc.exe"
+##gcc = "i686-pc-cygwin-gcc-4.7.2.exe"
+gcc = "gcc"

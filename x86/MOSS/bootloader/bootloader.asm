@@ -1,10 +1,10 @@
 ;MOSS bootloader
 ;Ian Mallett
 
-ADDRESS_KERNEL  EQU 0x1000   ; Address that the kernel will be loaded to by the boot loader
-SEGMENT_ID_CODE EQU 0x08     ; Code segment ID is 8
-SEGMENT_ID_DATA EQU 0x10     ; Data segment ID is 16
-ADDRESS_STACK   EQU 0x90000  ; Top of conventional memory
+ADDRESS_KERNEL  EQU 0x1000      ; Address that the kernel will be loaded to by the bootloader
+SEGMENT_ID_CODE EQU 0x0008      ; Code segment ID is 8
+SEGMENT_ID_DATA EQU 0x0010      ; Data segment ID is 16
+ADDRESS_STACK   EQU 0x00090000  ; Top of conventional memory
 
 [BITS 16]
 [ORG 0x7C00]
@@ -14,21 +14,25 @@ ADDRESS_STACK   EQU 0x90000  ; Top of conventional memory
 jmp  0x0000:main
 
 %include "../asm_helpers/print.asm"
-%include "print_level1.asm"
 
 ; PRINT 3 is a macro that prints given a string, text color, and background color
-%macro PRINT1 3  ; print a level 1 text (i.e. something like "Bootloader level 1: <text>")
-	call   print_level1
-	PRINT  %1, %2, %3
-%endmacro
 %macro PRINTI 1  ; print an info line (i.e. PRINT1, but without having to specify a dark grey color)
 	mov   esi, %1
 	call  print_info
 %endmacro
 %macro FAIL 2  ; a failure condition--print an error and hang
 	mov  esi, %2
-	%1   fail
+	%1   print_fail_hang
 %endmacro
+
+print_info:
+	SET_COLOR_L(0x8,0x0)
+	call  print_string
+	ret
+print_fail_hang:
+	SET_COLOR_L(0x4,0x0)
+	call  print_string
+	jmp   $
 
 main:
 	;Setup segment registers
@@ -56,7 +60,6 @@ main:
 	FAIL  jc, str_f_a20
 
 	;Load kernel
-	PRINTI  str_lk_1
 	;	Check support INT13h extensions.  Implies that LBA addressing MAY be available
 	mov     ah, 0x41
 	mov     bx, 0x55AA
@@ -64,6 +67,7 @@ main:
 	int     0x13
 	FAIL    jc, str_f_int13
 	PRINTI  str_lk_2
+
 	;	Do the transfer.  See http://en.wikipedia.org/wiki/INT_13H#INT_13h_AH.3D42h:_Extended_Read_Sectors_From_Drive
 	PRINTI  str_lk_3
 	mov     si, DAP
@@ -72,33 +76,27 @@ main:
 	int     0x13
 	PRINTI  str_lk_4
 	FAIL    jc, str_f_load
-	;	Jump to kernel
-	;jmp     0x0000:0x8000
-	cli              ; we don't want to be interrupted right now
-	xor ax, ax
-	mov ds, ax       ; clear ds - this register is used by lgdt
-	lgdt [gdt_desc]  ; Load the GDT descriptor
 
-	mov eax, cr0     ; Copy the contents of CR0 into EAX
-	or eax, 1        ; Set bit 0
-	mov cr0, eax     ; Copy the contents of EAX into CR0
+	;	Load GDT thing
+	;cli              ; we don't want to be interrupted right now
+	xor     ax, ax
+	mov     ds, ax      ; clear ds - this register is used by lgdt
+	lgdt    [gdt_desc]  ; Load the GDT descriptor
+	PRINTI  str_lk_5
 
+	;	Enable video mode 0x13
+	PRINTI  str_lk_6
+	mov     ah, 0x00
+	mov     al, 0x13
+	int     0x10
+
+	;	Enable protected mode by setting bit 0 of CR0.
+	mov  eax, cr0
+	or   eax, 1
+	mov  cr0, eax
+
+	;	Long jump to clear prefetch queue and enter kernel
 	jmp SEGMENT_ID_CODE:clear_queue_and_jmp
-
-print_info:
-	push  esi
-	call  print_level1
-	pop   esi
-	SET_COLOR_L(0x8,0x0)
-	call  print_string
-	ret
-fail:
-	push  esi
-	call  print_level1
-	pop   esi
-	SET_COLOR_L(0x4,0x0)
-	call  print_string
-	jmp   $
 
 [BITS 32]
 ;By far jumping we clear the prefetch queue, apparently.
@@ -120,6 +118,10 @@ clear_queue_and_jmp:
 	; Point the stack pointer at the stack
 	mov  esp, ADDRESS_STACK
 
+	;mov  eax, 0x000b8000
+	;mov  ebx, 0x07690748
+	;mov  [eax], ebx
+
 	;Jump to the kernel!
 	jmp SEGMENT_ID_CODE:ADDRESS_KERNEL
 
@@ -129,7 +131,7 @@ DAP:  ; Disk Address Packet
 	;Unused
 	db  0
 	;Number of sectors to read
-	dw  1       ; int 13 resets this to # of blocks actually read/written
+	dw  0x35     ; int 13 resets this to # of blocks actually read/written
 	;Offset and segment of destination
 	;db  0x00    ; offset
 	;db  0x7C
@@ -144,12 +146,13 @@ DAP:  ; Disk Address Packet
 bootdisk  db 0
 
 ;ASCII 13 is \r, ASCII 10 is \n
-str_ss_1  db "MOSS 0.1 Bootloader 1",13,10,"Ian Mallett",13,10,0
+str_ss_1  db "MOSS 0.3 Bootloader",13,10,"Ian Mallett",13,10,0
 
-str_lk_1  db "load level 2:",13,10,0
 str_lk_2  db "INT13 supported!",13,10,0
 str_lk_3  db "load start:",13,10,0
 str_lk_4  db "load done!",13,10,0
+str_lk_5  db "GDT loaded!",13,10,0
+str_lk_6  db "enabling video mode 0x13",0
 
 str_f_a20    db "no A20!",0
 str_f_int13  db "no INT13!",0

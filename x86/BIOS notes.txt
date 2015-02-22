@@ -3,7 +3,8 @@
 ;See http://forum.osdev.org/viewtopic.php?f=1&t=24305
 
 SEE http://m3os.googlecode.com/svn/trunk/boot/bootsect.asm
-This one is the best
+This one is the best.  Also see from:
+http://m3os.wordpress.com/2009/03/15/tutorial-line-by-line-m3s-boot-loader/
 
 ;int 10h, function 00h – performs changing of video mode and clears screen
 ;int 10h, function 01h – sets the cursor type
