@@ -10,3 +10,8 @@
 .ides/*.vsp
 .ides/*.sdf
 .ides/*.suo
+
+nircmd/
+
+VM/
+VMware/
