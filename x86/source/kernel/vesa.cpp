@@ -5,6 +5,9 @@
 #include "text_mode_terminal.h"
 
 
+//See also http://www.brokenthorn.com/Resources/OSDevVid2.html
+
+
 namespace MOSS { namespace VESA {
 
 

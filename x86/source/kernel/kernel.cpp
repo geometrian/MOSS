@@ -55,9 +55,9 @@ extern "C" void kernel_main(unsigned long magic, unsigned long addr) {
 	terminal->write("Enabling Interrupts\n");
 	MOSS::Interrupts::enable();
 
-	terminal->write("Test firing . . .\n");
+	/*terminal->write("Test firing . . .\n");
 	MOSS::Interrupts::fire_int13h();
-	terminal->write("fired!\n");
+	terminal->write("fired!\n");*/
 
 	/*Memory::MemoryManager memory2(mbi);
 	memory = &memory2;*/

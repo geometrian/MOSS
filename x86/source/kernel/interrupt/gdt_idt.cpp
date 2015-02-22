@@ -1,5 +1,6 @@
 #include "gdt_idt.h"
 
+#include "isr.h"
 #include "../text_mode_terminal.h"
 
 
@@ -159,7 +160,7 @@ void load_idt(void) {
 	moss_assert(sizeof(EntryIDT)==8,"EntryIDT is the wrong size!");
 	#endif
 
-	#define IDT_SET_GATE(N) EntryIDT::construct(idt_entries+N, (uint32_t)(isr), EntryIDT::Type::TypeByte::Interrupt32, 0);
+#define IDT_SET_GATE(N) EntryIDT::construct(idt_entries+N, (uint32_t)(isr##N##_asm), EntryIDT::Type::TypeByte::Interrupt32, 0);
 	MOSS_INTERRUPT(IDT_SET_GATE)
 	#undef IDT_SET_GATE
 
