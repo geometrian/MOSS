@@ -1,6 +1,9 @@
 #pragma once
 
 
+namespace MOSS { namespace Boot {
+
+
 class multiboot_memory_map_t { public:
 	unsigned int size;
 	union {
@@ -13,3 +16,6 @@ class multiboot_memory_map_t { public:
 	};
 	unsigned int type;
 };
+
+
+}}

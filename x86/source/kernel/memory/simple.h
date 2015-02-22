@@ -2,12 +2,15 @@
 #include "../../includes.h"
 
 
-//TODO: put these inside some namespace
-class multiboot_info_t;
-class multiboot_memory_map_t;
-
-
-namespace MOSS { namespace Memory {
+namespace MOSS {
+	namespace Boot {
+		class multiboot_info_t;
+		class multiboot_memory_map_t;
+	}
+	namespace Terminal {
+		class TextModeTerminal;
+	}
+namespace Memory {
 
 
 class Block;
@@ -34,7 +37,7 @@ class BlockGRUB {
 
 		BlockGRUB(void);
 		BlockGRUB(const BlockGRUB& block);
-		BlockGRUB(multiboot_memory_map_t* mmap);
+		BlockGRUB(Boot::multiboot_memory_map_t* mmap);
 		~BlockGRUB(void);
 
 		void print(Terminal::TextModeTerminal* terminal) const;
@@ -46,7 +49,7 @@ class MemoryManager {
 		uint64_t   end; //exclusive
 
 	public:
-		MemoryManager(const multiboot_info_t* mbi);
+		MemoryManager(const Boot::multiboot_info_t* mbi);
 		~MemoryManager(void);
 
 		void* malloc(size_t size);

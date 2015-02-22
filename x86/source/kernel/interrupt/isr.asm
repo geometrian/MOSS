@@ -1,20 +1,22 @@
-;Note: this file's code is heavily based on http://www.osdever.net/bkerndev/Docs/isrs.htm.  Differences are noted.
+;The ISRs are defined in this file.
 
-;See also http://www.acm.uiuc.edu/sigops/roll_your_own/i386/idt.html
+;Note: this file's code is heavily based on http://www.osdever.net/bkerndev/Docs/isrs.htm.  Differences are noted.  See also
+;http://www.acm.uiuc.edu/sigops/roll_your_own/i386/idt.html
 
 ;Ideally, we'd have a separate ISR entry point for each interrupt vector, each calling the corresponding C handler.  However, this
 ;is complicated by the fact that some interrupts push error codes and some do not.  The error code, if it exists, must be popped
 ;off the stack before the "iret" instruction (see http://stackoverflow.com/questions/491613/return-from-interrupts-in-x86).  This
 ;makes it very difficult if not impossible to call the major section of the ISR (that sets up information and calls the handler)
-;in a separate routine.  One could duplicate all that code, bute there are 256 ISRs to make.  It seems like a waste, even if it
+;in a separate routine.  One could duplicate all that code, but there are 256 ISRs to make.  It seems like a waste, even if it
 ;might be more direct.
 
-;Some sources (e.g. the link above) recommend pushing a dummy byte in the cases where is does not, thus simplifying all the ISRs
-;enough to call a common routine, which calls a common C++ handler (which then delegates the interrupt to another, appropriate
-;C++ specific handler) and then finishes up.  This mechanism is adopted here since it is ultimately the cleanest.
+;Some sources (e.g. the link above) recommend pushing a dummy byte in the cases where the CPU does not do so automatically itself,
+;thus simplifying all the ISRs enough to call a common routine, which calls a common C++ handler (which then delegates the interrupt
+;to another, appropriate C++ specific handler) and then finishes up.  This mechanism is adopted here since it is ultimately the
+;cleanest.
 
 ;Each ISR:
-;	--Pushes a dummy error code iff a real one was not.
+;	--Pushes a dummy error code iff a genuine one was not.
 ;	--Jumps to the common subroutine
 ;The subroutine:
 ;	--Pushes the interrupt number (ultimately for the common C++ handler's benefit)
@@ -24,17 +26,7 @@
 ;	--When the handler returns, the information that was pushed is popped.
 ;	--Returns from interrupt vector using special "iret" instruction.
 
-;Note: The ISRs/common subroutine do NOT issue "cli" or "sti".  So, if the ISR services an exception, the CPU could still be
-;interrupted by an IRQ.  However, if the ISR services an IRQ, the CPU automatically disables interrupts for the duration of
-;the ISR (when leaving, "iret" pops "eflags" back, which includes the original (enabled) state of the interrupts).  The
-;practical upshot is that "cli" and "sti" are wastes of time.  See http://forum.osdev.org/viewtopic.php?f=1&t=20572.
-
-;Note: the original link pushed bytes onto the stack for the dummy error code and the interrupt index.  The stack is 4-byte
-;aligned, so two bytes took up eight on the stack and the effect was the same.  However, this is much more clear.  See also
-;http://forum.osdev.org/viewtopic.php?f=1&t=23998&start=0.
-
-;See Intel Manual ~pg. 248.  When an interrupt happens, "eflags", "cs", "eip", and (possibly) the error code are pushed onto the
-;stack.
+;Note: not enabling/disabling hardware interrupts with "sti"/"cli" is intentional.  See the notes for this section.
 
 
 ;ISR that DOES NOT pass its own error code
@@ -96,6 +88,7 @@ common_subroutine:
 	;Clean up the pushed ISR number and the pushed error code (whether we pushed it xor the CPU pushed it automatically).
 	add  esp, 8
 
+	;TODO: http://stackoverflow.com/questions/11756153/whats-the-difference-between-iret-and-iretd-iretq?
 	iret ;Special return instruction (pops 5 things at once: cs, eip, eflags, ss, and esp)
 
 ;Define all 256 interrupt vectors
@@ -120,20 +113,20 @@ ISR_NOERROR 16
 ISR_NOERROR 17
 ISR_NOERROR 18
 ISR_NOERROR 19
-;	ISRs [20,31] are Intel-reserved (and are currently considered fatal; see isr.h)
+;	ISRs [20,31] are Intel-reserved (and are currently considered fatal; see isr.cpp)
 %assign i 20
 %rep    12
 	ISR_NOERROR i
 	%assign i i+1
 %endrep
 ;	ISRs [32,255] are available for OS usage.
-;	ISRs [32,47] are the remapped 15 IRQs from the PIC.  These say they don't pass error codes: http://www.osdever.net/bkerndev/Docs/irqs.htm, http://forum.osdev.org/viewtopic.php?f=1&t=26875&p=224971#p224971
+;	ISRs [32,47] are the remapped 16 IRQs from the PIC.  These say they don't pass error codes: http://www.osdever.net/bkerndev/Docs/irqs.htm, http://forum.osdev.org/viewtopic.php?f=1&t=26875&p=224971#p224971
 %assign i 32
 %rep    16
 	ISR_NOERROR i
 	%assign i i+1
 %endrep
-;	ISRs [48,255] are unallocated.  TODO: do they pass error codes or not?
+;	ISRs [48,255] are unallocated.  These says that "int" instructions don't pass error codes: http://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=3&cad=rja&ved=0CD0QFjAC&url=http%3A%2F%2Fopensecuritytraining.info%2FIntermediateX86_files%2FIntermediateIntelx86-Part3.ppt&ei=lY7WUdLOI7GxigK6lID4Ag&usg=AFQjCNGIi5fJU-BnAZkqhBHrl-VJTWVsdA&sig2=rlDZz39OUDRKGhAs_w-BdA&bvm=bv.48705608,d.cGE
 %assign i 48
 %rep    224
 	ISR_NOERROR i

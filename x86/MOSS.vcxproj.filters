@@ -19,6 +19,15 @@
     <Filter Include="kernel\interrupt">
       <UniqueIdentifier>{caa92896-04f8-4764-b13d-b5b65205d4eb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="kernel\io">
+      <UniqueIdentifier>{a8319f44-3b56-4272-bd4b-494ace51ce35}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="kernel\input">
+      <UniqueIdentifier>{5e98915b-c793-43a2-b69b-8a2fbbecbd6d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="kernel\input\devices">
+      <UniqueIdentifier>{9d618ec8-1772-4106-9bc6-6c28476774c1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="source\linker.ld" />
@@ -26,31 +35,28 @@
     <None Include="source\kernel\boot\boot.asm">
       <Filter>kernel\boot</Filter>
     </None>
-    <None Include="source\kernel\interrupt\gdt_idt.asm">
-      <Filter>kernel\interrupt</Filter>
-    </None>
     <None Include="source\kernel\interrupt\isr.asm">
       <Filter>kernel\interrupt</Filter>
     </None>
     <None Include="source\kernel\interrupt\int32.asm">
       <Filter>kernel\interrupt</Filter>
     </None>
+    <None Include="source\kernel\memory\gdt.asm">
+      <Filter>kernel\memory</Filter>
+    </None>
+    <None Include="source\kernel\interrupt\idt.asm">
+      <Filter>kernel\interrupt</Filter>
+    </None>
+    <None Include="source\kernel\interrupt\about interrupts.txt">
+      <Filter>kernel\interrupt</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="source\kernel\kernel.cpp">
-      <Filter>kernel</Filter>
-    </ClCompile>
     <ClCompile Include="source\kernel\text_mode_terminal.cpp">
       <Filter>kernel</Filter>
     </ClCompile>
     <ClCompile Include="source\kernel\vesa.cpp">
       <Filter>kernel</Filter>
-    </ClCompile>
-    <ClCompile Include="source\kernel\memory\buddy.cpp">
-      <Filter>kernel\memory</Filter>
-    </ClCompile>
-    <ClCompile Include="source\kernel\memory\dlmalloc.c">
-      <Filter>kernel\memory</Filter>
     </ClCompile>
     <ClCompile Include="source\kernel\memory\simple.cpp">
       <Filter>kernel\memory</Filter>
@@ -61,10 +67,34 @@
     <ClCompile Include="source\kernel\interrupt\isr.cpp">
       <Filter>kernel\interrupt</Filter>
     </ClCompile>
-    <ClCompile Include="source\kernel\interrupt\gdt_idt.cpp">
+    <ClCompile Include="source\includes.cpp" />
+    <ClCompile Include="source\kernel\io\io.cpp">
+      <Filter>kernel\io</Filter>
+    </ClCompile>
+    <ClCompile Include="source\kernel\interrupt\pic.cpp">
       <Filter>kernel\interrupt</Filter>
     </ClCompile>
-    <ClCompile Include="source\includes.cpp" />
+    <ClCompile Include="source\kernel\memory\gdt.cpp">
+      <Filter>kernel\memory</Filter>
+    </ClCompile>
+    <ClCompile Include="source\kernel\setup.cpp">
+      <Filter>kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="source\kernel\interrupt\idt.cpp">
+      <Filter>kernel\interrupt</Filter>
+    </ClCompile>
+    <ClCompile Include="source\kernel\kernel.cpp">
+      <Filter>kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="source\kernel\input\devices\device.cpp">
+      <Filter>kernel\input\devices</Filter>
+    </ClCompile>
+    <ClCompile Include="source\kernel\input\devices\keyboard.cpp">
+      <Filter>kernel\input\devices</Filter>
+    </ClCompile>
+    <ClCompile Include="source\kernel\input\keys.cpp">
+      <Filter>kernel\input</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\kernel\text_mode_terminal.h">
@@ -80,32 +110,47 @@
     <ClInclude Include="source\kernel\gui\window.h">
       <Filter>kernel\gui</Filter>
     </ClInclude>
-    <ClInclude Include="source\kernel\boot\bootmemory.h">
-      <Filter>kernel\boot</Filter>
-    </ClInclude>
-    <ClInclude Include="source\kernel\memory\buddy.h">
-      <Filter>kernel\memory</Filter>
-    </ClInclude>
-    <ClInclude Include="source\kernel\memory\dlmalloc.h">
-      <Filter>kernel\memory</Filter>
-    </ClInclude>
     <ClInclude Include="source\kernel\memory\simple.h">
       <Filter>kernel\memory</Filter>
     </ClInclude>
     <ClInclude Include="source\stdlib\stdlib.h">
       <Filter>stdlib</Filter>
     </ClInclude>
-    <ClInclude Include="source\kernel\interrupt\gdt_idt.h">
-      <Filter>kernel\interrupt</Filter>
-    </ClInclude>
     <ClInclude Include="source\kernel\interrupt\isr.h">
-      <Filter>kernel\interrupt</Filter>
-    </ClInclude>
-    <ClInclude Include="source\kernel\interrupt\interrupts.h">
       <Filter>kernel\interrupt</Filter>
     </ClInclude>
     <ClInclude Include="source\kernel\interrupt\int32.h">
       <Filter>kernel\interrupt</Filter>
+    </ClInclude>
+    <ClInclude Include="source\kernel\interrupt\pic.h">
+      <Filter>kernel\interrupt</Filter>
+    </ClInclude>
+    <ClInclude Include="source\kernel\io\io.h">
+      <Filter>kernel\io</Filter>
+    </ClInclude>
+    <ClInclude Include="source\kernel\memory\gdt.h">
+      <Filter>kernel\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="source\kernel\interrupt\idt.h">
+      <Filter>kernel\interrupt</Filter>
+    </ClInclude>
+    <ClInclude Include="source\kernel\interrupt\misc.h">
+      <Filter>kernel\interrupt</Filter>
+    </ClInclude>
+    <ClInclude Include="source\kernel\boot\boot_memorymap.h">
+      <Filter>kernel\boot</Filter>
+    </ClInclude>
+    <ClInclude Include="source\kernel\kernel.h">
+      <Filter>kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="source\kernel\input\devices\device.h">
+      <Filter>kernel\input\devices</Filter>
+    </ClInclude>
+    <ClInclude Include="source\kernel\input\devices\keyboard.h">
+      <Filter>kernel\input\devices</Filter>
+    </ClInclude>
+    <ClInclude Include="source\kernel\input\keys.h">
+      <Filter>kernel\input</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

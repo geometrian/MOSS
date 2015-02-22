@@ -1,6 +1,9 @@
 #include "stdlib.h"
 
+#include "../includes.h"
+
 #include "../kernel/memory/simple.h"
+#include "../kernel/kernel.h"
 
 
 void* memset(void* ptr, int value, size_t num) {
@@ -58,20 +61,35 @@ void delay(int ms) { //approximately correct on VirtualBox
 
 
 void* calloc(size_t num, size_t size) {
+	#ifdef MOSS_DEBUG
+	ASSERT(MOSS::Kernel::memory!=NULL,"Cannot allocate memory; memory manager does not exist!");
+	#endif
 	void* result = MOSS::Kernel::memory->malloc(num*size);
 	memset(result,0,size);
 	return result;
 }
 
-void *operator new  (size_t size) {
+void* operator new  (size_t size) {
+	#ifdef MOSS_DEBUG
+	ASSERT(MOSS::Kernel::memory!=NULL,"Cannot allocate memory; memory manager does not exist!");
+	#endif
 	return MOSS::Kernel::memory->malloc(size);
 }
-void *operator new[](size_t size) {
+void* operator new[](size_t size) {
+	#ifdef MOSS_DEBUG
+	ASSERT(MOSS::Kernel::memory!=NULL,"Cannot allocate memory; memory manager does not exist!");
+	#endif
 	return MOSS::Kernel::memory->malloc(size);
 }
 void operator delete  (void* p) {
+	#ifdef MOSS_DEBUG
+	ASSERT(MOSS::Kernel::memory!=NULL,"Cannot delete memory; memory manager does not exist!");
+	#endif
 	MOSS::Kernel::memory->free(p);
 }
 void operator delete[](void* p) {
+	#ifdef MOSS_DEBUG
+	ASSERT(MOSS::Kernel::memory!=NULL,"Cannot delete memory; memory manager does not exist!");
+	#endif
 	MOSS::Kernel::memory->free(p);
 }

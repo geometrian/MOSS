@@ -1,75 +1,37 @@
-#include "../includes.h"
+#include "kernel.h"
 
-#include "boot/multiboot.h"
-#include "interrupt/gdt_idt.h"
-#include "interrupt/interrupts.h"
-#include "memory/simple.h"
-#include "vesa.h"
+#include "input/keys.h"
 #include "text_mode_terminal.h"
-#include "interrupt/pic.h"
 
 
 namespace MOSS { namespace Kernel {
 
 
-Terminal::TextModeTerminal* terminal;
-
-Memory::MemoryManager* memory;
-
-
-#if !defined(__cplusplus)
-	#error "C++ should be used!"
+//The objects these point to must exist (see setup.cpp)
+#ifdef MOSS_DEBUG
+	Terminal::TextModeTerminal* terminal = NULL;
+	Memory::MemoryManager* memory = NULL;
+	Input::Devices::ControllerPS2* controller = NULL;
+#else
+	Terminal::TextModeTerminal* terminal;
+	Memory::MemoryManager* memory;
+	Input::Devices::ControllerPS2* controller;
 #endif
-#if defined(__linux__)
-	#error "You are not using a cross-compiler!"
-#endif
 
+void handle_key_down(Input::Keys::Event& event) {
+	if (Input::Keys::is_printable(event.key)) {
+		/*Kernel::terminal->write("Keyboard got scan code ");
+		Kernel::terminal->write((int)(scan_code));
+		Kernel::terminal->write("!\n");*/
+		Kernel::terminal->write(Input::Keys::get_printable(event.key));
+	}
+}
+void handle_key_up(Input::Keys::Event&/* event*/) {
+}
 
-extern "C" void kernel_main(unsigned long magic, unsigned long addr) {
-	Terminal::TextModeTerminal terminal2;
-	terminal = &terminal2;
-	terminal2.set_color_text(Terminal::TextModeTerminal::COLOR_RED);
+void kernel_main(void) {
+	terminal->write("Hanging in kernel!\n");
 
-	multiboot_info_t* mbi = (multiboot_info_t*)(addr);
-
-	assert(magic==MULTIBOOT_BOOTLOADER_MAGIC,"Invalid multiboot magic number!\n");
-	assert(mbi->flags&(1<<0),"Invalid GRUB memory flag!\n");
-	assert(mbi->flags&(1<<6),"Invalid GRUB memory map!\n");
-
-	//The GRUB documentation http://www.gnu.org/software/grub/manual/multiboot/multiboot.html implies
-	//	that interrupts are already disabled.  That's good, because the following allows us to deal with
-	//	them for the first time.
-
-	terminal->write("Forcing disable hardware interrupts\n");
-	MOSS::Interrupts::disable_hw_int();
-
-	terminal->write("Loading GDT\n");
-	MOSS::Interrupts::load_gdt();
-	terminal->write("Loading IDT\n");
-	MOSS::Interrupts::load_idt();
-
-	terminal->write("Remapping PIC\n");
-	MOSS::Interrupts::PIC::remap(32,40);
-
-	terminal->write("Reloading Segments\n");
-	MOSS::Interrupts::reload_segments();
-
-	terminal->write("Enabling hardware interrupts\n");
-
-	MOSS::Interrupts::enable_hw_int();
-
-	/*terminal->write("Test firing . . .\n");
-	MOSS::Interrupts::fire_int13h();
-	terminal->write("fired!\n");*/
-
-	/*Memory::MemoryManager memory2(mbi);
-	memory = &memory2;*/
-
-	//set_vesa_mode(640,400,8);
-	//set_vesa_mode(800,600,32);
-	//set_vesa_pixel(5,5, 255,0,0,255);
-
-	terminal->write("Hanging . . .\n");
 	while (true);
 }
 

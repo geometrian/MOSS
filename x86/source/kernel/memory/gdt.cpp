@@ -1,11 +1,59 @@
-#include "gdt_idt.h"
-
-#include "isr.h"
-#include "../text_mode_terminal.h"
+#include "gdt.h"
 
 
-namespace MOSS { namespace Interrupts {
+namespace MOSS { namespace Memory {
 
+
+//GDT Entry
+class EntryGDT {
+	private:
+		uint32_t        limit_low : 16; //The lower 16 bits of the limit
+		uint32_t         base_low : 24; //The lower 24 bits of base
+	public:
+		//Access byte used in GDT entries
+		//	See http://files.osdev.org/mirrors/geezer/os/pm.htm:
+		//		executable bit: 1 is code/data selector, 0 is TSS, LDT, or Gate (but also says earlier the same as the below):
+		//	See http://wiki.osdev.org/Global_Descriptor_Table:
+		//		executable bit: 1 is code selector, 0 is data selector
+		//	See http://wiki.osdev.org/Segmentation
+		//		executable bit: 1 is code/data selector, 0 is system
+		//	I am going to use 1=code selector/0=data selector version, since doing it the other way causes a triple fault.
+		union Access {
+			class AccessByte { public:
+				bool     accessed :  1; //Initialized to 0; CPU sets when segment is accessed
+				bool           rw :  1; //Writable bit for data selectors / Readable bit for code selectors
+				bool     dir_conf :  1; //For data selectors, 0 the segment grows up, 1 the segment grows down.  For code selectors, 0 only executable by processes with exactly privilege, 1 lower is okay too
+				bool   executable :  1; //See above
+				bool       unused :  1; //Actually usused?  Initialized to 1 (Descriptor Bit; see http://www.brokenthorn.com/Resources/OSDev8.html)
+				uint8_t privilege :  2; //Ring
+				bool      present :  1; //Must be 1 for all valid selectors
+
+				static AccessByte get_null(void);
+				static AccessByte get_selector_code(uint8_t ring);
+				static AccessByte get_selector_data(uint8_t ring);
+			} flags; //Will be packed since EntryGDT is packed?
+			uint8_t          byte :  8;
+		} access;
+	private:
+		uint32_t       limit_high :  4; //The upper 4 bits of the limit
+	public:
+		//Flags.  Can't be in a struct because it is not byte-aligned and it would screw up the packing.
+		int         flags_unused1 :  1; //Can be reserved for OS use
+		int         flags_unused2 :  1; //unused (at least on x86).  Initialized to 0.
+		bool           flags_size :  1; //0 is 16-bit protected mode, 1 is 32-bit protected mode
+		bool    flags_granularity :  1; //If 0 the limit is in 1B blocks (byte granularity), if 1 the limit is in 4KiB blocks (page granularity).
+	private:
+		uint32_t        base_high :  8; //The upper 8 bits of the base.
+
+	public:
+		void set_limit(uint32_t limit);
+		uint32_t get_limit(void) const;
+
+		void set_base(uint32_t base);
+		uint32_t get_base(void) const;
+
+		static void construct(EntryGDT* entry, uint32_t base, uint32_t limit, Access::AccessByte access);
+} __attribute__((packed));
 
 EntryGDT::Access::AccessByte EntryGDT::Access::AccessByte::get_null(void) {
 	EntryGDT::Access::AccessByte result;
@@ -70,49 +118,13 @@ void EntryGDT::construct(EntryGDT* entry, uint32_t base, uint32_t limit, Access:
 }
 
 
-void EntryIDT::set_offset(uint32_t offset) {
-	offset_low  =  offset & 0x0000FFFF     ;
-	offset_high = (offset & 0xFFFF0000)>>16;
-}
-uint32_t EntryIDT::get_offset(void) const {
-	return (offset_high<<16) | offset_low;
-}
-
-void EntryIDT::construct(EntryIDT* entry, uint32_t offset, Type::TypeByte::GateType type, int privilege) {
-	entry->set_offset(offset);
-	entry->selector = 0x0008; //Location of kernel code segment in GDT
-
-	entry->unused1 = 0;
-	entry->unused2 = 0;
-
-	entry->type.flags.gate_type    =      type;
-	//OSDev seems to *imply* this
-	/*switch (type) {
-		case Type::TypeByte::Interrupt16:
-		case Type::TypeByte::Interrupt32:
-			entry->type.flags.storage_elem =         0;
-			break;
-		case Type::TypeByte::     Trap16:
-		case Type::TypeByte::     Trap32:
-		case Type::TypeByte::     Task32:
-			entry->type.flags.storage_elem =         1;
-			break;
-		//Hopefully the compiler will give a warning if other enum types are possible
-	}*/
-	//. . . but BrokenThorn *states* this
-	entry->type.flags.storage_elem =         0;
-	entry->type.flags.   privilege = privilege;
-	entry->type.flags.     present =         1;
-}
-
-
 #define MOSS_NUM_GDT 5
 static EntryGDT gdt_entries[MOSS_NUM_GDT];
 void load_gdt(void) {
 	uint32_t base  = (uint32_t)(&gdt_entries);          //The linear address of the first gdt_entry_t struct.
 	uint16_t limit = sizeof(EntryGDT)*MOSS_NUM_GDT - 1; //The upper 16 bits of all selector limits.  Size of table minus 1.  sizeof(EntryGDT) should be 8.
 
-	assert(sizeof(EntryGDT)==8,"EntryGDT is the wrong size!");
+	ASSERT(sizeof(EntryGDT)==8,"EntryGDT is the wrong size!");
 
 	EntryGDT::construct(gdt_entries,   0x00000000u,         0u, EntryGDT::Access::AccessByte::          get_null()); //Null segment
 	EntryGDT::construct(gdt_entries+1, 0x00000000u,0xFFFFFFFFu, EntryGDT::Access::AccessByte::get_selector_code(0)); //Kernel code segment
@@ -146,24 +158,6 @@ void load_gdt(void) {
 	gdt_lgdt(base,limit);
 }
 #undef MOSS_NUM_GDT
-
-
-static EntryIDT idt_entries[256];
-void load_idt(void) {
-	uint32_t base  = (uint32_t)(&idt_entries);
-	uint16_t limit = sizeof(EntryIDT)*256 - 1;
-
-	//Kernel::terminal->write((int)(sizeof(EntryIDT)));
-	assert(sizeof(EntryIDT)==8,"EntryIDT is the wrong size!");
-	assert(sizeof(Interrupts::ErrorCode)==4,"Interrupt error code (normal type) is the wrong size!");
-	assert(sizeof(Interrupts::ErrorCodePF)==4,"Interrupt error code (for page faults) is the wrong size!");
-
-	#define IDT_SET_GATE(N) EntryIDT::construct(idt_entries+N, (uint32_t)(isr##N##_asm), EntryIDT::Type::TypeByte::Interrupt32, 0);
-	MOSS_INTERRUPT(IDT_SET_GATE)
-	#undef IDT_SET_GATE
-
-	idt_lidt(base,limit);
-}
 
 
 }}

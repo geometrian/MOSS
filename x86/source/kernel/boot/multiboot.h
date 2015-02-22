@@ -1,3 +1,6 @@
+namespace MOSS { namespace Boot {
+
+
 #define MULTIBOOT_HEADER_MAGIC 0x1BADB002
 
 #ifdef __ELF__
@@ -79,3 +82,6 @@ class memory_map_t { public:
 };
 
 #endif /* ! ASM */
+
+
+}}

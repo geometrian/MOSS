@@ -1,9 +1,8 @@
 #include "simple.h"
 
-#include "../boot/bootmemory.h"
+#include "../boot/boot_memorymap.h"
 #include "../boot/multiboot.h"
 #include "../text_mode_terminal.h"
-#include "../../stdlib/stdlib.h"
 
 
 namespace MOSS { namespace Memory {
@@ -46,7 +45,7 @@ BlockGRUB::BlockGRUB(const BlockGRUB& block) {
 	size = block.size;
 	type = block.type;
 }
-BlockGRUB::BlockGRUB(multiboot_memory_map_t* mmap) {
+BlockGRUB::BlockGRUB(Boot::multiboot_memory_map_t* mmap) {
 	record_size = mmap->size;
 	start = mmap->base_addr;
 	size = mmap->length;
@@ -64,7 +63,7 @@ void BlockGRUB::print(Terminal::TextModeTerminal* terminal) const {
 }
 
 
-MemoryManager::MemoryManager(const multiboot_info_t* mbi) {
+MemoryManager::MemoryManager(const Boot::multiboot_info_t* mbi) {
 	//GRUB reports some addresses (in particular 0x00000000 to 0x0009FC00) below 1MiB as free for use.
 	//However, they aren't for us since we need to retain the ability to set VESA modes.  Therefore,
 	//all memory allocation will take place at least at the 1MiB mark.
@@ -87,7 +86,7 @@ MemoryManager::MemoryManager(const multiboot_info_t* mbi) {
 	}*/
 
 	bool found = false;
-	multiboot_memory_map_t* mmap = (multiboot_memory_map_t*)(mbi->mmap_addr);
+	Boot::multiboot_memory_map_t* mmap = (Boot::multiboot_memory_map_t*)(mbi->mmap_addr);
 	while ((unsigned long)(mmap)<mbi->mmap_addr+mbi->mmap_length) {
 		BlockGRUB block(mmap);
 		if (block.start==0x00100000) { //MOSS expects to be loaded at 1MiB, so this had better be good.
@@ -107,12 +106,10 @@ MemoryManager::MemoryManager(const multiboot_info_t* mbi) {
 
 			break;
 		}
-		mmap = (multiboot_memory_map_t*)( (unsigned long)(mmap) + mmap->size + sizeof(mmap->size) );
+		mmap = (Boot::multiboot_memory_map_t*)( (unsigned long)(mmap) + mmap->size + sizeof(mmap->size) );
 	}
 
-	if (!found) {
-		Kernel::terminal->write("MemoryManager expected kernel to be loaded at 1MiB and contain a valid memory segment starting there!");
-	}
+	ASSERT(found,"MemoryManager expected kernel to be loaded at 1MiB and contain a valid memory segment starting there!");
 }
 MemoryManager::~MemoryManager(void) {}
 
@@ -127,6 +124,7 @@ void* MemoryManager::malloc(size_t size) {
 
 		block = block->header.next;
 		if ((uint64_t)(block)==end) {
+			ASSERT(false,"Cannot allocate more space!  Out of space!");
 			return NULL; //No more space!
 		}
 

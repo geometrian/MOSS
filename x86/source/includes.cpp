@@ -1,6 +1,7 @@
 #include "includes.h"
 
 #include "kernel/text_mode_terminal.h"
+#include "kernel/kernel.h"
 
 
 namespace MOSS {

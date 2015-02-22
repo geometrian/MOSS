@@ -13,18 +13,25 @@
   <ItemGroup>
     <None Include="source\grub.cfg" />
     <None Include="source\kernel\boot\boot.asm" />
-    <None Include="source\kernel\interrupt\gdt_idt.asm" />
+    <None Include="source\kernel\interrupt\idt.asm" />
     <None Include="source\kernel\interrupt\int32.asm" />
+    <None Include="source\kernel\interrupt\about interrupts.txt" />
     <None Include="source\kernel\interrupt\isr.asm" />
+    <None Include="source\kernel\memory\gdt.asm" />
     <None Include="source\linker.ld" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\includes.cpp" />
-    <ClCompile Include="source\kernel\interrupt\gdt_idt.cpp" />
+    <ClCompile Include="source\kernel\input\devices\device.cpp" />
+    <ClCompile Include="source\kernel\input\devices\keyboard.cpp" />
+    <ClCompile Include="source\kernel\input\keys.cpp" />
+    <ClCompile Include="source\kernel\interrupt\idt.cpp" />
     <ClCompile Include="source\kernel\interrupt\isr.cpp" />
+    <ClCompile Include="source\kernel\interrupt\pic.cpp" />
+    <ClCompile Include="source\kernel\io\io.cpp" />
     <ClCompile Include="source\kernel\kernel.cpp" />
-    <ClCompile Include="source\kernel\memory\buddy.cpp" />
-    <ClCompile Include="source\kernel\memory\dlmalloc.c" />
+    <ClCompile Include="source\kernel\setup.cpp" />
+    <ClCompile Include="source\kernel\memory\gdt.cpp" />
     <ClCompile Include="source\kernel\memory\simple.cpp" />
     <ClCompile Include="source\kernel\text_mode_terminal.cpp" />
     <ClCompile Include="source\kernel\vesa.cpp" />
@@ -32,15 +39,20 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\includes.h" />
-    <ClInclude Include="source\kernel\boot\bootmemory.h" />
+    <ClInclude Include="source\kernel\boot\boot_memorymap.h" />
     <ClInclude Include="source\kernel\boot\multiboot.h" />
     <ClInclude Include="source\kernel\gui\window.h" />
-    <ClInclude Include="source\kernel\interrupt\gdt_idt.h" />
+    <ClInclude Include="source\kernel\input\devices\device.h" />
+    <ClInclude Include="source\kernel\input\devices\keyboard.h" />
+    <ClInclude Include="source\kernel\input\keys.h" />
+    <ClInclude Include="source\kernel\interrupt\idt.h" />
     <ClInclude Include="source\kernel\interrupt\int32.h" />
-    <ClInclude Include="source\kernel\interrupt\interrupts.h" />
+    <ClInclude Include="source\kernel\interrupt\misc.h" />
     <ClInclude Include="source\kernel\interrupt\isr.h" />
-    <ClInclude Include="source\kernel\memory\buddy.h" />
-    <ClInclude Include="source\kernel\memory\dlmalloc.h" />
+    <ClInclude Include="source\kernel\interrupt\pic.h" />
+    <ClInclude Include="source\kernel\io\io.h" />
+    <ClInclude Include="source\kernel\kernel.h" />
+    <ClInclude Include="source\kernel\memory\gdt.h" />
     <ClInclude Include="source\kernel\memory\simple.h" />
     <ClInclude Include="source\kernel\text_mode_terminal.h" />
     <ClInclude Include="source\kernel\vesa.h" />

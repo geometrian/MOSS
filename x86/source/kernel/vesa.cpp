@@ -2,6 +2,7 @@
 
 #include "../stdlib/stdlib.h"
 #include "interrupt/int32.h"
+#include "kernel.h"
 #include "text_mode_terminal.h"
 
 
