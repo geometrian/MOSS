@@ -21,6 +21,8 @@
 
 #include "kernel.h"
 
+#include "fs/ext2/ext2.h"
+
 
 namespace MOSS {
 
@@ -36,6 +38,34 @@ extern "C" void __cxa_pure_virtual(void) {
 
 extern Kernel* kernel;
 
+#define SETUP_MEMORY_SEGMENTS\
+	kernel->write("Loading GDT\n");\
+	MOSS::Memory::load_gdt();\
+	kernel->write("Reloading segments\n\n");\
+	MOSS::Memory::reload_segments();
+#define SETUP_INTERRUPTS\
+	kernel->write("Loading IDT\n");\
+	MOSS::Interrupts::load_idt();\
+	kernel->write("Setting up IRQs\n");\
+	MOSS::Interrupts::init_irqs();\
+	kernel->write("Remapping PIC\n\n");\
+	MOSS::Interrupts::PIC::remap(32,40);
+#define SETUP_PS2\
+	/*Setup PS/2 devices*/\
+	kernel->write("Setting up PS/2 controller\n\n");\
+	Input::Devices::ControllerPS2 controller_ps2;\
+	kernel->controller_ps2 = &controller_ps2;
+#define SETUP_ATA\
+	kernel->write("Setting up ATA controller\n\n");\
+	ATA::Controller controller_ata;\
+	kernel->controller_ata = &controller_ata;
+#define SETUP_FPU\
+	/*TODO: assumes it exists and is on-board the CPU*/\
+	kernel->write("Setting up FPU\n\n");\
+	__asm__ __volatile__("fninit");
+#define ENABLE_HARDWARE_INTERRUPTS\
+	kernel->write("Enabling hardware interrupts\n");\
+	MOSS::Interrupts::enable_hw_int();
 extern "C" void kernel_entry(unsigned long magic, unsigned long addr) {
 	//Allocate the kernel on the stack
 	Kernel kernel2;
@@ -62,37 +92,21 @@ extern "C" void kernel_entry(unsigned long magic, unsigned long addr) {
 	//terminal->write("Forcing disable hardware interrupts\n");
 	//MOSS::Interrupts::disable_hw_int();
 
-	//Setup memory segments
-	kernel->write("Loading GDT\n");
-	MOSS::Memory::load_gdt();
-	kernel->write("Reloading segments\n\n");
-	MOSS::Memory::reload_segments();
+	SETUP_MEMORY_SEGMENTS
 
-	//Setup interrupts
-	kernel->write("Loading IDT\n");
-	MOSS::Interrupts::load_idt();
-	kernel->write("Setting up IRQs\n");
-	MOSS::Interrupts::init_irqs();
-	kernel->write("Remapping PIC\n\n");
-	MOSS::Interrupts::PIC::remap(32,40);
+	SETUP_INTERRUPTS
 
-	//Setup PS/2 devices
-	kernel->write("Setting up PS/2 controller\n\n");
-	Input::Devices::ControllerPS2 controller_ps2;
-	kernel->controller_ps2 = &controller_ps2;
+	//SETUP_PS2
 
-	//Setup ATA
-	kernel->write("Setting up ATA controller\n\n");
-	ATA::Controller controller_ata;
-	kernel->controller_ata = &controller_ata;
+	SETUP_ATA
 
-	//Setup FPU (TODO: assumes it exists and is on-board the CPU).
-	kernel->write("Setting up FPU\n\n");
-	__asm__ __volatile__("fninit");
+	SETUP_FPU
 
-	//Enable hardware interrupts
-	kernel->write("Enabling hardware interrupts\n");
-	MOSS::Interrupts::enable_hw_int();
+	ENABLE_HARDWARE_INTERRUPTS
+
+	//Must come after setting up ATA and after enabling interrupts
+	FS::InterfaceFileSystemEXT2 fs;
+	while (true);
 
 	/*kernel->write("float a\n");
 	float a = 1.0f;

@@ -34,6 +34,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\includes.cpp" />
+    <ClCompile Include="source\kernel\ata\ata.cpp" />
+    <ClCompile Include="source\kernel\fs\ext2\block.cpp" />
+    <ClCompile Include="source\kernel\fs\ext2\superblock.cpp" />
     <ClCompile Include="source\kernel\graphics\bg.cpp" />
     <ClCompile Include="source\kernel\graphics\font.cpp" />
     <ClCompile Include="source\kernel\graphics\gui\button.cpp" />
@@ -76,6 +79,11 @@
     <ClInclude Include="source\kernel\ata\ata.h" />
     <ClInclude Include="source\kernel\boot\boot_memorymap.h" />
     <ClInclude Include="source\kernel\boot\multiboot.h" />
+    <ClInclude Include="source\kernel\fs\ext2\block.h" />
+    <ClInclude Include="source\kernel\fs\ext2\ext2.h" />
+    <ClInclude Include="source\kernel\fs\ext2\inode.h" />
+    <ClInclude Include="source\kernel\fs\ext2\superblock.h" />
+    <ClInclude Include="source\kernel\fs\fs.h" />
     <ClInclude Include="source\kernel\graphics\bg.h" />
     <ClInclude Include="source\kernel\graphics\color.h" />
     <ClInclude Include="source\kernel\graphics\font.h" />
@@ -122,6 +130,7 @@
     <ClInclude Include="source\mosst\linked_list.h" />
     <ClInclude Include="source\mosst\string.h" />
     <ClInclude Include="source\mosst\vector.h" />
+    <ClInclude Include="source\ppm\ppm.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{04E3B400-FC69-4F9F-91F2-75302098AADC}</ProjectGuid>

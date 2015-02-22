@@ -4,6 +4,10 @@
 #See: http://wiki.osdev.org/Loopback_Device
 #See: http://superuser.com/questions/130955/how-to-install-grub-into-an-img-file
 
+function wait_for_enter() {
+   read -p "Press ENTER to continue . . ."
+}
+
 echo "######## MOSS beginning setup for release . . ."
 
 export remake_disk=0
@@ -18,26 +22,24 @@ export SECTOR_SIZE=512
 
 if [ $remake_disk -eq 1 ]
 then
-
-#Make HDD image
-echo "######## Making HDD file . . ."
-dd if=/dev/zero of=build/moss-disk.bin bs=$((HEADS*SECTORS_PER_TRACK*SECTOR_SIZE)) count=$CYLINDERS
-
-#Make partition on disk file (re-enable as necessary)
-echo "######## Making partition thereon . . ."
-cat <<EOF | fdisk -u -C$((CYLINDERS)) -S$((SECTORS_PER_TRACK)) -H$((HEADS)) build/moss-disk.bin
-o
-n
-p
+	#Make HDD image
+	echo "######## Making HDD file . . ."
+	dd if=/dev/zero of=build/moss-disk.bin bs=$((HEADS*SECTORS_PER_TRACK*SECTOR_SIZE)) count=$CYLINDERS
+	#Make partition on disk file (re-enable as necessary)
+	echo "######## Making partition thereon . . ."
+	cat <<-EOF | fdisk -u -C$((CYLINDERS)) -S$((SECTORS_PER_TRACK)) -H$((HEADS)) build/moss-disk.bin
+	o
+	n
+	p
 
 
 
-a
-1
-p
-w
-EOF
-
+	a
+	1
+	p
+	w
+	EOF
+	wait_for_enter
 fi
 
 
@@ -56,26 +58,29 @@ sudo losetup /dev/loop0 build/moss-disk.bin
 #Make the disk image's partitions into devices
 sudo kpartx -v -a /dev/loop0
 #Make a file system on first partition
-#	Note: source also explains how to set up FAT32
 if [ $remake_fs -eq 1 ]
 then
-echo "######## Making a filesystem . . ."
-sudo mke2fs /dev/mapper/loop0p1
-#Note: may have to unmount loops, restart, and then remount loops here.  See http://forum.osdev.org/viewtopic.php?f=1&t=26907
+	echo "######## Making a filesystem . . ."
+	sudo mke2fs /dev/mapper/loop0p1
+	#sudo mkdosfs -F32 /dev/mapper/loop0p1
+	#Note: may have to unmount loops, restart, and then remount loops here.  See http://forum.osdev.org/viewtopic.php?f=1&t=26907
+	#wait_for_enter
 else
-echo "######## NOT making a filesystem."
+	echo "######## NOT making a filesystem."
 fi
 #Mount the first partition
 sudo mount -t ext2 /dev/mapper/loop0p1 /mnt
+#sudo mount -t vfat /dev/mapper/loop0p1 /mnt
+#wait_for_enter
 #Set up first partition's /boot directory
 echo "######## Copying over GrUB files . . ."
-sudo mkdir -p /mnt/boot/grub
 #I tried.  I really did, to use grub-install.  It just kept failing:
 #	http://forum.osdev.org/viewtopic.php?f=1&t=26907
 #	http://ebroder.net/2009/08/04/installing-grub-onto-a-disk-image/
 #	http://superuser.com/questions/619571/installing-grub-legacy-on-virtual-disk
 #At the suggestion of http://www.slideshare.net/sukhdotin/installing-grub-on-virtual-hard-disk-images-5094625,
 #just copy the needed files over.
+sudo mkdir -p /mnt/boot/grub
 sudo cp source/grub/stage1 /mnt/boot/grub/stage1
 sudo cp source/grub/stage2 /mnt/boot/grub/stage2
 sudo cp source/grub/e2fs_stage1_5 /mnt/boot/grub/e2fs_stage1_5
@@ -83,6 +88,9 @@ sudo cp source/grub/e2fs_stage1_5 /mnt/boot/grub/e2fs_stage1_5
 echo "######## Copying over kernel files . . ."
 sudo cp build/MOSS.bin /mnt/boot/MOSS.bin
 sudo cp source/grub/menu.lst /mnt/boot/grub/menu.lst
+echo "######## Copying over kernel data files . . ."
+sudo mkdir -p /mnt/files
+sudo cp -r files /mnt/files
 #Unmount the first partition
 sudo umount /dev/mapper/loop0p1
 #Unmake the first partition as a device
@@ -91,16 +99,16 @@ sudo kpartx -d /dev/loop0
 #Setup GrUB device map.  I've done this before, but never passing /dev/null in . . .
 if [ $remake_grub -eq 1 ]
 then
-echo "######## Setting up GrUB . . ."
-grub --device-map=/dev/null <<EOF
-device (hd0) build/moss-disk.bin
-geometry (hd0) $((CYLINDERS)) $((HEADS)) $((SECTORS_PER_TRACK))
-root (hd0,0)
-setup (hd0)
-quit
-EOF
+	echo "######## Setting up GrUB . . ."
+	grub --device-map=/dev/null <<-EOF
+	device (hd0) build/moss-disk.bin
+	geometry (hd0) $((CYLINDERS)) $((HEADS)) $((SECTORS_PER_TRACK))
+	root (hd0,0)
+	setup (hd0)
+	quit
+	EOF
 else
-echo "######## NOT setting up GrUB."
+	echo "######## NOT setting up GrUB."
 fi
 
 #Unmount the disk image

@@ -85,7 +85,7 @@ Controller::Controller(void) {
 		//kernel->write("%d %d\n",mode_ptr,mode_ptr2);
 
 		//kernel->write("There are %d modes!\n",numof_modes);
-		ASSERT(numof_modes>=1,"No VESA modes available!"); //A problem since .get_mode_closest(...) cannot return NULL.
+		ASSERT(numof_modes>=1,"No VESA modes available!"); //A problem since don't want to try to allocate nothing.
 
 		//We have to go through an intermediary step of caching the mode numbers here since they are originally
 		//stored low in memory, and creating a new mode immediately (and thereby retrieving information about it)
@@ -119,6 +119,9 @@ Mode* Controller::get_mode_closest(int w,int h, int bpp) {
 	for (int i=0;i<numof_modes;++i) {
 		Mode* mode = modes[i];
 
+		//Only linear frame buffer support is supported by MOSS.
+		if (!(mode->info.ModeAttributes&0x90)) continue;
+
 		uint32_t score = MOSSC::abs(mode->info.XResolution*mode->info.YResolution-w*h) + 1000*MOSSC::abs(mode->info.BitsPerPixel-bpp);
 
 		//kernel->write("%d: ",score); mode->print(); delay(1000);
@@ -130,13 +133,14 @@ Mode* Controller::get_mode_closest(int w,int h, int bpp) {
 		}
 	}
 
+	ASSERT(best!=NULL,"No satisfactory VESA mode!");
 	return best;
 }
 
 bool Controller::set_mode(Mode* mode) {
 	Interrupts::regs16_t regs;
 	regs.ax = 0x4F02;
-	regs.bx = mode->index;
+	regs.bx = mode->index | 0x4000; //http://forum.osdev.org/viewtopic.php?f=1&t=26929
 	Interrupts::int32(0x10,&regs);
 
 	if (regs.ax!=0x004F) {

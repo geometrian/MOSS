@@ -52,6 +52,15 @@
     <Filter Include="kernel\ata">
       <UniqueIdentifier>{a8aa6293-5d02-4f1a-b372-442ce316b72c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ppm">
+      <UniqueIdentifier>{ffb3377c-268a-4825-9d63-c2ce8d5d3d5f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="kernel\fs">
+      <UniqueIdentifier>{d3b6e2f1-d2e1-453e-a185-f7bdd7547d44}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="kernel\fs\ext2">
+      <UniqueIdentifier>{91eb9018-96b9-4bcd-aa6e-e6c867262cec}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="source\linker.ld" />
@@ -196,6 +205,15 @@
     </ClCompile>
     <ClCompile Include="source\kernel\graphics\bg.cpp">
       <Filter>kernel\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="source\kernel\fs\ext2\superblock.cpp">
+      <Filter>kernel\fs\ext2</Filter>
+    </ClCompile>
+    <ClCompile Include="source\kernel\fs\ext2\block.cpp">
+      <Filter>kernel\fs\ext2</Filter>
+    </ClCompile>
+    <ClCompile Include="source\kernel\ata\ata.cpp">
+      <Filter>kernel\ata</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -346,6 +364,24 @@
     </ClInclude>
     <ClInclude Include="source\kernel\ata\ata.h">
       <Filter>kernel\ata</Filter>
+    </ClInclude>
+    <ClInclude Include="source\ppm\ppm.h">
+      <Filter>ppm</Filter>
+    </ClInclude>
+    <ClInclude Include="source\kernel\fs\fs.h">
+      <Filter>kernel\fs</Filter>
+    </ClInclude>
+    <ClInclude Include="source\kernel\fs\ext2\ext2.h">
+      <Filter>kernel\fs\ext2</Filter>
+    </ClInclude>
+    <ClInclude Include="source\kernel\fs\ext2\superblock.h">
+      <Filter>kernel\fs\ext2</Filter>
+    </ClInclude>
+    <ClInclude Include="source\kernel\fs\ext2\block.h">
+      <Filter>kernel\fs\ext2</Filter>
+    </ClInclude>
+    <ClInclude Include="source\kernel\fs\ext2\inode.h">
+      <Filter>kernel\fs\ext2</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

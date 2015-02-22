@@ -255,13 +255,17 @@ bool isr45(void) {
 //ISR 46 = IRQ 14 (Primary ATA Hard Disk)
 bool isr46(void) {
 	//ASSERT(false,"Handling IRQ 14 (stub)\n"); return false;
-	kernel->controller_ata->handle_irq();
+	ASSERT(kernel->controller_ata->channel0!=NULL,"ATA controller channel 0 is NULL!");
+	kernel->controller_ata->channel0->handle_irq();
 	return true;
 }
 
 //ISR 47 = IRQ 15 (Secondary ATA Hard Disk)
 bool isr47(void) {
-	ASSERT(false,"Handling IRQ 15 (stub)"); return false;
+	//ASSERT(false,"Handling IRQ 15 (stub)"); return false;
+	ASSERT(kernel->controller_ata->channel1!=NULL,"ATA controller channel 1 is NULL!");
+	kernel->controller_ata->channel1->handle_irq();
+	return true;
 }
 
 //Unassigned [48,255] (208)
@@ -345,7 +349,7 @@ void isr_common(State* state) {
 	//kernel->write("Got interrupt %d!\n",which);
 
 	ASSERT(which<=255,"Got interrupt that was outside the ISR table!");
-	ASSERT(which<=47,"Got interrupt that was unallocated!");
+	ASSERT(which<= 47,"Got interrupt that was unallocated!");
 	if (which>=32) { //remapped IRQ from a PIC
 		bool handled = true;
 		switch (which) {
@@ -364,7 +368,7 @@ void isr_common(State* state) {
 			case 44: handled&=isr44(); break;
 			case 45: isr45(); break;
 			case 46: handled&=isr46(); break;
-			case 47: isr47(); break;
+			case 47: handled&=isr47(); break;
 		}
 		if (handled) {
 			//Tell the PIC that we handled the interrupt and that it can send another/reset hardware interrupt at 8259 chip
