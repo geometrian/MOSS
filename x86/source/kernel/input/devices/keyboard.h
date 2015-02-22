@@ -30,8 +30,8 @@ class DevicePS2Keyboard : public DevicePS2Base {
 	friend class ControllerPS2;
 	private:
 		enum DeviceIO {
-			InputBuffer     = 0x60,
-			CommandRegister = 0x60
+			InputBuffer     = 0x0060,
+			CommandRegister = 0x0060
 		};
 
 		bool lock_scroll;

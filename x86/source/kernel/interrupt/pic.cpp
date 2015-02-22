@@ -7,8 +7,8 @@
 namespace MOSS { namespace Interrupts { namespace PIC {
 
 
-#define PIC_MASTER 0x20 //IO base address for master PIC
-#define PIC_SLAVE  0xA0 //IO base address for slave PIC
+#define PIC_MASTER 0x0020 //IO base address for master PIC
+#define PIC_SLAVE  0x00A0 //IO base address for slave PIC
 
 #define PIC_MASTER_COMMAND  PIC_MASTER
 #define  PIC_SLAVE_COMMAND   PIC_SLAVE

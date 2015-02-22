@@ -3,6 +3,7 @@ mkdir -p build/kernel
 mkdir -p build/kernel/boot
 mkdir -p build/kernel/graphics
 mkdir -p build/kernel/graphics/gui
+mkdir -p build/kernel/graphics/vesa
 mkdir -p build/kernel/input
 mkdir -p build/kernel/input/devices
 mkdir -p build/kernel/interrupt
@@ -13,6 +14,7 @@ mkdir -p build/mossc/math
 mkdir -p build/mossc/stdio
 mkdir -p build/mossc/stdlib
 mkdir -p build/mossc/string
+mkdir -p build/mosst
 
 
 
@@ -41,11 +43,19 @@ i586-elf-g++ -c source/mossc/string/searching.cpp     -o build/mossc/string/sear
 echo "  Compiling mossc/*"
 i586-elf-g++ -c source/mossc/_misc.cpp     -o build/mossc/_misc.o $ARGS_CMPL
 
+echo "  Compiling mosst/*"
+i586-elf-g++ -c source/mosst/string.cpp     -o build/mosst/string.o $ARGS_CMPL
+
 echo "  Compiling kernel/boot/*"
 nasm -felf      source/kernel/boot/boot.asm -o build/kernel/boot/boot.o
 echo "  Compiling kernel/graphics/gui/*"
+i586-elf-g++ -c source/kernel/graphics/gui/frame.cpp  -o build/kernel/graphics/gui/frame.o $ARGS_CMPL
+i586-elf-g++ -c source/kernel/graphics/gui/manager.cpp -o build/kernel/graphics/gui/manager.o $ARGS_CMPL
+echo "  Compiling kernel/graphics/vesa/*"
+i586-elf-g++ -c source/kernel/graphics/vesa/controller.cpp  -o build/kernel/graphics/vesa/controller.o $ARGS_CMPL
+i586-elf-g++ -c source/kernel/graphics/vesa/framebuffer.cpp -o build/kernel/graphics/vesa/framebuffer.o $ARGS_CMPL
+i586-elf-g++ -c source/kernel/graphics/vesa/mode.cpp  -o build/kernel/graphics/vesa/mode.o $ARGS_CMPL
 echo "  Compiling kernel/graphics/*"
-i586-elf-g++ -c source/kernel/graphics/vesa.cpp -o build/kernel/graphics/vesa.o $ARGS_CMPL
 echo "  Compiling kernel/input/devices/*"
 i586-elf-g++ -c source/kernel/input/devices/controller_ps2.cpp -o build/kernel/input/devices/controller_ps2.o $ARGS_CMPL
 i586-elf-g++ -c source/kernel/input/devices/device.cpp         -o build/kernel/input/devices/device.o $ARGS_CMPL
@@ -89,7 +99,11 @@ i586-elf-gcc\
 	\
 	\
 	build/kernel/boot/boot.o\
-	build/kernel/graphics/vesa.o\
+	build/kernel/graphics/gui/frame.o\
+	build/kernel/graphics/gui/manager.o\
+	build/kernel/graphics/vesa/controller.o\
+	build/kernel/graphics/vesa/framebuffer.o\
+	build/kernel/graphics/vesa/mode.o\
 	build/kernel/input/devices/controller_ps2.o\
 	build/kernel/input/devices/device.o\
 	build/kernel/input/devices/keyboard.o\
@@ -120,6 +134,8 @@ i586-elf-gcc\
 	build/mossc/string/other.o\
 	build/mossc/string/searching.o\
 	build/mossc/_misc.o\
+	\
+	build/mosst/string.o\
 \
 	build/includes.o\
 \

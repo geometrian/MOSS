@@ -14,8 +14,8 @@ class DevicePS2Mouse;
 class ControllerPS2 {
 	private:
 		enum ControllerIO {
-			StatusRegister  = 0x64,
-			CommandRegister = 0x64
+			StatusRegister  = 0x0064,
+			CommandRegister = 0x0064
 		};
 		enum StatusMask {
 			OutputBuffer    = 0x01, //00000001

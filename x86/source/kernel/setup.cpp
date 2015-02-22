@@ -2,7 +2,8 @@
 
 #include "../mossc/_misc.h"
 
-#include "graphics/vesa.h"
+#include "graphics/gui/manager.h"
+#include "graphics/vesa/controller.h"
 
 #include "input/devices/controller_ps2.h"
 
@@ -24,7 +25,7 @@ namespace MOSS { namespace Kernel {
 extern "C" void __cxa_pure_virtual(void) {
 	//http://wiki.osdev.org/C%2B%2B
 	//If, during runtime, the kernel detects that a call to a pure virtual function couldn't be made, it calls the above
-	//function.  This function should actually never be called, because without corruption/undefined behaviour, it is not
+	//function.  This function should actually never be called, because without corruption/undefined behavior, it is not
 	//possible to instantiate a class that doesn't define all pure virtual functions.
 	ASSERT(false,"__cxa_pure_virtual got called somehow!");
 }
@@ -91,6 +92,9 @@ extern "C" void kernel_entry(unsigned long magic, unsigned long addr) {
 	//terminal->write("Setting mode "); mode->print(terminal); terminal->write(" . . .\n"); delay(5000);
 	graphics->set_mode(mode);
 	//graphics->set_pixel(5,5, 255,0,0,255);
+
+	Graphics::GUI::Manager gui2;
+	gui = &gui2;
 
 	kernel_main();
 }

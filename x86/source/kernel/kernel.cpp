@@ -1,7 +1,8 @@
 #include "kernel.h"
 
+#include "graphics/gui/manager.h"
 #include "graphics/color.h"
-#include "graphics/vesa.h"
+#include "graphics/vesa/controller.h"
 
 #include "../mossc/cstdio"
 #include "input/devices/controller_ps2.h"
@@ -21,11 +22,13 @@ namespace MOSS { namespace Kernel {
 	Memory::MemoryManager* memory = NULL;
 	Input::Devices::ControllerPS2* controller = NULL;
 	Graphics::VESA::Controller* graphics = NULL;
+	Graphics::GUI::Manager* gui = NULL;
 #else
 	Terminal::TextModeTerminal* terminal;
 	Memory::MemoryManager* memory;
 	Input::Devices::ControllerPS2* controller;
-	Graphics::VESA::Controller* graphics = NULL;
+	Graphics::VESA::Controller* graphics;
+	Graphics::GUI::Manager* gui;
 #endif
 
 void handle_key_down(const Input::Keys::Event& event) {
@@ -35,10 +38,11 @@ void handle_key_down(const Input::Keys::Event& event) {
 	}
 }
 void handle_key_up(const Input::Keys::Event&/* event*/) {
+
 }
 
 void handle_mouse_move(const Input::Mouse::EventMove& event) {
-	//terminal->write("Mouse position: %d, %d\n",event.x,event.y);
+	/*//terminal->write("Mouse position: %d, %d\n",event.x,event.y);
 
 	graphics->set_pixel(event.x,event.y, Graphics::Color(255u,0u,255u,255u));
 
@@ -46,11 +50,12 @@ void handle_mouse_move(const Input::Mouse::EventMove& event) {
 	MOSSC::sprintf(buffer,"Mouse position: (%+5d,%+5d)",event.x,event.y);
 
 	graphics->draw_text(50,50, buffer, Graphics::Color(0u,255u,255u),Graphics::Color(32u,32u,32u));
-	//graphics->draw_text(50,50, "Hello World!", Graphics::Color(0u,255u,255u));
+	//graphics->draw_text(50,50, "Hello World!", Graphics::Color(0u,255u,255u));*/
+	gui->set_mouse_position(event.x,event.y);
 }
 
 void kernel_main(void) {
-	char buffer[256];
+	/*char buffer[256];
 	graphics->current_mode->get_printable(buffer);
 	graphics->draw_text(50,graphics->current_mode->info.YResolution-50, buffer, Graphics::Color(255u,255u,255u));
 
@@ -75,7 +80,7 @@ void kernel_main(void) {
 				}
 			}
 		}
-	}
+	}*/
 
 	/*for (int r=0;r<=255;++r) {
 		for (int g=0;g<=255;++g) {
@@ -83,7 +88,11 @@ void kernel_main(void) {
 		}
 	}*/
 
-	while (true);
+	gui->add_frame("Hello world!", 50,50, 300,200);
+
+	while (true) {
+		gui->draw();
+	}
 }
 
 

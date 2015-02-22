@@ -1,7 +1,12 @@
 namespace MOSS {
-	namespace Graphics { namespace VESA {
-		class Controller;
-	}}
+	namespace Graphics {
+		namespace GUI {
+			class Manager;
+		}
+		namespace VESA {
+			class Controller;
+		}
+	}
 	namespace Input {
 		namespace Devices {
 			class ControllerPS2;
@@ -26,6 +31,7 @@ extern Terminal::TextModeTerminal* terminal;
 extern Memory::MemoryManager* memory;
 extern Input::Devices::ControllerPS2* controller;
 extern Graphics::VESA::Controller* graphics;
+extern Graphics::GUI::Manager* gui;
 
 
 void handle_key_down(const Input::Keys::Event& event);
