@@ -23,10 +23,10 @@ Controller::Controller(void) {
 	height = -1;
 	current_mode = NULL;
 
-	frames[0] = NULL;
-	frames[1] = NULL;
-	latest_complete_frame = -1;
-	frame_writing = 0;
+	framebuffers[0] = NULL;
+	framebuffers[1] = NULL;
+	latest_complete_framebuffer = -1;
+	framebuffer_writing = 0;
 
 	//Check that the VESA driver exists, and get information about it,
 	//including how many modes there are.
@@ -106,8 +106,8 @@ Controller::Controller(void) {
 	}
 }
 Controller::~Controller(void) {
-	if (frames[1]!=NULL) delete frames[1];
-	if (frames[0]!=NULL) delete frames[0];
+	if (framebuffers[1]!=NULL) delete framebuffers[1];
+	if (framebuffers[0]!=NULL) delete framebuffers[0];
 
 	delete [] modes;
 }
@@ -148,29 +148,29 @@ bool Controller::set_mode(Mode* mode) {
 	height = mode->info.YResolution;
 	current_mode = mode;
 
-	if (frames[0]!=NULL) delete frames[0];
-	if (frames[1]!=NULL) delete frames[1];
-	frames[0] = new FrameBuffer(current_mode);
-	frames[1] = new FrameBuffer(current_mode);
+	if (framebuffers[0]!=NULL) delete framebuffers[0];
+	if (framebuffers[1]!=NULL) delete framebuffers[1];
+	framebuffers[0] = new FrameBuffer(current_mode);
+	framebuffers[1] = new FrameBuffer(current_mode);
 
 	return true;
 }
 
 void Controller::frame_start(void) {
-	current_frame = frames[frame_writing];
-	current_frame->complete = false;
+	current_framebuffer = framebuffers[framebuffer_writing];
+	current_framebuffer->complete = false;
 }
 void Controller::frame_end(void) {
-	frames[frame_writing]->complete =  true;
-	latest_complete_frame = frame_writing;
-	frame_writing = 1 - frame_writing;
+	framebuffers[framebuffer_writing]->complete =  true;
+	latest_complete_framebuffer = framebuffer_writing;
+	framebuffer_writing = 1 - framebuffer_writing;
 }
 void Controller::frame_flip(void) {
 	//See http://wiki.osdev.org/GUI
 	//See http://www.delorie.com/djgpp/doc/ug/graphics/vga.html
 
-	ASSERT(frames[0]!=NULL && frames[1]!=NULL, "At least one frame is NULL!  Must set a mode first!");
-	if (latest_complete_frame==-1) return;
+	ASSERT(framebuffers[0]!=NULL && framebuffers[1]!=NULL, "At least one frame is NULL!  Must set a mode first!");
+	if (latest_complete_framebuffer==-1) return;
 
 	//Wait for vertical retrace
 	//	Wait for any previous retrace to end
@@ -179,7 +179,7 @@ void Controller::frame_flip(void) {
 	while (!(IO::recv<uint8_t>(0x03DA)&0x08));
 
 	//Copy as fast as possible and hope we're done in time
-	frames[latest_complete_frame]->copy_to_screen(current_mode);
+	framebuffers[latest_complete_framebuffer]->copy_to_screen(current_mode);
 }
 
 

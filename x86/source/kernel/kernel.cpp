@@ -91,7 +91,12 @@ void kernel_main(void) {
 	gui->add_frame("Hello world!", 50,50, 300,200);
 
 	while (true) {
-		gui->draw();
+		Kernel::graphics->frame_start();
+
+		gui->draw(Kernel::graphics->current_framebuffer);
+
+		Kernel::graphics->frame_end();
+		Kernel::graphics->frame_flip();
 	}
 }
 

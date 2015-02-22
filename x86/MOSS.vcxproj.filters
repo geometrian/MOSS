@@ -46,6 +46,9 @@
     <Filter Include="mosst">
       <UniqueIdentifier>{9d0c11e6-b582-4e01-9882-31c8a216f8d6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="kernel\graphics\vesa">
+      <UniqueIdentifier>{a6de09a4-6779-4740-8f4a-c435ab119e94}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="source\linker.ld" />
@@ -122,9 +125,6 @@
     <ClCompile Include="source\kernel\input\devices\controller_ps2.cpp">
       <Filter>kernel\input\devices</Filter>
     </ClCompile>
-    <ClCompile Include="source\kernel\graphics\vesa.cpp">
-      <Filter>kernel\graphics</Filter>
-    </ClCompile>
     <ClCompile Include="source\kernel\input\devices\mouse.cpp">
       <Filter>kernel\input\devices</Filter>
     </ClCompile>
@@ -166,6 +166,15 @@
     </ClCompile>
     <ClCompile Include="source\mosst\string.cpp">
       <Filter>mosst</Filter>
+    </ClCompile>
+    <ClCompile Include="source\kernel\graphics\vesa\mode.cpp">
+      <Filter>kernel\graphics\vesa</Filter>
+    </ClCompile>
+    <ClCompile Include="source\kernel\graphics\vesa\controller.cpp">
+      <Filter>kernel\graphics\vesa</Filter>
+    </ClCompile>
+    <ClCompile Include="source\kernel\graphics\vesa\framebuffer.cpp">
+      <Filter>kernel\graphics\vesa</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -219,9 +228,6 @@
       <Filter>kernel\input\devices</Filter>
     </ClInclude>
     <ClInclude Include="source\kernel\graphics\font.h">
-      <Filter>kernel\graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="source\kernel\graphics\vesa.h">
       <Filter>kernel\graphics</Filter>
     </ClInclude>
     <ClInclude Include="source\kernel\graphics\gui\frame.h">
@@ -289,6 +295,18 @@
     </ClInclude>
     <ClInclude Include="source\mosst\string.h">
       <Filter>mosst</Filter>
+    </ClInclude>
+    <ClInclude Include="source\kernel\graphics\vesa\mode.h">
+      <Filter>kernel\graphics\vesa</Filter>
+    </ClInclude>
+    <ClInclude Include="source\kernel\graphics\vesa\controller.h">
+      <Filter>kernel\graphics\vesa</Filter>
+    </ClInclude>
+    <ClInclude Include="source\kernel\graphics\vesa\framebuffer.h">
+      <Filter>kernel\graphics\vesa</Filter>
+    </ClInclude>
+    <ClInclude Include="source\kernel\graphics\gui\mouse.h">
+      <Filter>kernel\graphics\gui</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

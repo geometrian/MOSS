@@ -85,17 +85,17 @@ class Pixel32 { public:
 } __attribute__((packed));
 #undef CHANNEL_SCALE
 
-static void* get_address(VESA::FrameBuffer* frame, int x,int y) {
+static void* get_address(VESA::FrameBuffer* framebuffer, int x,int y) {
 	#ifdef MOSS_DEBUG
 	//Trying to access out of bounds causes the screen to be filled with magenta
-	if (x<0 || x>=frame->mode->info.XResolution) { frame->draw_fill(Color(255u,0u,255u,255u)); return NULL; }
-	if (y<0 || y>=frame->mode->info.YResolution) { frame->draw_fill(Color(255u,0u,255u,255u)); return NULL; }
+	if (x<0 || x>=framebuffer->mode->info.XResolution) { framebuffer->draw_fill(Color(255u,0u,255u,255u)); return NULL; }
+	if (y<0 || y>=framebuffer->mode->info.YResolution) { framebuffer->draw_fill(Color(255u,0u,255u,255u)); return NULL; }
 	#endif
 
-	y = frame->mode->info.YResolution - y - 1;
+	y = framebuffer->mode->info.YResolution - y - 1;
 
 	int bytes_per_pixel;
-	switch (frame->mode->info.BitsPerPixel) {
+	switch (framebuffer->mode->info.BitsPerPixel) {
 		default:
 		case 4:
 		case 8: //Unsupported
@@ -112,11 +112,11 @@ static void* get_address(VESA::FrameBuffer* frame, int x,int y) {
 			bytes_per_pixel = 4;
 			break;
 	}
-	return (void*)( (unsigned long)(frame->buffer) + y*frame->mode->info.BytesPerScanLine + x*bytes_per_pixel );
+	return (void*)( (unsigned long)(framebuffer->buffer) + y*framebuffer->mode->info.BytesPerScanLine + x*bytes_per_pixel );
 }
-static Color get_at(VESA::FrameBuffer* frame, int x,int y) {
-	const void* addr = get_address(frame, x,y);
-	switch (frame->mode->info.BitsPerPixel) {
+static Color get_at(VESA::FrameBuffer* framebuffer, int x,int y) {
+	const void* addr = get_address(framebuffer, x,y);
+	switch (framebuffer->mode->info.BitsPerPixel) {
 		case 4:
 		case 8:
 			break; //Not supported
@@ -127,9 +127,9 @@ static Color get_at(VESA::FrameBuffer* frame, int x,int y) {
 	}
 	return Color(255u,0u,255u,255u); //Error color is magenta
 }
-static void set_at(VESA::FrameBuffer* frame, int x,int y, const Color& color) {
-	void* addr = get_address(frame, x,y);
-	switch (frame->mode->info.BitsPerPixel) {
+static void set_at(VESA::FrameBuffer* framebuffer, int x,int y, const Color& color) {
+	void* addr = get_address(framebuffer, x,y);
+	switch (framebuffer->mode->info.BitsPerPixel) {
 		case 4:
 		case 8:
 			break; //Not supported

@@ -36,7 +36,9 @@
     <ClCompile Include="source\includes.cpp" />
     <ClCompile Include="source\kernel\graphics\gui\frame.cpp" />
     <ClCompile Include="source\kernel\graphics\gui\manager.cpp" />
-    <ClCompile Include="source\kernel\graphics\vesa.cpp" />
+    <ClCompile Include="source\kernel\graphics\vesa\framebuffer.cpp" />
+    <ClCompile Include="source\kernel\graphics\vesa\mode.cpp" />
+    <ClCompile Include="source\kernel\graphics\vesa\controller.cpp" />
     <ClCompile Include="source\kernel\input\devices\controller_ps2.cpp" />
     <ClCompile Include="source\kernel\input\devices\device.cpp" />
     <ClCompile Include="source\kernel\input\devices\keyboard.cpp" />
@@ -71,7 +73,10 @@
     <ClInclude Include="source\kernel\graphics\font.h" />
     <ClInclude Include="source\kernel\graphics\gui\frame.h" />
     <ClInclude Include="source\kernel\graphics\gui\manager.h" />
-    <ClInclude Include="source\kernel\graphics\vesa.h" />
+    <ClInclude Include="source\kernel\graphics\gui\mouse.h" />
+    <ClInclude Include="source\kernel\graphics\vesa\framebuffer.h" />
+    <ClInclude Include="source\kernel\graphics\vesa\mode.h" />
+    <ClInclude Include="source\kernel\graphics\vesa\controller.h" />
     <ClInclude Include="source\kernel\input\devices\controller_ps2.h" />
     <ClInclude Include="source\kernel\input\devices\device.h" />
     <ClInclude Include="source\kernel\input\devices\keyboard.h" />

@@ -1,4 +1,4 @@
 echo "Building"
-./_build
+python ./_build.py
 echo "Installing"
 ./_install

@@ -12,6 +12,8 @@ class String : Vector<char> {
 		String(const char* data);
 		virtual ~String(void);
 
+		int get_size(void) const override;
+
 		String operator+(const String& other);
 
 		String& operator+=(const char* other);

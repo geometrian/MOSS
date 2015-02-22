@@ -13,26 +13,38 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Source Files\testmosst">
+      <UniqueIdentifier>{10a63af2-1a82-4691-9848-a8e895f77a33}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\mosst">
+      <UniqueIdentifier>{46da1c8d-66d5-444c-a945-21d63a1aba1c}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source Files\mossc">
-      <UniqueIdentifier>{b1647de3-baa6-474c-ba75-ad62b0a226ef}</UniqueIdentifier>
+      <UniqueIdentifier>{45e390ab-937a-4468-8ecf-b02502689ddb}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\mossc\math">
-      <UniqueIdentifier>{7a02af41-8cb3-4b74-a73d-633878dbeb9b}</UniqueIdentifier>
+      <UniqueIdentifier>{e2b52528-c2ae-41fd-b94d-26c665d5ce31}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\mossc\stdio">
-      <UniqueIdentifier>{b560fc0b-a051-42a2-be2b-462e1d8f4b7c}</UniqueIdentifier>
+      <UniqueIdentifier>{2b9b31e6-5b62-468a-9db1-f3c3fb150ead}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\mossc\stdlib">
-      <UniqueIdentifier>{76a2cb96-83ae-4efe-b2bb-587f05840987}</UniqueIdentifier>
+      <UniqueIdentifier>{2dc855b9-e08a-4459-8eee-d85cb5088d55}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\mossc\string">
-      <UniqueIdentifier>{a567818e-6ff6-46fd-9d5c-7a27525d61c1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\testmossc">
-      <UniqueIdentifier>{f79f53a7-0d1f-4327-8fc2-a5117cb690c4}</UniqueIdentifier>
+      <UniqueIdentifier>{bc6f5860-8e5e-4b52-8365-83f52d1eb41a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="testmosst\main.cpp">
+      <Filter>Source Files\testmosst</Filter>
+    </ClCompile>
+    <ClCompile Include="source\mosst\string.cpp">
+      <Filter>Source Files\mosst</Filter>
+    </ClCompile>
+    <ClCompile Include="source\mossc\_misc.cpp">
+      <Filter>Source Files\mossc</Filter>
+    </ClCompile>
     <ClCompile Include="source\mossc\math\trig.cpp">
       <Filter>Source Files\mossc\math</Filter>
     </ClCompile>
@@ -57,14 +69,32 @@
     <ClCompile Include="source\mossc\string\searching.cpp">
       <Filter>Source Files\mossc\string</Filter>
     </ClCompile>
-    <ClCompile Include="source\mossc\_misc.cpp">
-      <Filter>Source Files\mossc</Filter>
-    </ClCompile>
-    <ClCompile Include="testmossc\main.cpp">
-      <Filter>Source Files\testmossc</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="source\mosst\string.h">
+      <Filter>Source Files\mosst</Filter>
+    </ClInclude>
+    <ClInclude Include="source\mosst\vector.h">
+      <Filter>Source Files\mosst</Filter>
+    </ClInclude>
+    <ClInclude Include="source\mossc\math.h">
+      <Filter>Source Files\mossc</Filter>
+    </ClInclude>
+    <ClInclude Include="source\mossc\stdio.h">
+      <Filter>Source Files\mossc</Filter>
+    </ClInclude>
+    <ClInclude Include="source\mossc\stdlib.h">
+      <Filter>Source Files\mossc</Filter>
+    </ClInclude>
+    <ClInclude Include="source\mossc\string.h">
+      <Filter>Source Files\mossc</Filter>
+    </ClInclude>
+    <ClInclude Include="source\mossc\_common.h">
+      <Filter>Source Files\mossc</Filter>
+    </ClInclude>
+    <ClInclude Include="source\mossc\_misc.h">
+      <Filter>Source Files\mossc</Filter>
+    </ClInclude>
     <ClInclude Include="source\mossc\math\trig.h">
       <Filter>Source Files\mossc\math</Filter>
     </ClInclude>
@@ -88,24 +118,6 @@
     </ClInclude>
     <ClInclude Include="source\mossc\string\searching.h">
       <Filter>Source Files\mossc\string</Filter>
-    </ClInclude>
-    <ClInclude Include="source\mossc\_common.h">
-      <Filter>Source Files\mossc</Filter>
-    </ClInclude>
-    <ClInclude Include="source\mossc\_misc.h">
-      <Filter>Source Files\mossc</Filter>
-    </ClInclude>
-    <ClInclude Include="source\mossc\math.h">
-      <Filter>Source Files\mossc</Filter>
-    </ClInclude>
-    <ClInclude Include="source\mossc\stdio.h">
-      <Filter>Source Files\mossc</Filter>
-    </ClInclude>
-    <ClInclude Include="source\mossc\stdlib.h">
-      <Filter>Source Files\mossc</Filter>
-    </ClInclude>
-    <ClInclude Include="source\mossc\string.h">
-      <Filter>Source Files\mossc</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

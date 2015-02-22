@@ -1,24 +1,29 @@
 #include "manager.h"
 
+#include "../color.h"
+#include "../vesa/framebuffer.h"
+
 #include "frame.h"
+#include "mouse.h"
 
 
 namespace MOSS { namespace Graphics { namespace GUI {
 
 
 Manager::Manager(void) {
-	mouse_position[0] = 0;
-	mouse_position[1] = 0;
+	mouse = new Mouse();
 }
 Manager::~Manager(void) {
+	delete mouse;
+
 	while (frames.get_size()>0) {
 		delete frames.pop_back();
 	}
 }
 
 void Manager::set_mouse_position(int x, int y) {
-	mouse_position[0] = x;
-	mouse_position[1] = y;
+	mouse->x = x;
+	mouse->y = y;
 }
 
 void Manager::add_frame(const MOSST::String& title, int x,int y,int w,int h) {
@@ -28,19 +33,14 @@ void Manager::add_frame(const MOSST::String& title, int x,int y,int w,int h) {
 	frames.push_back(frame);
 }
 
-void Manager::draw(void) const {
-	Kernel::graphics->frame_start();
-
-	Kernel::graphics->current_frame->draw_fill(Color(0,0,0));
+void Manager::draw(VESA::FrameBuffer* framebuffer) const {
+	framebuffer->draw_fill(Color(0,0,0));
 
 	for (int i=0;i<frames.get_size();++i) {
-		frames[i]->draw();
+		frames[i]->draw(framebuffer);
 	}
 
-	Kernel::graphics->current_frame->draw_rect(mouse_position[0],mouse_position[1],20,20, Color(255,255,255));
-
-	Kernel::graphics->frame_end();
-	Kernel::graphics->frame_flip();
+	mouse->draw(framebuffer);
 }
 
 

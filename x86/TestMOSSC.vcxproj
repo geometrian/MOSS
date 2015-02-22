@@ -28,7 +28,7 @@
     <ClCompile Include="source\mossc\string\other.cpp" />
     <ClCompile Include="source\mossc\string\searching.cpp" />
     <ClCompile Include="source\mossc\_misc.cpp" />
-    <ClCompile Include="test\main.cpp" />
+    <ClCompile Include="testmossc\main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\mossc\math.h" />

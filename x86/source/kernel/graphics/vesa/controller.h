@@ -30,11 +30,11 @@ class Controller {
 		Mode* current_mode;
 
 	private:
-		FrameBuffer* frames[2];
-		int latest_complete_frame;
-		int frame_writing;
+		FrameBuffer* framebuffers[2];
+		int latest_complete_framebuffer;
+		int framebuffer_writing;
 	public:
-		FrameBuffer* current_frame;
+		FrameBuffer* current_framebuffer;
 
 	private:
 		class VESA_INFO { public:
