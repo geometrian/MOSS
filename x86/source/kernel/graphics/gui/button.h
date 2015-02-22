@@ -18,6 +18,8 @@ class ButtonBase : public ComponentBase {
 		ButtonBase(ComponentBase* parent, const Rect& rect_button);
 	public:
 		virtual ~ButtonBase(void);
+
+		bool handle_mouse(const Input::Mouse::EventMove& event) override;
 };
 class ButtonToggleBase : public ButtonBase {
 	private:
@@ -30,9 +32,13 @@ class ButtonToggleBase : public ButtonBase {
 };
 class ButtonSingleBase : public ButtonBase {
 	protected:
+		bool selected;
+	protected:
 		ButtonSingleBase(ComponentBase* parent, const Rect& rect_button);
 	public:
 		virtual ~ButtonSingleBase(void);
+
+		bool handle_mouse(const Input::Mouse::EventMove& event) override;
 };
 class ButtonClose : public ButtonSingleBase {
 	public:

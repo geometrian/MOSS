@@ -39,6 +39,7 @@
     <ClCompile Include="source\kernel\graphics\gui\frame.cpp" />
     <ClCompile Include="source\kernel\graphics\gui\manager.cpp" />
     <ClCompile Include="source\kernel\graphics\gui\mouse.cpp" />
+    <ClCompile Include="source\kernel\graphics\gui\rect.cpp" />
     <ClCompile Include="source\kernel\graphics\vesa\framebuffer.cpp" />
     <ClCompile Include="source\kernel\graphics\vesa\mode.cpp" />
     <ClCompile Include="source\kernel\graphics\vesa\controller.cpp" />
@@ -114,6 +115,7 @@
     <ClInclude Include="source\mossc\string\searching.h" />
     <ClInclude Include="source\mossc\_common.h" />
     <ClInclude Include="source\mossc\_misc.h" />
+    <ClInclude Include="source\mosst\linked_list.h" />
     <ClInclude Include="source\mosst\string.h" />
     <ClInclude Include="source\mosst\vector.h" />
   </ItemGroup>

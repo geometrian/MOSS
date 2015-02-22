@@ -30,8 +30,6 @@ class Frame : public ComponentBase {
 		Frame(ComponentBase* parent, int x,int y, int w,int h);
 		~Frame(void);
 
-		bool handle_mouse(const Input::Mouse::EventMove& event);
-
 		void set_position(int x, int y);
 		void set_size(int width, int height);
 

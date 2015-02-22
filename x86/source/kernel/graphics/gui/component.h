@@ -2,16 +2,18 @@
 
 #include "rect.h"
 
-#include "../../../mosst/vector.h"
-
 
 namespace MOSST {
-	template <typename type> class Vector;
+	template <typename type> class LinkedList;
 }
-namespace MOSS { namespace Graphics {
-	namespace VESA {
-		class Framebuffer;
-	}
+namespace MOSS {
+	namespace Input { namespace Mouse {
+		class EventMove;
+	}}
+	namespace Graphics {
+		namespace VESA {
+			class Framebuffer;
+		}
 namespace GUI {
 
 
@@ -19,7 +21,7 @@ class ComponentBase {
 	public:
 		ComponentBase*const parent;
 
-		MOSST::Vector<ComponentBase*>* children;
+		MOSST::LinkedList<ComponentBase*>* children;
 
 		Rect rect_component;
 		Rect rect_client;
@@ -29,7 +31,10 @@ class ComponentBase {
 	public:
 		virtual ~ComponentBase(void);
 
+		virtual bool handle_mouse(const Input::Mouse::EventMove& event);
+
 		Rect get_client_rect_world(void);
+		Rect get_component_rect_world(void);
 
 		virtual void draw(VESA::Framebuffer*/* framebuffer*/) {}
 };

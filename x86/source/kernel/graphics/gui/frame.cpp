@@ -24,10 +24,6 @@ Frame::~Frame(void) {
 	delete button_close;
 }
 
-bool Frame::handle_mouse(const Input::Mouse::EventMove&/* event*/) {
-	return true;
-}
-
 void Frame::set_position(int x, int y) {
 	rect_component.x = x;
 	rect_component.y = y;

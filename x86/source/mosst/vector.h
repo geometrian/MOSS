@@ -9,21 +9,18 @@ namespace MOSST {
 template <typename type> class Vector {
 	protected:
 		unsigned char* data;
-		int size;
 		int capacity;
+	public:
+		int size;
 
 	public:
 		Vector(void) {
 			data = NULL;
-			size = 0;
 			capacity = 0;
+			size = 0;
 		}
 		virtual ~Vector(void) {
 			delete [] data;
-		}
-
-		virtual int get_size(void) const {
-			return size;
 		}
 
 		bool reserve(int num_elements) {
@@ -45,7 +42,7 @@ template <typename type> class Vector {
 			return true;
 		}
 
-		void push_back(const type& object) {
+		virtual void insert_back(const type& object) {
 			if (size==capacity) {
 				if (capacity==0) {
 					reserve(1);
@@ -56,18 +53,18 @@ template <typename type> class Vector {
 			*( ((type*)(data)) + size ) = object;
 			++size;
 		}
-		type& pop_back(void) {
+		type& remove_back(void) {
 			//ASSERT(size>0,"Tried to pop an empty vector!");
 			//if (size==0) return;
 			return ((type*)(data))[--size];
 		}
 
 		inline Vector<type>& operator<<=(type& other) {
-			push_back(other);
+			insert_back(other);
 			return *this;
 		}
 		inline Vector<type>& operator>>=(type& other) {
-			other = pop_back();
+			other = remove_back();
 			return *this;
 		}
 

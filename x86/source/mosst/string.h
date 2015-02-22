@@ -12,7 +12,7 @@ class String : Vector<char> {
 		String(const char* data);
 		virtual ~String(void);
 
-		int get_size(void) const override;
+		void insert_back(const char& object) override;
 
 		String operator+(const String& other);
 

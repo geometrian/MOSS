@@ -5,17 +5,19 @@ namespace MOSST {
 
 
 String::String(void) : Vector() {
-	push_back('\0');
 }
 String::String(const char* data) : Vector() {
-	push_back('\0');
 	*this += data;
 }
 String::~String(void) {
 }
 
-int String::get_size(void) const /*override*/ {
-	return size - 1; //Do not count the NULL character.
+void String::insert_back(const char& object) /*override*/ {
+	Vector::insert_back(object);
+
+	//Push a NULL character onto the string, but pretend it doesn't exist.
+	Vector::insert_back('\0');
+	--size;
 }
 
 String String::operator+(const String& other) {
@@ -25,19 +27,20 @@ String String::operator+(const String& other) {
 }
 
 String& String::operator+=(const char* other) {
-	pop_back();
 	int i = 0;
 	LOOP:
 		char c = other[i];
-		push_back(c);
 		if (c!='\0') {
+			insert_back(c);
 			++i;
 			goto LOOP;
 		}
 	return *this;
 }
 String& String::operator+=(const String& other) {
-	*this += other.c_str();
+	for (int i=0;i<other.size;++i) {
+		insert_back(other[i]);
+	}
 	return *this;
 }
 
