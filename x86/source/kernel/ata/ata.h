@@ -28,6 +28,7 @@ class Channel {
 		};
 
 		volatile bool got_irq;
+		uint8_t* irq_buffer;
 
 		Drive* drive0;
 		Drive* drive1;
@@ -38,6 +39,9 @@ class Channel {
 		~Channel(void);
 
 		void handle_irq(void);
+	private:
+		void _read_sector(void);
+	public:
 		void reset_irq(void);
 
 		void drive_select(DriveType drive);

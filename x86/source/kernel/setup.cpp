@@ -105,8 +105,8 @@ extern "C" void kernel_entry(unsigned long magic, unsigned long addr) {
 	ENABLE_HARDWARE_INTERRUPTS
 
 	//Must come after setting up ATA and after enabling interrupts
-	FS::InterfaceFileSystemEXT2 fs;
-	while (true);
+	//FS::InterfaceFileSystemEXT2 fs;
+	//while (true);
 
 	/*kernel->write("float a\n");
 	float a = 1.0f;
@@ -129,14 +129,17 @@ extern "C" void kernel_entry(unsigned long magic, unsigned long addr) {
 	Graphics::GUI::Manager gui;
 	kernel->gui = &gui;
 
-	/*kernel->write("Reading bootsector from HDD\n");
-	const uint8_t* data = kernel->controller_ata->read_sector(0);
-	kernel->write("Writing data . . .\n");
+	const uint8_t* data;
+	kernel->write("Reading bootsector from HDD . . .\n");
+	data = kernel->controller_ata->read_sector(0);
+	kernel->write("Doing it again . . .\n");
+	data = kernel->controller_ata->read_sector(0);
+	kernel->write("Outputting data . . .\n");
 	for (int i=0;i<512;++i) {
-		kernel->write("%p ",data[i]);
+		kernel->write("%d ",data[i]);
 	}
 	//kernel->write("Bytes at index 510, 511: %u %u\n",data[510],data[511]); //For MBR should be 0x55 0xAA
-	kernel->write("Complete!\n");*/
+	kernel->write("Complete!\n"); while (true);
 
 	kernel->init();
 	kernel->main();

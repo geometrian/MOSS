@@ -22,15 +22,29 @@ Channel::Channel(Controller* controller, ChannelType type) : controller(controll
 	current = NULL;
 	drive0 = new Drive(this,Master);
 	drive_select(Master);
+
+	//drive0->set_interrupts(false); //Must come after drive select
 }
 Channel::~Channel(void) {
 	delete drive0;
 }
 
 void Channel::handle_irq(void) {
-	ASSERT(false,"HDD got IRQ somehow!");
+	//ASSERT(false,"HDD got IRQ somehow!");
+	_read_sector();
 	got_irq = true;
-	//TODO: also need to process the next sector, and only the next sector, here
+}
+void Channel::_read_sector(void) {
+	ASSERT(current!=NULL,"Current drive was NULL somehow!");
+	Drive::StatusByte status = current->get_status();
+	ASSERT(!status.err,"Read sectors got ERR!");
+
+	//Transfer 256 words, a word at a time, into buffer from I/O port 0x01F0. (In assembler, REP INSW works well for this).
+	for (int j=0;j<512;j+=2) {
+		uint16_t word = IO::recv<uint16_t>(current->drive_iobase);
+		irq_buffer[j  ] = (uint8_t)( word&0x00FF    );
+		irq_buffer[j+1] = (uint8_t)((word&0xFF00)>>8);
+	}
 }
 void Channel::reset_irq(void) {
 	got_irq = false;
@@ -78,7 +92,6 @@ Drive::Drive(Channel* channel, Channel::DriveType type) : channel(channel), type
 	//Be default, drives seem to have interrupts enabled, but MOSS keeps them disabled
 	//by default.  So, change the drive's state to disable interrupts.
 	interrupts = true;
-	set_interrupts(false);
 
 	StatusByte status = get_status();
 	ASSERT(!status.err,"Drive status was ERR on startup!");
@@ -100,6 +113,7 @@ void Drive::update_control_register(void) {
 	//Bit 3 is "HOB" (1=read back the High Order Byte of the last LBA48 value sent to an IO port)
 
 	//Drive must be current to accept changes to nIEN.
+	ASSERT(channel->current!=NULL,"Channel does not have a current drive!");
 	Channel::DriveType temp = channel->current->type;
 	channel->drive_select(type);
 	switch (type) {
@@ -169,28 +183,30 @@ void Drive::read_sectors(uint64_t lba, uint8_t* data_buffer,unsigned int num_sec
 	IO::send<uint8_t>(drive_iobase+5, (            lba&0x0000000000FF0000)>>16); //byte 3 of LBA
 
 	//Send the "READ SECTORS EXT" command (0x24) to port 0x01F7:
+	channel->irq_buffer = data_buffer;
 	IO::send<uint8_t>(0x01F7, 0x24);
 
 	unsigned int i = 0;
-	do {
-		/*//Wait for an IRQ or poll
-		while (!got_irq);
-		reset_irq();*/
-		Drive::StatusByte status;
-		do {
-			status = get_status();
-		} while (status.bsy || !status.drq);
-		ASSERT(!status.err,"Read sectors got ERR!");
+	LOOP:
+		#if 1 //IRQ
+			while (!channel->got_irq);
 
-		//Transfer 256 words, a word at a time, into your buffer from I/O port 0x01F0. (In assembler, REP INSW works well for this).
-		for (int j=0;j<512;j+=2) {
-			uint16_t word = IO::recv<uint16_t>(0x01F0);
-			data_buffer[j  ] = (uint8_t)( word&0x00FF    );
-			data_buffer[j+1] = (uint8_t)((word&0xFF00)>>8);
+			//When got_irq is set, the IRQ handler already read the sector and ACKed the interrupt.
+			//Just reset the IRQ and loop back to wait for the next sector.
+
+			channel->reset_irq();
+		#else //Poll
+			do {
+				status = get_status();
+			} while (status.bsy || !status.drq);
+		#endif
+
+		if (++i<num_sectors) {
+			channel->irq_buffer += 512;
+
+			//Loop back to waiting for the next IRQ (or poll again -- see next note) for each successive sector.
+			goto LOOP;
 		}
-
-		//Loop back to waiting for the next IRQ (or poll again -- see next note) for each successive sector.
-	} while (++i<num_sectors);
 
 	//Note for polling PIO drivers: after transferring the last word of a PIO data block to the data IO port, give the drive a
 	//400ns delay to reset its DRQ bit (and possibly set BSY again, while emptying/filling its buffer to/from the drive).
