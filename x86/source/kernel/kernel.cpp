@@ -46,31 +46,27 @@ extern "C" void kernel_main(unsigned long magic, unsigned long addr) {
 
 	terminal->write("Loading GDT\n");
 	MOSS::Interrupts::load_gdt();
-	/*terminal->write("Loading IDT\n");
-	MOSS::Interrupts::load_idt();*/
+	terminal->write("Loading IDT\n");
+	MOSS::Interrupts::load_idt();
 
 	terminal->write("Reloading Segments\n");
 	MOSS::Interrupts::reload_segments();
 
-	terminal->write("Hooray!\n");
-
-	/*
-
 	terminal->write("Enabling Interrupts\n");
 	MOSS::Interrupts::enable();
 
-	terminal->write("Success!\n");
-
 	terminal->write("Test firing . . .\n");
 	MOSS::Interrupts::fire_int13h();
+	terminal->write("fired!\n");
 
-	Memory::MemoryManager memory2(mbi);
+	/*Memory::MemoryManager memory2(mbi);
 	memory = &memory2;*/
 
 	//set_vesa_mode(640,400,8);
 	//set_vesa_mode(800,600,32);
 	//set_vesa_pixel(5,5, 255,0,0,255);
 
+	terminal->write("Hanging . . .\n");
 	while (true);
 }
 

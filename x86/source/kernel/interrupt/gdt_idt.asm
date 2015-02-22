@@ -1,8 +1,8 @@
 [GLOBAL gdt_lgdt]
 
 gdt_ptr:
-	DW 0 ;For limit storage
-	DD 0 ;For base storage
+	dw 0 ;For limit storage
+	dd 0 ;For base storage
 
 gdt_lgdt:
 	mov  eax, [esp + 4]
@@ -18,8 +18,8 @@ gdt_lgdt:
 [GLOBAL idt_lidt]
 
 idt_ptr:
-	DW 0 ;For limit storage
-	DD 0 ;For base storage
+	dw 0 ;For limit storage
+	dd 0 ;For base storage
 
 idt_lidt:
 	mov  eax, [esp + 4]
@@ -60,7 +60,7 @@ reload_CS:
 load_idt:
 	;load the IDT, this requires that the data section with
 	;the IDT exists
-	lidt [idt_pointer]
+	lidt  [idt_pointer]
 
 	ret
 

@@ -13,31 +13,34 @@ class EntryGDT {
 	public:
 		//Access byte used in GDT entries
 		//	See http://files.osdev.org/mirrors/geezer/os/pm.htm:
-		//		discr_type bit: 1 is code/data selector, 0 is TSS, LDT, or Gate (but also says earlier the same as the below):
+		//		executable bit: 1 is code/data selector, 0 is TSS, LDT, or Gate (but also says earlier the same as the below):
 		//	See http://wiki.osdev.org/Global_Descriptor_Table:
-		//		discr_type bit: 1 is code selector, 0 is data selector
+		//		executable bit: 1 is code selector, 0 is data selector
 		//	See http://wiki.osdev.org/Segmentation
-		//		discr_type bit: 1 is code/data selector, 0 is system
+		//		executable bit: 1 is code/data selector, 0 is system
+		//	I am going to use 1=code selector/0=data selector version, since doing it the other way causes a triple fault.
 		union Access {
 			class AccessByte { public:
 				bool     accessed :  1; //Initialized to 0; CPU sets when segment is accessed
 				bool           rw :  1; //Writable bit for data selectors / Readable bit for code selectors
 				bool     dir_conf :  1; //For data selectors, 0 the segment grows up, 1 the segment grows down.  For code selectors, 0 only executable by processes with exactly privilege, 1 lower is okay too
-				bool   discr_type :  1; //See above
-				bool       unused :  1; //Initialized to 1
+				bool   executable :  1; //See above
+				bool       unused :  1; //Actually usused?  Initialized to 1 (Descriptor Bit; see http://www.brokenthorn.com/Resources/OSDev8.html)
 				uint8_t privilege :  2; //Ring
 				bool      present :  1; //Must be 1 for all valid selectors
 
 				static AccessByte get_null(void);
-				static AccessByte get_selector_datacode(uint8_t ring);
-			} flags; //Will be packed since EntryGDT is packed
+				static AccessByte get_selector_code(uint8_t ring);
+				static AccessByte get_selector_data(uint8_t ring);
+			} flags; //Will be packed since EntryGDT is packed?
 			uint8_t          byte :  8;
 		} access;
 	private:
 		uint32_t       limit_high :  4; //The upper 4 bits of the limit
 	public:
 		//Flags.  Can't be in a struct because it is not byte-aligned and it would screw up the packing.
-		int          flags_unused :  2; //(at least on x86)
+		int         flags_unused1 :  1; //Can be reserved for OS use
+		int         flags_unused2 :  1; //unused (at least on x86).  Initialized to 0.
 		bool           flags_size :  1; //0 is 16-bit protected mode, 1 is 32-bit protected mode
 		bool    flags_granularity :  1; //If 0 the limit is in 1B blocks (byte granularity), if 1 the limit is in 4KiB blocks (page granularity).
 	private:
@@ -54,21 +57,39 @@ class EntryGDT {
 } __attribute__((packed));
 
 //IDT Entry or "gate".  Types can be interrupt gate, task gate, trap gate
-//	When an interrupt fires, the entry is used to jump to the appropriate handler function.  The offset
-//		and selector are the address of this function in the GDT or LDT.
+//	When an interrupt fires, the entry is used to jump to the appropriate handler function.  For interrupt/trap gates, the offset
+//		and selector are the address of this function in the GDT or LDT.  Specifically, the selector should refer to the code
+//		segment where the handler function resides in the GDT, and the offset is where that function is within.  For task gates,
+//		the offset is not used and the selector is the TSS selector.
+//	See http://www.brokenthorn.com/Resources/OSDev15.html
 //	See http://wiki.osdev.org/IDT
 class EntryIDT {
 	private:
-		uint32_t   offset_low : 16; //See above
-		uint32_t     selector : 16; //See above
+		uint32_t       offset_low : 16; //See above
+		uint16_t         selector : 16; //See above
 	public:
-		uint8_t        unused :  8; //Initialized to 0 (must be?)
-		struct {
-			int     gate_type :  4; //See link above
-			bool storage_elem :  1; //0 for interrupt gates
-			uint8_t privilege :  2; //Specifies which privilege level the calling descriptor should have at minimum.
-			bool      present :  1; //0 for unused interrupts or paging
-		} type_attr;
+		uint8_t           unused1 :  5; //Not used
+		uint8_t           unused2 :  3; //Reserved for interrupt/trap gates and must be 0, unused for task gates.
+		union Type {
+			struct TypeByte {
+				//Of the format 0bX110, where X determines size
+				//According to BrokenThorn, the first five bits here are one field, but according to OSDev, they're separate.  OSDev says
+				//	they must be 0 for interrupt gates, but doesn't say anything about other cases.  I'm leaving the fifth bit separate
+				//	but leaving it zero as per BrokenThorn's direction.
+				enum GateType { //Be sure to update code for storage_elem if change this!
+					Task32      = (uint8_t)(0x5u),
+					Interrupt16 = (uint8_t)(0x6u),
+					Trap16      = (uint8_t)(0x7u),
+					Interrupt32 = (uint8_t)(0xEu),
+					Trap32      = (uint8_t)(0xFu),
+				};// gate_type :  4; //See link above
+				uint8_t gate_type :  4; //TODO: this can't be of type GateType because of some weird alignment issue.
+				bool storage_elem :  1; //Initialized to 0
+				uint8_t privilege :  2; //Specifies which privilege level the calling descriptor should have at minimum.
+				bool      present :  1; //1=present, 0=not; 0 for unused interrupts or paging
+			} flags;
+			uint8_t          byte :  8;
+		} type;
 	private:
 		uint32_t offset_high  : 16; //See above
 
@@ -76,18 +97,16 @@ class EntryIDT {
 		void set_offset(uint32_t offset);
 		uint32_t get_offset(void) const;
 
-		static void construct(EntryIDT* entry, uint32_t offset, int privilege);
+		static void construct(EntryIDT* entry, uint32_t offset, Type::TypeByte::GateType type, int privilege);
 } __attribute__((packed));
 
 
 extern "C" void gdt_lgdt(uint32_t base, size_t limit); //ASM routine
 
+//Note that this function ought to be called with interrupts disabled; if an interrupt fires while in progress . . .
 void load_gdt(void);
 
 
-
-
-#if 0
 #define MOSS_INTERRUPT(MACRO)\
 	MACRO(  0) MACRO(  1) MACRO(  2) MACRO(  3) MACRO(  4) MACRO(  5) MACRO(  6) MACRO(  7)   MACRO(  8) MACRO(  9) MACRO( 10) MACRO( 11) MACRO( 12) MACRO( 13) MACRO( 14) MACRO( 15)\
 	MACRO( 16) MACRO( 17) MACRO( 18) MACRO( 19) MACRO( 20) MACRO( 21) MACRO( 22) MACRO( 23)   MACRO( 24) MACRO( 25) MACRO( 26) MACRO( 27) MACRO( 28) MACRO( 29) MACRO( 30) MACRO( 31)\
@@ -106,16 +125,10 @@ void load_gdt(void);
 	MACRO(224) MACRO(225) MACRO(226) MACRO(227) MACRO(228) MACRO(229) MACRO(230) MACRO(231)   MACRO(232) MACRO(233) MACRO(234) MACRO(235) MACRO(236) MACRO(237) MACRO(238) MACRO(239)\
 	MACRO(240) MACRO(241) MACRO(242) MACRO(243) MACRO(244) MACRO(245) MACRO(246) MACRO(247)   MACRO(248) MACRO(249) MACRO(250) MACRO(251) MACRO(252) MACRO(253) MACRO(254) MACRO(255)
 
-/*#define ISR(N) extern "C" void isr##N(void);
-	MOSS_INTERRUPT(ISR)
-#undef ISR*/
-extern "C" void isr(void);
-
 extern "C" void idt_lidt(uint32_t base, size_t limit); //ASM routine
 
+//Note that this function ought to be called with interrupts disabled; if an interrupt fires while in progress . . .
 void load_idt(void);
-#endif
-extern "C" void load_idt(void);
 
 
 extern "C" void reload_segments(void); //ASM routine
