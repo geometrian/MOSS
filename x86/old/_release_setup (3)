@@ -1,0 +1,154 @@
+#Sets up a common disk image that is used for building the VM disk or
+#installing to USB
+
+#See: http://wiki.osdev.org/Loopback_Device
+#See: http://superuser.com/questions/130955/how-to-install-grub-into-an-img-file
+
+export CYLINDERS=100
+export HEADS=16
+export SECTORS_PER_TRACK=63
+export SECTOR_SIZE=512
+
+#Make HDD image
+dd if=/dev/zero of=build/moss-disk.bin bs=$((HEADS*SECTORS_PER_TRACK*SECTOR_SIZE)) count=$CYLINDERS
+
+#Make partition on disk file (re-enable as necessary)
+cat <<EOF | fdisk -u -C$((CYLINDERS)) -S$((SECTORS_PER_TRACK)) -H$((HEADS)) build/moss-disk.bin
+o
+n
+p
+
+
+
+a
+1
+p
+w
+EOF
+
+#http://ebroder.net/2009/08/04/installing-grub-onto-a-disk-image/
+
+#Loop mount disk image
+sudo losetup /dev/loop0 build/moss-disk.bin
+#	Note: the 7 and 0 are supposed to be the major/minor versions of the loop device.  You can get them
+#	by looking with ls -l /dev/loop0.  See the page.
+echo '0 ' $((HEADS*SECTORS_PER_TRACK*CYLINDERS)) ' linear 7:0 0' | sudo dmsetup create hda
+#Now have a mapped device node (see it with ls -l /dev/mapper/hda)
+#Create device mapper nodes for partitions on disk image
+sudo kpartx -a /dev/mapper/hda
+#Now have a mapped device node and one for the partition (see it with ls -l /dev/mapper/hda*)
+#Mount root partition onto a temporary directory (*not* a loop mount, since kernel thinks it's real)
+mkdir build/temp_mnt
+sudo mount /dev/mapper/hda1 build/temp_mnt
+#Create a fake device.map for grub-install to use
+echo '(hd0) /dev/mapper/hda' | sudo tee build/temp_mnt/boot/grub/device.map
+#Actually install GRUB from outside the chroot
+sudo grub-install --root-directory=build/temp_mnt /dev/mapper/hda
+#Might get errors before output:
+#	grub-probe: error: no mapping exists for `hda1'
+#	[: 494: =: unexpected operator
+#This is fine.
+#Clean up the mess
+sudo umount build/temp_mnt
+sudo rm -rf build/temp_mnt
+sudo kpartx -d /dev/mapper/hda
+sudo dmsetup remove hda
+sudo losetup -d /dev/loop0
+
+
+
+
+#Mount the disk image in a loop device
+sudo losetup /dev/loop0 build/moss-disk.bin
+#Make the disk image's partitions into devices
+sudo kpartx -v -a /dev/loop0
+#Mount the disk image's first partition in a loop device
+#	Note: normally you now would mount /dev/loop0p1 directly.  But, GrUB doesn't like that?
+sudo losetup /dev/loop1 /dev/mapper/loop0p1
+
+#Make a file system on first partition
+#	Note: source also explains how to set up FAT32
+sudo mke2fs /dev/loop1
+
+#Note: may have to unmount loops, restart, and then remount loops here.  See http://forum.osdev.org/viewtopic.php?f=1&t=26907
+
+#Set up mount directories
+sudo mkdir -p /mnt/MOSS
+sudo mkdir -p /mnt/MOSS/partition1
+sudo mkdir -p /mnt/MOSS/partition1/boot
+sudo mkdir -p /mnt/MOSS/partition1/boot/grub
+sudo mkdir -p /mnt/MOSS/drivestart
+#Mount the first partition
+sudo mount /dev/loop1 /mnt/MOSS/partition1
+
+#I tried.  I really did, to use grub-install.  It just kept failing:
+#	http://forum.osdev.org/viewtopic.php?f=1&t=26907
+#	http://ebroder.net/2009/08/04/installing-grub-onto-a-disk-image/
+#	http://superuser.com/questions/619571/installing-grub-legacy-on-virtual-disk
+#At the suggestion of http://www.slideshare.net/sukhdotin/installing-grub-on-virtual-hard-disk-images-5094625,
+#just copy the needed files over.
+sudo cp /usr/lib/grub/x86_64-pc/stage1 /mnt/MOSS/partition1/boot/grub/stage1
+sudo cp /usr/lib/grub/x86_64-pc/stage2 /mnt/MOSS/partition1/boot/grub/stage2
+
+#Unmount the first partition
+sudo umount /dev/loop1
+
+#Setup GrUB device map.  I've done this before, but never passing /dev/null in . . .
+grub --device-map=/dev/null <<EOF
+device (hd0) build/moss-disk.bin
+geometry (hd0) $((CYLINDERS)) $((HEADS)) $((SECTORS_PER_TRACK))
+root (hd0,0)
+setup (hd0)
+quit
+EOF
+
+#Unmount the first partition
+sudo umount /mnt
+#Unmount the disk image from the loop devices
+sudo losetup -d /dev/loop1
+sudo kpartx -d /dev/mapper/loop0p1
+sudo losetup -d /dev/loop0
+
+
+
+
+
+#Mount partition
+sudo mount -t ext2 /dev/loop0 /mnt
+
+
+
+sudo mkdir -p /mnt/boot
+sudo mkdir -p /mnt/boot/grub
+
+#http://wiki.centos.org/HowTos/GrubInstallation
+#Install to MBR, not first partition
+sudo grub-install --root-directory=/mnt /dev/loop0
+
+sudo cp build/MOSS.bin /mnt/boot/MOSS.bin
+sudo cp source/menu.lst /mnt/boot/grub/menu.lst
+
+
+
+
+#Unmount partition
+sudo umount /mnt
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

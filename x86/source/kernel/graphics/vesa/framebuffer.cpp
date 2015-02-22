@@ -33,30 +33,30 @@ class Pixel15 { public:
 		_Pixel15Channels channels;
 		uint16_t color;
 	};
-	Pixel15(const Color& color) {  CHANNEL_SCALE(r, color,channels, 255,31);  CHANNEL_SCALE(g, color,channels, 255,31);  CHANNEL_SCALE(b, color,channels, 255,31);  channels.unused=0u;  }
-	Pixel15(const void* addr) : color(*( (uint16_t*)(addr) )) {}
-	Color get(void) const {
+	inline Pixel15(const Color& color) {  CHANNEL_SCALE(r, color,channels, 255,31);  CHANNEL_SCALE(g, color,channels, 255,31);  CHANNEL_SCALE(b, color,channels, 255,31);  channels.unused=0u;  }
+	inline Pixel15(const void* addr) : color(*( (uint16_t*)(addr) )) {}
+	inline Color get(void) const {
 		Color result;
 		CHANNEL_SCALE(r, channels,result, 31,255);  CHANNEL_SCALE(g, channels,result, 31,255);  CHANNEL_SCALE(b, channels,result, 31,255);
 		result.a = 255u;
 		return result;
 	}
-	void set(void* addr) const { *((uint16_t*)(addr))=color; }
+	inline void set(void* addr) const { *((uint16_t*)(addr))=color; }
 };
 class Pixel16 { public:
 	union {
 		_Pixel16Channels channels;
 		uint16_t color;
 	};
-	Pixel16(const Color& color) {  CHANNEL_SCALE(r, color,channels, 255,31);  CHANNEL_SCALE(g, color,channels, 255,63);  CHANNEL_SCALE(b, color,channels, 255,31);  }
-	Pixel16(const void* addr) : color(*( (uint16_t*)(addr) )) {}
-	Color get(void) const {
+	inline Pixel16(const Color& color) {  CHANNEL_SCALE(r, color,channels, 255,31);  CHANNEL_SCALE(g, color,channels, 255,63);  CHANNEL_SCALE(b, color,channels, 255,31);  }
+	inline Pixel16(const void* addr) : color(*( (uint16_t*)(addr) )) {}
+	inline Color get(void) const {
 		Color result;
 		CHANNEL_SCALE(r, channels,result, 31,255);  CHANNEL_SCALE(g, channels,result, 63,255);  CHANNEL_SCALE(b, channels,result, 31,255);
 		result.a = 255u;
 		return result;
 	}
-	void set(void* addr) const { *((uint16_t*)(addr))=color; }
+	inline void set(void* addr) const { *((uint16_t*)(addr))=color; }
 };
 class Pixel24 { public:
 	struct {
@@ -64,10 +64,10 @@ class Pixel24 { public:
 		uint8_t g;
 		uint8_t r;
 	} channels;
-	Pixel24(const Color& color) { channels.r=color.r; channels.g=color.g; channels.b=color.b; }
-	Pixel24(const void* addr) { const unsigned char* addr2=(const unsigned char*)(addr); channels.r=addr2[2]; channels.g=addr2[1]; channels.b=addr2[0]; }
-	Color get(void) const { return Color(channels.r,channels.g,channels.b,255u); }
-	void set(void* addr) const { unsigned char* addr2=(unsigned char*)(addr); addr2[2]=channels.r; addr2[1]=channels.g; addr2[0]=channels.b; }
+	inline Pixel24(const Color& color) { channels.r=color.r; channels.g=color.g; channels.b=color.b; }
+	inline Pixel24(const void* addr) { const unsigned char* addr2=(const unsigned char*)(addr); channels.r=addr2[2]; channels.g=addr2[1]; channels.b=addr2[0]; }
+	inline Color get(void) const { return Color(channels.r,channels.g,channels.b,255u); }
+	inline void set(void* addr) const { unsigned char* addr2=(unsigned char*)(addr); addr2[2]=channels.r; addr2[1]=channels.g; addr2[0]=channels.b; }
 } __attribute__((packed));
 class Pixel32 { public:
 	union {
@@ -79,10 +79,10 @@ class Pixel32 { public:
 		} channels;
 		uint32_t bgra;
 	};
-	Pixel32(const Color& color) { channels.r=color.r; channels.g=color.g; channels.b=color.b; channels.a=color.a; }
-	Pixel32(const void* addr) : bgra(*( (uint32_t*)(addr) )) {}
-	Color get(void) const { return Color(channels.r,channels.g,channels.b,channels.a); }
-	void set(void* addr) const { *((uint32_t*)(addr))=bgra; }
+	inline Pixel32(const Color& color) { channels.r=color.r; channels.g=color.g; channels.b=color.b; channels.a=color.a; }
+	inline Pixel32(const void* addr) : bgra(*( (uint32_t*)(addr) )) {}
+	inline Color get(void) const { return Color(channels.r,channels.g,channels.b,channels.a); }
+	inline void set(void* addr) const { *((uint32_t*)(addr))=bgra; }
 } __attribute__((packed));
 #undef CHANNEL_SCALE
 
@@ -174,9 +174,13 @@ void Framebuffer::draw_fill(const Color& color) {
 	draw_rect(0,0,mode->info.XResolution,mode->info.YResolution, color);
 }
 void Framebuffer::draw_rect(int x,int y,int w,int h, const Color& color) {
-	for (int y2=0;y2<h;++y2) {
-		for (int x2=0;x2<w;++x2) {
-			set_pixel(x+x2,y+y2, color);
+	int x_start = max(x,0);
+	int y_start = max(y,0);
+	int x_end = min(x+w,(int)(mode->info.XResolution));
+	int y_end = min(y+h,(int)(mode->info.YResolution));
+	for (int y2=y_start;y2<y_end;++y2) {
+		for (int x2=x_start;x2<x_end;++x2) {
+			set_pixel(x2,y2, color);
 		}
 	}
 }
@@ -187,8 +191,15 @@ void Framebuffer::draw_text(int x,int y, char text, const Color& color) {
 void Framebuffer::draw_text(int x,int y, char text, const Color& color,const Color& background) {
 	uint64_t chr = Font::font[(unsigned int)(text)];
 	uint64_t i = 0;
-	for (int y2=y;y2<y+8;++y2) {
-		for (int x2=x+8-1;x2>=x;--x2) {
+
+	//Note that x2 counts down rather than up, because that's how the pixels
+	//are arranged in the font.
+	int x_start = min(x+8-1,mode->info.XResolution-1);
+	int y_start = max(y,0);
+	int x_end = max(x,0);
+	int y_end = min(y+8,mode->info.YResolution-1);
+	for (int y2=y_start;y2<y_end;++y2) {
+		for (int x2=x_start;x2>=x_end;--x2) {
 			if (chr&(1ull<<i)) blend_pixel(x2,y2,      color);
 			else               blend_pixel(x2,y2, background);
 			++i;
@@ -231,7 +242,10 @@ void Framebuffer::draw_line(int x0,int y0,int x1,int y1, const Color& color) {
 	}
 	int numerator = longest >> 1;
 	for (int i=longest;i>=0;--i) {
+		if (x<0||x>=mode->info.XResolution) continue;
+		if (y<0||y>=mode->info.YResolution) continue;
 		blend_pixel(x,y, color);
+
 		numerator += shortest;
 		if (!(numerator<longest)) {
 			numerator -= longest;
@@ -245,30 +259,14 @@ void Framebuffer::draw_line(int x0,int y0,int x1,int y1, const Color& color) {
 }
 
 Color Framebuffer::get_pixel(int x,int y) {
-	#ifdef MOSS_DEBUG
-	//Trying to access out of bounds causes the screen to be filled with magenta
-	if (x<0 || x>=mode->info.XResolution) { draw_fill(Color(255u,0u,255u,255u)); return Color(); }
-	if (y<0 || y>=mode->info.YResolution) { draw_fill(Color(255u,0u,255u,255u)); return Color(); }
-	#endif
-
 	//TODO: technically I think sometimes you aren't allowed to read from this memory?
 	return PixelUtil::get_at(this, x,y);
 }
 void Framebuffer::set_pixel(int x,int y, const Color& color) {
-	//Some drawing operations do this, and it's much more convenient to just discard
-	//the pixels here than to check them in each higher level call.
-	if (x<0 || x>=mode->info.XResolution) return;
-	if (y<0 || y>=mode->info.YResolution) return;
-
 	return PixelUtil::set_at(this, x,y, color);
 }
 
 void Framebuffer::blend_pixel(int x,int y, const Color& color) {
-	//Some drawing operations do this, and it's much more convenient to just discard
-	//the pixels here than to check them in each higher level call.
-	if (x<0 || x>=mode->info.XResolution) return;
-	if (y<0 || y>=mode->info.YResolution) return;
-
 	Color original = get_pixel(x,y);
 
 	Color new_color = Color::blend(color,original);

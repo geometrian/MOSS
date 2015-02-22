@@ -5,7 +5,7 @@ def main():
     call([
         "C:\\Program Files (x86)\\Bochs-2.6.2\\bochs.exe",
         "-q",
-        "-f","C:/dev/C++/MOSS/0.5/bochs-MOSS-win.txt",
-        "-log","C:/dev/C++/MOSS/0.5/bochs-log.txt"
+        "-f","C:/dev/C++/MOSS/0.6/scripts/bochs-MOSS-win.txt",
+        "-log","C:/dev/C++/MOSS/0.6/bochs-log.txt"
     ])
 if __name__ == "__main__": main()

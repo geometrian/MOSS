@@ -1,0 +1,21 @@
+#http://wiki.osdev.org/GRUB#Installing_to_USB
+
+mkdir /mnt/MOSS
+mount /media/MOSS /mnt/MOSS
+
+mkdir -p /mnt/MOSS/boot
+mkdir -p /mnt/MOSS/boot/grub
+
+cp /usr/lib/grub/i386-pc/stage1 /mnt/MOSS/boot/grub/stage1
+cp /usr/lib/grub/i386-pc/stage2 /mnt/MOSS/boot/grub/stage2
+
+#FAT
+cp /usr/lib/grub/i386-pc/fat_stage1_5 /mnt/MOSS/boot/grub/fat_stage1_5
+#EXT2
+#cp /usr/lib/grub/i386-pc/e2fs_stage_1_5 /mnt/MOSS/boot/grub/e2fs_stage_1_5
+
+sudo grub
+
+root /mnt/MOSS
+#setup /mnt/MOSS
+#quit

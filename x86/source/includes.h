@@ -23,9 +23,10 @@
 
 namespace MOSS {
 	#ifdef MOSS_DEBUG
-		void _assert(bool condition, const char* failure_message);
-		#define ASSERT(CONDITION,FAILURE_MESSAGE) ::MOSS::_assert(CONDITION,FAILURE_MESSAGE)
+		void _assert(bool condition, const char* filename,int line, const char* failure_message,...);
+		//Double hash removes trailing comma when arguments are empty.  See http://en.wikipedia.org/wiki/Variadic_macro#The_impossible_example
+		#define ASSERT(CONDITION,FAILURE_MESSAGE,...) ::MOSS::_assert(CONDITION, __FILE__,__LINE__, FAILURE_MESSAGE,##__VA_ARGS__)
 	#else
-		#define ASSERT(CONDITION,FAILURE_MESSAGE)
+		#define ASSERT(CONDITION,FAILURE_MESSAGE,...)
 	#endif
 }

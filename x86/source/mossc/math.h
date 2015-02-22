@@ -17,3 +17,10 @@ MOSS_DECL_FP1(floor)*/
 template <typename type> inline type abs(type x) {
 	return x<0 ? -x : x;
 }
+
+template <typename type_num> type_num min(type_num num1, type_num num2) {
+	return num1<num2 ? num1 : num2;
+}
+template <typename type_num> type_num max(type_num num1, type_num num2) {
+	return num1<num2 ? num2 : num1;
+}

@@ -56,7 +56,7 @@ class Mode {
 		~Mode(void);
 
 		void get_printable(char* buffer) const;
-		void print(Terminal::TextModeTerminal* terminal) const;
+		void print(void) const;
 };
 
 

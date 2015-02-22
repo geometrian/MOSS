@@ -1,0 +1,56 @@
+#Sets up a common disk image that is used for building the VM disk or
+#installing to USB
+
+#See http://www.slideshare.net/sukhdotin/installing-grub-on-virtual-hard-disk-images-5094625
+#See http://www.sghaida.com/howto-setup-a-disk-using-fdisk-in-shell-script/
+
+#Make the disk file (16384 sectors * 512 bytes/sector = 8MiB) (re-enable as necessary)
+dd if=/dev/zero of=build/moss-disk.bin count=16384
+
+#Make partition on disk file (re-enable as necessary)
+cat <<EOF | fdisk build/moss-disk.bin
+
+n
+p
+1
+
+
+w
+EOF
+
+#Mount the disk image in a loop device
+#	Note: the number is the start field of the about partition * 512 bytes/sector
+#	Find out the start field by fdisk -u -l build/moss-disk.bin
+sudo losetup /dev/loop0 build/moss-disk.bin
+
+#Make a file system on it (re-enable as necessary)
+sudo mkfs.ext2 /dev/loop0
+
+sudo mount -t ext2 build/moss-disk.bin /mnt
+
+#Unmount the disk image from the loop device
+sudo losetup -d /dev/loop0
+
+
+
+
+
+
+
+
+
+sudo mkdir -p /mnt/boot
+sudo mkdir -p /mnt/boot/grub
+
+#http://wiki.centos.org/HowTos/GrubInstallation
+#Install to MBR, not first partition
+sudo grub-install --root-directory=/mnt /dev/sdb
+
+sudo cp build/MOSS.bin /mnt/boot/MOSS.bin
+sudo cp source/menu.lst /mnt/boot/grub/menu.lst
+
+sudo umount /mnt
+
+
+#http://bochs.sourceforge.net/doc/docbook/user/loop-device-usage.html
+losetup /dev/loop0 build/ -o 32256

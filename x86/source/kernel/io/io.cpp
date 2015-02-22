@@ -12,6 +12,7 @@ template <> uint8_t recv(unsigned short port) {
 		"inb  %1, %0"
 		:"=a"(value)
 		:"Nd"(port)
+		:
 	);
 	return value;
 }
@@ -21,6 +22,7 @@ template <> uint16_t recv(unsigned short port) {
 		"inw  %1, %0"
 		:"=a"(value)
 		:"Nd"(port)
+		:
 	);
 	return value;
 }
@@ -30,6 +32,7 @@ template <> uint32_t recv(unsigned short port) {
 		"inl  %1, %0"
 		:"=a"(value)
 		:"Nd"(port)
+		:
 	);
 	return value;
 }
@@ -37,24 +40,24 @@ template <> void send(unsigned short port, uint8_t value) {
 	asm volatile(
 		"outb  %0, %1"
 		:
-		:"a"(value),
-		"Nd"(port)
+		:"a"(value), "Nd"(port)
+		:
 	);
 }
 template <> void send(unsigned short port, uint16_t value) {
 	asm volatile(
 		"outw  %0, %1"
 		:
-		:"a"(value),
-		"Nd"(port)
+		:"a"(value),"Nd"(port)
+		:
 	);
 }
 template <> void send(unsigned short port, uint32_t value) {
 	asm volatile(
 		"outl  %0, %1"
 		:
-		:"a"(value),
-		"Nd"(port)
+		:"a"(value),"Nd"(port)
+		:
 	);
 }
 
@@ -72,6 +75,7 @@ void wait(void) {
 		"outb %%al, $0x80"
 		:
 		:"a"(0)
+		:
 	);
 }
 

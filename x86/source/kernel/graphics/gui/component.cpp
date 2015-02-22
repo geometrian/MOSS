@@ -29,7 +29,19 @@ ComponentBase::~ComponentBase(void) {
 	delete children;
 }
 
-bool ComponentBase::handle_mouse(const Input::Mouse::EventMove& event) {
+bool ComponentBase::handle_mouse(const Input::Mouse::EventMouseMove& event) {
+	for (int i=0;i<children->size;++i) {
+		if ((*children)[i]->handle_mouse(event)) return true;
+	}
+	return false;
+}
+bool ComponentBase::handle_mouse(const Input::Mouse::EventMouseClick& event) {
+	for (int i=0;i<children->size;++i) {
+		if ((*children)[i]->handle_mouse(event)) return true;
+	}
+	return false;
+}
+bool ComponentBase::handle_mouse(const Input::Mouse::EventMouseUnclick& event) {
 	for (int i=0;i<children->size;++i) {
 		if ((*children)[i]->handle_mouse(event)) return true;
 	}

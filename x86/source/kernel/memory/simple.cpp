@@ -2,7 +2,8 @@
 
 #include "../boot/boot_memorymap.h"
 #include "../boot/multiboot.h"
-#include "../text_mode_terminal.h"
+
+#include "../kernel.h"
 
 
 namespace MOSS { namespace Memory {
@@ -12,8 +13,8 @@ uint64_t Block::get_size(void) const {
 	return (uint64_t)(header.next) - (uint64_t)(&first_data);
 }
 
-void Block::print(Terminal::TextModeTerminal* terminal) const {
-	terminal->write("{%p<-%p->%p}:%d:[%p,%p)=%d\n", header.prev,this,header.next, header.allocated, &first_data,header.next, get_size());
+void Block::print(void) const {
+	kernel->write("{%p<-%p->%p}:%d:[%p,%p)=%d\n", header.prev,this,header.next, header.allocated, &first_data,header.next, get_size());
 }
 
 
@@ -33,8 +34,8 @@ BlockGRUB::BlockGRUB(Boot::multiboot_memory_map_t* mmap) {
 BlockGRUB::~BlockGRUB(void) {
 }
 
-void BlockGRUB::print(Terminal::TextModeTerminal* terminal) const {
-	terminal->write("  size=%d, base_addr=%p %p, len=%p %p, type=%d\n", record_size, start>>32,start&0xffffffff, size>>32,size&0xffffffff, type);
+void BlockGRUB::print(void) const {
+	kernel->write("  size=%d, base_addr=%p %p, len=%p %p, type=%d\n", record_size, start>>32,start&0xffffffff, size>>32,size&0xffffffff, type);
 }
 
 
@@ -54,7 +55,7 @@ MemoryManager::MemoryManager(const Boot::multiboot_info_t* mbi) {
 	multiboot_memory_map_t* mmap = (multiboot_memory_map_t*)(mbi->mmap_addr);
 	while ((unsigned long)(mmap)<mbi->mmap_addr+mbi->mmap_length) {
 		BlockGRUB block(mmap);
-		block.print(terminal);
+		block.print();
 		mmap = (multiboot_memory_map_t*)( (unsigned long)(mmap) + mmap->size + sizeof(mmap->size) );
 	}*/
 
@@ -145,17 +146,17 @@ void MemoryManager::free(void* ptr) {
 	}
 }
 
-void MemoryManager::print(Terminal::TextModeTerminal* terminal) const {
-	terminal->write("{\n");
+void MemoryManager::print(void) const {
+	kernel->write("{\n");
 	Block* block = (Block*)(start);
 	LOOP:
-		terminal->write("  ");
-		block->print(terminal);
+		kernel->write("  ");
+		block->print();
 		if ((uint64_t)(block->header.next)!=end) {
 			block = block->header.next;
 			goto LOOP;
 		}
-	terminal->write("}\n");
+	kernel->write("}\n");
 }
 
 

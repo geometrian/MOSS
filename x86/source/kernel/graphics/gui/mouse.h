@@ -11,6 +11,7 @@ namespace GUI {
 class Mouse {
 	public:
 		int x,y;
+		bool buttons[5];
 
 	public:
 		Mouse(void);

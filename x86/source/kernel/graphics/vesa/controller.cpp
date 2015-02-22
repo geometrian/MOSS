@@ -37,15 +37,15 @@ Controller::Controller(void) {
 		MOSSC::strncpy((char*)(info2->VESASignature),"VBE2",4);
 		int ptr = (int)(info2);
 
-		//Kernel::terminal->write("Getting graphics modes . . .\n");
+		//kernel->write("Getting graphics modes . . .\n");
 		Interrupts::regs16_t regs;
 		regs.ax = 0x4F00;
 		regs.di = ptr & 0xF;
 		regs.es = (ptr>>4) & 0xFFFF;
 		Interrupts::int32(0x10,&regs);
 
-		//Kernel::terminal->write("Virtual pointer:   %p\n",vesa_info);
-		//Kernel::terminal->write("Segmented pointer: %p:%p\n",(ptr>>4)&0xFFFF,ptr&0xF);
+		//kernel->write("Virtual pointer:   %p\n",vesa_info);
+		//kernel->write("Segmented pointer: %p:%p\n",(ptr>>4)&0xFFFF,ptr&0xF);
 
 		ASSERT(regs.ax==0x004F,"Getting VESA graphics modes failed!");
 
@@ -55,37 +55,37 @@ Controller::Controller(void) {
 		//Copy the temporary information into this mode's record.
 		MOSSC::memcpy(&info,info2,sizeof(VESA_INFO));
 
-		//Kernel::terminal->write("Graphics modes retrieved!\n");
+		//kernel->write("Graphics modes retrieved!\n");
 	}
 
 	//Setup our list of modes
 	{
-		//Kernel::terminal->write("Listing graphics modes!\n");
+		//kernel->write("Listing graphics modes!\n");
 
 		//Convert the mode list pointer from seg:offset to a linear address
 		uint16_t* mode_ptr = (uint16_t*)( ((info.VideoModePtr&0xFFFF0000)>>12) + (info.VideoModePtr&0xFFFF) );
 		uint16_t* mode_ptr2 = mode_ptr;
 
-		//Kernel::terminal->write("Video pointer: %p\n",mode_ptr);
+		//kernel->write("Video pointer: %p\n",mode_ptr);
 
-		//Kernel::terminal->write("%d %d\n",mode_ptr,mode_ptr2);
+		//kernel->write("%d %d\n",mode_ptr,mode_ptr2);
 
 		numof_modes = 0;
 		//Read the list of available modes
 		LOOP: {
 			uint16_t mode = mode_ptr[numof_modes];
-			//Kernel::terminal->write("%d ",mode);
+			//kernel->write("%d ",mode);
 			if (mode!=0xFFFF) {
 				++numof_modes;
 				goto LOOP;
 			}
 		}
-		//Kernel::terminal->write("\n");
+		//kernel->write("\n");
 
-		//Kernel::terminal->write("%d %d\n",mode_ptr,mode_ptr2);
+		//kernel->write("%d %d\n",mode_ptr,mode_ptr2);
 
-		//Kernel::terminal->write("There are %d modes!\n",numof_modes);
-		ASSERT(numof_modes>=1,"No VESA modes available!"); //A problem since .get_mode_closest(...) cannot return NULL.
+		//kernel->write("There are %d modes!\n",numof_modes);
+		ASSERT(numof_modes>=1,"No VESA modes available!"); //A problem since don't want to try to allocate nothing.
 
 		//We have to go through an intermediary step of caching the mode numbers here since they are originally
 		//stored low in memory, and creating a new mode immediately (and thereby retrieving information about it)
@@ -98,7 +98,7 @@ Controller::Controller(void) {
 		modes = new Mode*[numof_modes];
 		for (int i=0;i<numof_modes;++i) {
 			uint16_t mode = mode_indices[i];
-			//Kernel::terminal->write("Making new mode %d!\n",mode);
+			//kernel->write("Making new mode %d!\n",mode);
 			modes[i] = new Mode(mode);
 		}
 
@@ -119,24 +119,28 @@ Mode* Controller::get_mode_closest(int w,int h, int bpp) {
 	for (int i=0;i<numof_modes;++i) {
 		Mode* mode = modes[i];
 
+		//Only linear frame buffer support is supported by MOSS.
+		if (!(mode->info.ModeAttributes&0x90)) continue;
+
 		uint32_t score = MOSSC::abs(mode->info.XResolution*mode->info.YResolution-w*h) + 1000*MOSSC::abs(mode->info.BitsPerPixel-bpp);
 
-		//Kernel::terminal->write("%d: ",score); mode->print(Kernel::terminal); delay(1000);
+		//kernel->write("%d: ",score); mode->print(); delay(1000);
 
 		if (score<best_score) {
-			//Kernel::terminal->write("  BEST SO FAR!\n");
+			//kernel->write("  BEST SO FAR!\n");
 			best = mode;
 			best_score = score;
 		}
 	}
 
+	ASSERT(best!=NULL,"No satisfactory VESA mode!");
 	return best;
 }
 
 bool Controller::set_mode(Mode* mode) {
 	Interrupts::regs16_t regs;
 	regs.ax = 0x4F02;
-	regs.bx = mode->index;
+	regs.bx = mode->index | 0x4000; //http://forum.osdev.org/viewtopic.php?f=1&t=26929
 	Interrupts::int32(0x10,&regs);
 
 	if (regs.ax!=0x004F) {

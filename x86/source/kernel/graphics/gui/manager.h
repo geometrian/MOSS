@@ -6,7 +6,9 @@
 
 namespace MOSS {
 	namespace Input { namespace Mouse {
-		class EventMove;
+		class EventMouseMove;
+		class EventMouseClick;
+		class EventMouseUnclick;
 	}}
 	namespace Graphics {
 		namespace VESA {
@@ -31,7 +33,9 @@ class Manager {
 
 		void update(void);
 
-		void handle_mouse(const Input::Mouse::EventMove& event);
+		void handle_mouse(const Input::Mouse::EventMouseMove& event);
+		void handle_mouse(const Input::Mouse::  EventMouseClick& event);
+		void handle_mouse(const Input::Mouse::EventMouseUnclick& event);
 
 		void add_frame(const MOSST::String& title, int x,int y,int w,int h);
 

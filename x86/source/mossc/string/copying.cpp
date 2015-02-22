@@ -1,10 +1,13 @@
 #include "copying.h"
 
+#include <stdint.h>
+
 
 namespace MOSSC {
 
 
 #if 1
+#if 0
 void* memcpy(void* destination, const void* source, size_t num) {
 	char* dst = (char*)(destination);
 	const char* src = (const char*)(source);
@@ -15,6 +18,27 @@ void* memcpy(void* destination, const void* source, size_t num) {
 
 	return destination;
 }
+#else
+void* memcpy(void* destination, const void* source, size_t num) {
+	char* dst1 = (char*)(destination);
+	const char* src1 = (const char*)(source);
+
+	uint64_t* dst8 = (uint64_t*)(destination);
+	const uint64_t* src8 = (const uint64_t*)(source);
+
+	size_t i = 0u;
+	size_t num_over_8 = num / 8;
+	for (;i<num_over_8;++i) {
+		dst8[i] = src8[i];
+	}
+	i *= 8;
+	for (;i<num;++i) {
+		dst1[i] = src1[i];
+	}
+
+	return destination;
+}
+#endif
 #else
 /*void* memcpy(void* destination, const void* source, size_t num) {
 	char* dst = (char*)(destination);

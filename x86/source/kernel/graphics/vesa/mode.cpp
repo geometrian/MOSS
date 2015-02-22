@@ -2,8 +2,10 @@
 
 #include "../../../mossc/cstring"
 #include "../../../mossc/cstdio"
+
 #include "../../interrupt/int32.h"
-#include "../../text_mode_terminal.h"
+
+#include "../../kernel.h"
 
 
 namespace MOSS { namespace Graphics { namespace VESA {
@@ -31,10 +33,10 @@ Mode::~Mode(void) {}
 void Mode::get_printable(char* buffer) const {
 	MOSSC::sprintf(buffer,"Mode %u: %ux%u@%ubpp", index, info.XResolution,info.YResolution,info.BitsPerPixel);
 }
-void Mode::print(Terminal::TextModeTerminal* terminal) const {
+void Mode::print(void) const {
 	char buffer[256];
 	get_printable(buffer);
-	terminal->write(buffer);
+	kernel->write(buffer);
 }
 
 

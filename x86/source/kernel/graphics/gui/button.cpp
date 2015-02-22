@@ -15,15 +15,22 @@
 namespace MOSS { namespace Graphics { namespace GUI { namespace Buttons {
 
 
-ButtonBase::ButtonBase(ComponentBase* parent, const Rect& rect_button) : ComponentBase(parent,rect_button) {}
+ButtonBase::ButtonBase(ComponentBase* parent, const Rect& rect_button) : ComponentBase(parent,rect_button) {
+	hovering = false;
+}
 ButtonBase::~ButtonBase(void) {}
 
-bool ButtonBase::handle_mouse(const Input::Mouse::EventMove& event) /*override*/ {
+bool ButtonBase::handle_mouse(const Input::Mouse::EventMouseMove& event) /*override*/ {
 	//Kernel::graphics->current_framebuffer->draw_text(200,30, "BUTTON HANDLING MOUSE!", Color(255,0,0));
 
 	if (get_component_rect_world().intersects(event.x,event.y)) {
+		hovering = true;
+
 		return true;
 	}
+
+	hovering = false;
+
 	return false;
 }
 
@@ -37,19 +44,21 @@ ButtonSingleBase::ButtonSingleBase(ComponentBase* parent, const Rect& rect_butto
 }
 ButtonSingleBase::~ButtonSingleBase(void) {}
 
-bool ButtonSingleBase::handle_mouse(const Input::Mouse::EventMove& event) /*override*/ {
-	selected = ButtonBase::handle_mouse(event);
-	if (selected) parent->alive = false;
-	return selected;
-}
-
 
 ButtonClose::ButtonClose(ComponentBase* parent) : ButtonSingleBase(parent,Rect(0,0,20,20)) {}
 ButtonClose::~ButtonClose(void) {}
 
+bool ButtonClose::handle_mouse(const Input::Mouse::EventMouseClick& event) /*override*/ {
+	if (!ComponentBase::handle_mouse(event)) {
+		if (hovering) parent->alive = false;
+		return true;
+	}
+	return false;
+}
+
 void ButtonClose::draw(VESA::Framebuffer* framebuffer) /*override*/ {
 	Rect rect = get_component_rect_world();
-	framebuffer->draw_rect(rect.x,rect.y,rect.w,rect.h, selected?Color(255,128,0):Color(255,0,0));
+	framebuffer->draw_rect(rect.x,rect.y,rect.w,rect.h, hovering?Color(255,128,0):Color(255,0,0));
 
 	/*char buffer[256];
 	MOSSC::sprintf(buffer,"%d %d %d %d",rect.x,rect.y,rect.w,rect.h);
