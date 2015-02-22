@@ -1,0 +1,27 @@
+In 32-bit mode, the CS, DS, SS, ES, FS, GS must be offsets into a GDT.
+
+
+http://semipublic.comp-arch.net/wiki/Interrupts,_Exceptions,_Traps_and_Faults
+//http://www.ksyash.com/2011/01/exception-basics/
+http://www.acm.uiuc.edu/sigops/roll_your_own/i386/idt.html
+
+Interrupts:
+    --Typically asynchronous event that causes execution of the currently running code to be interrupted, control transferred (typically to an OS handler, possibly a user handler or another process or another virtual machine) with execution eventually returns to the code that was interrupted. 
+	--Interrupts are automatically disabled by the processor for the duration of the ISR (until "iret" restores whatever was there first).
+	
+Exceptions:
+    --Typically a synchronous event, caused by or associated with the instruction stream.
+	--interrupts are left alone (whether enabled or disabled) (only true of trap gates?)
+	
+    Example: external interrupt from an I/O device.
+    Counter example INT instructions, frequently used for system calls. These are certainly not asynchronous interrupts. One might even argue that they are not exceptions at all.
+	
+	See Intel manual section 6.5:
+	Fault
+		An exception that occurs with the IP pointing to the instruction.  Ideally with no state modified.
+		Typically the handling software will repair some state, and then resume the instruction.
+		E.g. page fault. 
+	Trap
+		An exception that occurs with the IP pointing to the next instruction. 
+	Abort
+		The return address is not always reliably supplied.  A program which causes an abort is never meant to be continued.

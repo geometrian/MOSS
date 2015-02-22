@@ -1,0 +1,1 @@
+i586-elf-g++ test/main.cpp -o ./test_app -std=c++11 -ffreestanding -O2 -Wall -Wextra -fno-exceptions -fno-rtti -std=c++11

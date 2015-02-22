@@ -1,5 +1,0 @@
-##ld = "C:\\dev\\Perl\\c\\bin\\ld.exe"
-##ld = "cross/ld.exe"
-##ld = "C:\\dev\\cygwin\\usr\\i686-pc-cygwin\\bin\\ld.exe"
-##ld = "C:\\dev\\cygwin\\bin\\ld.exe"
-ld = "ld"

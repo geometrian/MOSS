@@ -1,0 +1,124 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{DCBB776B-1E39-4F3C-8359-27503B0EA33A}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>TestMOSST</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="source\mossc\math\trig.cpp" />
+    <ClCompile Include="source\mossc\stdio\fmt_io.cpp" />
+    <ClCompile Include="source\mossc\stdlib\int_arith.cpp" />
+    <ClCompile Include="source\mossc\string\comparison.cpp" />
+    <ClCompile Include="source\mossc\string\concatenation.cpp" />
+    <ClCompile Include="source\mossc\string\copying.cpp" />
+    <ClCompile Include="source\mossc\string\other.cpp" />
+    <ClCompile Include="source\mossc\string\searching.cpp" />
+    <ClCompile Include="source\mossc\_misc.cpp" />
+    <ClCompile Include="source\mosst\string.cpp" />
+    <ClCompile Include="testmosst\main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="source\mossc\math.h" />
+    <ClInclude Include="source\mossc\math\trig.h" />
+    <ClInclude Include="source\mossc\stdio.h" />
+    <ClInclude Include="source\mossc\stdio\fmt_io.h" />
+    <ClInclude Include="source\mossc\stdlib.h" />
+    <ClInclude Include="source\mossc\stdlib\int_arith.h" />
+    <ClInclude Include="source\mossc\string.h" />
+    <ClInclude Include="source\mossc\string\comparison.h" />
+    <ClInclude Include="source\mossc\string\concatenation.h" />
+    <ClInclude Include="source\mossc\string\copying.h" />
+    <ClInclude Include="source\mossc\string\other.h" />
+    <ClInclude Include="source\mossc\string\searching.h" />
+    <ClInclude Include="source\mossc\_common.h" />
+    <ClInclude Include="source\mossc\_misc.h" />
+    <ClInclude Include="source\mosst\string.h" />
+    <ClInclude Include="source\mosst\vector.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="source\mossc\cmath">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="source\mossc\cstdio">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="source\mossc\cstdlib">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="source\mossc\cstring">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

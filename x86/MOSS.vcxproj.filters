@@ -2,106 +2,335 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="kernel">
-      <UniqueIdentifier>{b36dc3fd-f9c8-40a3-a0f0-c28b2bfa7887}</UniqueIdentifier>
+      <UniqueIdentifier>{9cbf488b-739b-4917-b111-bd956eff554c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="bootloader">
-      <UniqueIdentifier>{0093a612-fdf9-4566-8631-ed00007d3217}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="asm_helpers">
-      <UniqueIdentifier>{1eadb784-405c-4581-b339-e92e9a3602eb}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="kernel\ui">
-      <UniqueIdentifier>{b9a4f415-421a-4293-9540-ea0b7453f9ff}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="kernel\file_system">
-      <UniqueIdentifier>{cb7875f7-94e3-4387-9529-26df16887c0f}</UniqueIdentifier>
+    <Filter Include="kernel\boot">
+      <UniqueIdentifier>{1bda608b-b9f9-4e1a-bfb8-a3bcd96fb83d}</UniqueIdentifier>
     </Filter>
     <Filter Include="kernel\memory">
-      <UniqueIdentifier>{4369b462-d48a-411e-8b65-e07a66086a84}</UniqueIdentifier>
+      <UniqueIdentifier>{dc5374bf-e01f-4895-a430-e99c9fb42029}</UniqueIdentifier>
     </Filter>
-    <Filter Include="kernel\lib">
-      <UniqueIdentifier>{7a967be3-1bf7-4613-aed8-c694549bdaef}</UniqueIdentifier>
+    <Filter Include="kernel\interrupt">
+      <UniqueIdentifier>{caa92896-04f8-4764-b13d-b5b65205d4eb}</UniqueIdentifier>
     </Filter>
-    <Filter Include="kernel\gdt_idt">
-      <UniqueIdentifier>{225f089a-3a40-4c64-bf05-f5bfeabbab6a}</UniqueIdentifier>
+    <Filter Include="kernel\io">
+      <UniqueIdentifier>{a8319f44-3b56-4272-bd4b-494ace51ce35}</UniqueIdentifier>
     </Filter>
-    <Filter Include="kernel\ui\keyboard">
-      <UniqueIdentifier>{117b2768-efde-40bf-897c-657f47013e1a}</UniqueIdentifier>
+    <Filter Include="kernel\input">
+      <UniqueIdentifier>{5e98915b-c793-43a2-b69b-8a2fbbecbd6d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="kernel\input\devices">
+      <UniqueIdentifier>{9d618ec8-1772-4106-9bc6-6c28476774c1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="kernel\graphics">
+      <UniqueIdentifier>{f78fd928-af19-46f0-a83b-307a4e214733}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="kernel\graphics\gui">
+      <UniqueIdentifier>{69433ce5-7b1e-4163-bafd-364211d8ee16}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="mossc">
+      <UniqueIdentifier>{9494ac8f-f6e2-469a-ad18-0e54358e7580}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="mossc\math">
+      <UniqueIdentifier>{dd43550b-95d2-4651-8cd7-c28b865f38c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="mossc\stdio">
+      <UniqueIdentifier>{6b597beb-317b-43df-8b8e-279ee5c9589e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="mossc\stdlib">
+      <UniqueIdentifier>{622a6f33-8ada-4261-b367-320807b60aad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="mossc\string">
+      <UniqueIdentifier>{bb80e690-40a4-429d-b01a-245216bc7328}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="mosst">
+      <UniqueIdentifier>{9d0c11e6-b582-4e01-9882-31c8a216f8d6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="kernel\graphics\vesa">
+      <UniqueIdentifier>{a6de09a4-6779-4740-8f4a-c435ab119e94}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="MOSS\kernel\kernel.cpp">
+    <None Include="source\linker.ld" />
+    <None Include="source\grub.cfg" />
+    <None Include="source\kernel\boot\boot.asm">
+      <Filter>kernel\boot</Filter>
+    </None>
+    <None Include="source\kernel\interrupt\isr.asm">
+      <Filter>kernel\interrupt</Filter>
+    </None>
+    <None Include="source\kernel\interrupt\int32.asm">
+      <Filter>kernel\interrupt</Filter>
+    </None>
+    <None Include="source\kernel\memory\gdt.asm">
+      <Filter>kernel\memory</Filter>
+    </None>
+    <None Include="source\kernel\interrupt\idt.asm">
+      <Filter>kernel\interrupt</Filter>
+    </None>
+    <None Include="source\kernel\interrupt\about interrupts.txt">
+      <Filter>kernel\interrupt</Filter>
+    </None>
+    <None Include="source\mossc\cmath">
+      <Filter>mossc</Filter>
+    </None>
+    <None Include="source\mossc\cstdio">
+      <Filter>mossc</Filter>
+    </None>
+    <None Include="source\mossc\cstdlib">
+      <Filter>mossc</Filter>
+    </None>
+    <None Include="source\mossc\cstring">
+      <Filter>mossc</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="source\kernel\text_mode_terminal.cpp">
       <Filter>kernel</Filter>
     </ClCompile>
-    <ClCompile Include="MOSS\kernel\ui\console.h">
-      <Filter>kernel\ui</Filter>
+    <ClCompile Include="source\kernel\memory\simple.cpp">
+      <Filter>kernel\memory</Filter>
     </ClCompile>
-    <ClCompile Include="MOSS\kernel\ui\console.cpp">
-      <Filter>kernel\ui</Filter>
+    <ClCompile Include="source\kernel\interrupt\isr.cpp">
+      <Filter>kernel\interrupt</Filter>
     </ClCompile>
-    <ClCompile Include="MOSS\kernel\ui\graphics.cpp">
-      <Filter>kernel\ui</Filter>
+    <ClCompile Include="source\includes.cpp" />
+    <ClCompile Include="source\kernel\io\io.cpp">
+      <Filter>kernel\io</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="MOSS\bootloader\bootloader.asm">
-      <Filter>bootloader</Filter>
-    </None>
-    <None Include="MOSS\asm_helpers\print.asm">
-      <Filter>asm_helpers</Filter>
-    </None>
-    <None Include="MOSS\kernel\jump.asm">
+    <ClCompile Include="source\kernel\interrupt\pic.cpp">
+      <Filter>kernel\interrupt</Filter>
+    </ClCompile>
+    <ClCompile Include="source\kernel\memory\gdt.cpp">
+      <Filter>kernel\memory</Filter>
+    </ClCompile>
+    <ClCompile Include="source\kernel\setup.cpp">
       <Filter>kernel</Filter>
-    </None>
-    <None Include="MOSS\kernel\gdt_idt\gdt.asm">
-      <Filter>kernel\gdt_idt</Filter>
-    </None>
-    <None Include="MOSS\kernel\gdt_idt\idt.asm">
-      <Filter>kernel\gdt_idt</Filter>
-    </None>
-    <None Include="MOSS\kernel\gdt_idt\isr.asm">
-      <Filter>kernel\gdt_idt</Filter>
-    </None>
+    </ClCompile>
+    <ClCompile Include="source\kernel\interrupt\idt.cpp">
+      <Filter>kernel\interrupt</Filter>
+    </ClCompile>
+    <ClCompile Include="source\kernel\kernel.cpp">
+      <Filter>kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="source\kernel\input\devices\device.cpp">
+      <Filter>kernel\input\devices</Filter>
+    </ClCompile>
+    <ClCompile Include="source\kernel\input\devices\keyboard.cpp">
+      <Filter>kernel\input\devices</Filter>
+    </ClCompile>
+    <ClCompile Include="source\kernel\input\keys.cpp">
+      <Filter>kernel\input</Filter>
+    </ClCompile>
+    <ClCompile Include="source\kernel\input\devices\controller_ps2.cpp">
+      <Filter>kernel\input\devices</Filter>
+    </ClCompile>
+    <ClCompile Include="source\kernel\input\devices\mouse.cpp">
+      <Filter>kernel\input\devices</Filter>
+    </ClCompile>
+    <ClCompile Include="source\mossc\math\trig.cpp">
+      <Filter>mossc\math</Filter>
+    </ClCompile>
+    <ClCompile Include="source\mossc\string\copying.cpp">
+      <Filter>mossc\string</Filter>
+    </ClCompile>
+    <ClCompile Include="source\mossc\string\other.cpp">
+      <Filter>mossc\string</Filter>
+    </ClCompile>
+    <ClCompile Include="source\mossc\string\concatenation.cpp">
+      <Filter>mossc\string</Filter>
+    </ClCompile>
+    <ClCompile Include="source\mossc\string\comparison.cpp">
+      <Filter>mossc\string</Filter>
+    </ClCompile>
+    <ClCompile Include="source\mossc\string\searching.cpp">
+      <Filter>mossc\string</Filter>
+    </ClCompile>
+    <ClCompile Include="source\mossc\stdlib\dyn_mem.cpp">
+      <Filter>mossc\stdlib</Filter>
+    </ClCompile>
+    <ClCompile Include="source\mossc\_misc.cpp">
+      <Filter>mossc</Filter>
+    </ClCompile>
+    <ClCompile Include="source\mossc\stdlib\int_arith.cpp">
+      <Filter>mossc\stdlib</Filter>
+    </ClCompile>
+    <ClCompile Include="source\mossc\stdio\fmt_io.cpp">
+      <Filter>mossc\stdio</Filter>
+    </ClCompile>
+    <ClCompile Include="source\kernel\graphics\gui\manager.cpp">
+      <Filter>kernel\graphics\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="source\kernel\graphics\gui\frame.cpp">
+      <Filter>kernel\graphics\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="source\mosst\string.cpp">
+      <Filter>mosst</Filter>
+    </ClCompile>
+    <ClCompile Include="source\kernel\graphics\vesa\mode.cpp">
+      <Filter>kernel\graphics\vesa</Filter>
+    </ClCompile>
+    <ClCompile Include="source\kernel\graphics\vesa\controller.cpp">
+      <Filter>kernel\graphics\vesa</Filter>
+    </ClCompile>
+    <ClCompile Include="source\kernel\graphics\vesa\framebuffer.cpp">
+      <Filter>kernel\graphics\vesa</Filter>
+    </ClCompile>
+    <ClCompile Include="source\kernel\graphics\gui\mouse.cpp">
+      <Filter>kernel\graphics\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="source\kernel\graphics\gui\button.cpp">
+      <Filter>kernel\graphics\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="source\kernel\graphics\gui\component.cpp">
+      <Filter>kernel\graphics\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="source\kernel\graphics\gui\rect.cpp">
+      <Filter>kernel\graphics\gui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="MOSS\kernel\ui\graphics.h">
-      <Filter>kernel\ui</Filter>
+    <ClInclude Include="source\kernel\text_mode_terminal.h">
+      <Filter>kernel</Filter>
     </ClInclude>
-    <ClInclude Include="MOSS\kernel\file_system\file.h">
-      <Filter>kernel\file_system</Filter>
+    <ClInclude Include="source\includes.h" />
+    <ClInclude Include="source\kernel\boot\multiboot.h">
+      <Filter>kernel\boot</Filter>
     </ClInclude>
-    <ClInclude Include="MOSS\kernel\memory\memory.h">
+    <ClInclude Include="source\kernel\memory\simple.h">
       <Filter>kernel\memory</Filter>
     </ClInclude>
-    <ClInclude Include="MOSS\kernel\lib\String.h">
-      <Filter>kernel\lib</Filter>
+    <ClInclude Include="source\kernel\interrupt\isr.h">
+      <Filter>kernel\interrupt</Filter>
     </ClInclude>
-    <ClInclude Include="MOSS\kernel\lib\DynamicArray.h">
-      <Filter>kernel\lib</Filter>
+    <ClInclude Include="source\kernel\interrupt\int32.h">
+      <Filter>kernel\interrupt</Filter>
     </ClInclude>
-    <ClInclude Include="MOSS\kernel\lib\clib.h">
-      <Filter>kernel\lib</Filter>
+    <ClInclude Include="source\kernel\interrupt\pic.h">
+      <Filter>kernel\interrupt</Filter>
     </ClInclude>
-    <ClInclude Include="MOSS\kernel\lib\Mutex.h">
-      <Filter>kernel\lib</Filter>
+    <ClInclude Include="source\kernel\io\io.h">
+      <Filter>kernel\io</Filter>
     </ClInclude>
-    <ClInclude Include="MOSS\kernel\stdinc.h">
+    <ClInclude Include="source\kernel\memory\gdt.h">
+      <Filter>kernel\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="source\kernel\interrupt\idt.h">
+      <Filter>kernel\interrupt</Filter>
+    </ClInclude>
+    <ClInclude Include="source\kernel\interrupt\misc.h">
+      <Filter>kernel\interrupt</Filter>
+    </ClInclude>
+    <ClInclude Include="source\kernel\boot\boot_memorymap.h">
+      <Filter>kernel\boot</Filter>
+    </ClInclude>
+    <ClInclude Include="source\kernel\kernel.h">
       <Filter>kernel</Filter>
     </ClInclude>
-    <ClInclude Include="MOSS\kernel\gdt_idt\gdt.h">
-      <Filter>kernel\gdt_idt</Filter>
+    <ClInclude Include="source\kernel\input\devices\device.h">
+      <Filter>kernel\input\devices</Filter>
     </ClInclude>
-    <ClInclude Include="MOSS\kernel\gdt_idt\idt.h">
-      <Filter>kernel\gdt_idt</Filter>
+    <ClInclude Include="source\kernel\input\devices\keyboard.h">
+      <Filter>kernel\input\devices</Filter>
     </ClInclude>
-    <ClInclude Include="MOSS\kernel\gdt_idt\isr.h">
-      <Filter>kernel\gdt_idt</Filter>
+    <ClInclude Include="source\kernel\input\keys.h">
+      <Filter>kernel\input</Filter>
     </ClInclude>
-    <ClInclude Include="MOSS\kernel\ui\keyboard\keyboard.h">
-      <Filter>kernel\ui\keyboard</Filter>
+    <ClInclude Include="source\kernel\input\devices\controller_ps2.h">
+      <Filter>kernel\input\devices</Filter>
     </ClInclude>
-    <ClInclude Include="MOSS\kernel\interrupt.h">
-      <Filter>kernel</Filter>
+    <ClInclude Include="source\kernel\graphics\font.h">
+      <Filter>kernel\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="source\kernel\graphics\gui\frame.h">
+      <Filter>kernel\graphics\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="source\kernel\input\devices\mouse.h">
+      <Filter>kernel\input\devices</Filter>
+    </ClInclude>
+    <ClInclude Include="source\kernel\input\mouse.h">
+      <Filter>kernel\input</Filter>
+    </ClInclude>
+    <ClInclude Include="source\mossc\math.h">
+      <Filter>mossc</Filter>
+    </ClInclude>
+    <ClInclude Include="source\mossc\stdlib.h">
+      <Filter>mossc</Filter>
+    </ClInclude>
+    <ClInclude Include="source\mossc\string.h">
+      <Filter>mossc</Filter>
+    </ClInclude>
+    <ClInclude Include="source\mossc\math\trig.h">
+      <Filter>mossc\math</Filter>
+    </ClInclude>
+    <ClInclude Include="source\mossc\_common.h">
+      <Filter>mossc</Filter>
+    </ClInclude>
+    <ClInclude Include="source\mossc\string\copying.h">
+      <Filter>mossc\string</Filter>
+    </ClInclude>
+    <ClInclude Include="source\mossc\string\other.h">
+      <Filter>mossc\string</Filter>
+    </ClInclude>
+    <ClInclude Include="source\mossc\string\concatenation.h">
+      <Filter>mossc\string</Filter>
+    </ClInclude>
+    <ClInclude Include="source\mossc\string\comparison.h">
+      <Filter>mossc\string</Filter>
+    </ClInclude>
+    <ClInclude Include="source\mossc\string\searching.h">
+      <Filter>mossc\string</Filter>
+    </ClInclude>
+    <ClInclude Include="source\mossc\stdio\fmt_io.h">
+      <Filter>mossc\stdio</Filter>
+    </ClInclude>
+    <ClInclude Include="source\mossc\stdio.h">
+      <Filter>mossc</Filter>
+    </ClInclude>
+    <ClInclude Include="source\mossc\_misc.h">
+      <Filter>mossc</Filter>
+    </ClInclude>
+    <ClInclude Include="source\mossc\stdlib\dyn_mem.h">
+      <Filter>mossc\stdlib</Filter>
+    </ClInclude>
+    <ClInclude Include="source\mossc\stdlib\int_arith.h">
+      <Filter>mossc\stdlib</Filter>
+    </ClInclude>
+    <ClInclude Include="source\kernel\graphics\color.h">
+      <Filter>kernel\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="source\kernel\graphics\gui\manager.h">
+      <Filter>kernel\graphics\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="source\mosst\vector.h">
+      <Filter>mosst</Filter>
+    </ClInclude>
+    <ClInclude Include="source\mosst\string.h">
+      <Filter>mosst</Filter>
+    </ClInclude>
+    <ClInclude Include="source\kernel\graphics\vesa\mode.h">
+      <Filter>kernel\graphics\vesa</Filter>
+    </ClInclude>
+    <ClInclude Include="source\kernel\graphics\vesa\controller.h">
+      <Filter>kernel\graphics\vesa</Filter>
+    </ClInclude>
+    <ClInclude Include="source\kernel\graphics\vesa\framebuffer.h">
+      <Filter>kernel\graphics\vesa</Filter>
+    </ClInclude>
+    <ClInclude Include="source\kernel\graphics\gui\mouse.h">
+      <Filter>kernel\graphics\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="source\kernel\graphics\gui\button.h">
+      <Filter>kernel\graphics\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="source\kernel\graphics\gui\component.h">
+      <Filter>kernel\graphics\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="source\kernel\graphics\gui\rect.h">
+      <Filter>kernel\graphics\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="source\mosst\linked_list.h">
+      <Filter>mosst</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
