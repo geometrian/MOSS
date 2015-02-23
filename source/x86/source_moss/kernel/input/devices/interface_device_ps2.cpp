@@ -83,9 +83,9 @@ InterfaceDevicePS2Base* InterfaceDevicePS2Base::get_new_device(ControllerPS2* co
 						if (!attempted_ps2_mouse_config1) { //but only if we haven't tried that before
 							//http://wiki.osdev.org/Mouse_Input#Init.2FDetection_Command_Sequences
 							kernel->write("  Checking to see if it's actually better . . .\n");
-							((InterfaceDevicePS2Mouse*)(new_device))->set_sample_rate(200);
-							((InterfaceDevicePS2Mouse*)(new_device))->set_sample_rate(100);
-							((InterfaceDevicePS2Mouse*)(new_device))->set_sample_rate( 80);
+							static_cast<InterfaceDevicePS2Mouse*>(new_device)->set_sample_rate(200);
+							static_cast<InterfaceDevicePS2Mouse*>(new_device)->set_sample_rate(100);
+							static_cast<InterfaceDevicePS2Mouse*>(new_device)->set_sample_rate( 80);
 							delete new_device;
 							attempted_ps2_mouse_config1 = true;
 							goto START;
@@ -98,9 +98,9 @@ InterfaceDevicePS2Base* InterfaceDevicePS2Base::get_new_device(ControllerPS2* co
 						if (!attempted_ps2_mouse_config2) { //but only if we haven't tried that before
 							//http://wiki.osdev.org/Mouse_Input#Init.2FDetection_Command_Sequences
 							kernel->write("  Checking to see if it's actually better . . .\n");
-							((InterfaceDevicePS2Mouse*)(new_device))->set_sample_rate(200);
-							((InterfaceDevicePS2Mouse*)(new_device))->set_sample_rate(200);
-							((InterfaceDevicePS2Mouse*)(new_device))->set_sample_rate( 80);
+							static_cast<InterfaceDevicePS2Mouse*>(new_device)->set_sample_rate(200);
+							static_cast<InterfaceDevicePS2Mouse*>(new_device)->set_sample_rate(200);
+							static_cast<InterfaceDevicePS2Mouse*>(new_device)->set_sample_rate( 80);
 							attempted_ps2_mouse_config2 = true;
 							goto START;
 						}
@@ -127,7 +127,7 @@ InterfaceDevicePS2Base* InterfaceDevicePS2Base::get_new_device(ControllerPS2* co
 		switch (new_device->device_type) {
 			case DeviceKeyboardMF2:
 			case DeviceKeyboardMF2Trans:
-				((InterfaceDevicePS2Keyboard*)(new_device))->set_scancode(1); //TODO: lame!
+				static_cast<InterfaceDevicePS2Keyboard*>(new_device)->set_scancode(1); //TODO: lame!
 				break;
 			case DeviceMouseBasic:
 			case DeviceMouseScroll:

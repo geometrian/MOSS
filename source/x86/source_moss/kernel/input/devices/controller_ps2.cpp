@@ -21,7 +21,7 @@ ControllerPS2::ControllerPS2(void) {
 	//	Before touching the PS/2 controller at all, should determine if it actually exists.  On some systems (e.g. 80x86 Apple machines)
 	//	it doesn't exist and any attempt to touch it can result in a system crash.  The correct way to do this is with ACPI.  Check bit
 	//	1 (value=2, the "8042" flag) in the "IA PC Boot Architecture Flags" field at offset 109 in the Fixed ACPI Description Table
-	//	(FADT).  If this bit is clear then there is no PS/2 Controller to configure (and MOSS exits, since we need one of these).
+	//	(FADT).  If this bit is clear then there is no PS/2 Controller to configure (and MOSS exits, since its assumes one).
 	//	Otherwise, if the bit is set or the system doesn't support ACPI (no ACPI tables and no FADT) then there is a PS/2 Controller.
 	//TODO: this
 
@@ -35,7 +35,7 @@ ControllerPS2::ControllerPS2(void) {
 	//Step 4: Flush the output buffer
 	{
 		//Sometimes (e.g. due to interrupt controller initialization causing a lost IRQ) data can be stuck in the PS/2 controller's output
-		//buffer.  Now that the devices are disabled (and can't send more data to it), flush the output buffer.
+		//	buffer.  Now that the devices are disabled (and can't send more data to it), flush the output buffer.
 		if (is_outputbuffer_full()) {
 			//Read from IO port 0x60 and discard the result.
 			recv_data(nullptr,0);
@@ -44,7 +44,7 @@ ControllerPS2::ControllerPS2(void) {
 
 	//Step 5: Disable all of the controller's IRQs and disable translation of keyboard scancodes
 	{
-		ConfigurationByte config_byte = _get_configuration_byte();
+		_ConfigurationByte config_byte = _get_configuration_byte();
 		config_byte. first_port_interrupts_enabled = false;
 		config_byte.second_port_interrupts_enabled = false;
 		config_byte.        first_port_translation = false;
@@ -64,7 +64,7 @@ ControllerPS2::ControllerPS2(void) {
 		//Enable second PS/2 port
 		send_command(0xA8); //No response expected
 
-		ConfigurationByte config_byte = _get_configuration_byte();
+		_ConfigurationByte config_byte = _get_configuration_byte();
 		//If the following fails, then can't be a two-port PS/2 controller, since just enabled the second port.
 		assert_term(!config_byte.second_port_clock_disabled,"Not a two-port PS/2 controller!");
 
@@ -118,7 +118,7 @@ ControllerPS2::ControllerPS2(void) {
 	//Step 11: Enable interrupts
 	//	OSDev suggests this as part of step 9, but I think it should come after the devices have been set up properly.
 	{
-		ConfigurationByte config_byte = _get_configuration_byte();
+		_ConfigurationByte config_byte = _get_configuration_byte();
 		config_byte. first_port_interrupts_enabled = true;
 		config_byte.second_port_interrupts_enabled = true;
 		_set_configuration_byte(config_byte);
@@ -132,12 +132,9 @@ ControllerPS2::ControllerPS2(void) {
 
 	//kernel->write("Keyboard using scancode "); kernel->write((int)(keyboard->get_scancode())); kernel->write("!\n");
 	//ASSERT(keyboard->set_scancode(2)==2,"Could not set keyboard scancode to 2!");
-	//ASSERT(test(),"PS/2 Controller test failed!");
-
-	//ASSERT(false,"PS/2 Success!"); //Hang the OS, just to show that it worked.
 }
 ControllerPS2::~ControllerPS2(void) {
-	//delete device0;
+	delete device0;
 	delete device1;
 }
 
@@ -159,9 +156,11 @@ bool ControllerPS2::recv_data(uint8_t* data, int timeout_counter/*=-1*/) {
 		}
 		return false;
 	}
+
 	RECV:
-	uint8_t result = IO::recv<uint8_t>(DataPort);
-	if (data!=nullptr) *data=result;
+		uint8_t result = IO::recv<uint8_t>(DataPort);
+		if (data!=nullptr) *data=result;
+
 	return true;
 }
 
@@ -178,23 +177,23 @@ void ControllerPS2::wait_for_outputbuffer_full(void) const {
 	while (!is_outputbuffer_full());
 }
 
-ControllerPS2::StatusByte ControllerPS2::_get_status_byte(void) const {
-	StatusByte status_byte;
+ControllerPS2::_StatusByte ControllerPS2::_get_status_byte(void) const {
+	_StatusByte status_byte;
 
 	status_byte.data_byte = IO::recv<uint8_t>(StatusRegister);
 
 	return status_byte;
 }
 
-ControllerPS2::ConfigurationByte ControllerPS2::_get_configuration_byte(void) {
-	ConfigurationByte config_byte;
+ControllerPS2::_ConfigurationByte ControllerPS2::_get_configuration_byte(void) {
+	_ConfigurationByte config_byte;
 
 	send_command(0x20);
 	recv_data(&config_byte.data_byte);
 
 	return config_byte;
 }
-void ControllerPS2::_set_configuration_byte(const ConfigurationByte& config_byte) {
+void ControllerPS2::_set_configuration_byte(_ConfigurationByte const& config_byte) {
 	send_command(0x60); //No response expected
 	send_data(config_byte.data_byte);
 }

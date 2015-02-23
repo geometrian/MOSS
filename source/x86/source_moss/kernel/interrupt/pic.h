@@ -7,7 +7,7 @@ namespace MOSS { namespace Interrupts { namespace PIC {
 
 
 //http://wiki.osdev.org/PIC
-void send_EOI(unsigned char irq);
+void send_EOI(uint8_t irq);
 
 
 //The PIC is preconfigured and enabled at boot time by the BIOS (http://forum.osdev.org/viewtopic.php?f=1&t=26875&p=224967#p224967).  When we enable

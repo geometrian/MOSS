@@ -173,7 +173,7 @@ class SpecifierBase {
 		}
 
 	protected:
-		int get_float_kind(double value) {
+		int get_float_kind(double value) const {
 			// 0 = ordinary double
 			//-1 = -INF
 			// 1 = +INF
@@ -234,7 +234,7 @@ class SpecifierBase {
 			return buffer;
 		}
 
-		char* write_data(char* buffer, char const* temp,uint64_t temp_length) {
+		char* write_data(char* buffer, char const* temp,uint64_t temp_length) const {
 			//Actually write the type!
 			//	The algorithm is to write into a temporary buffer, then copy it into the real string.  This allows for
 			//	padding to take place, as necessary.  Since the way it gets put into the temporary buffer may be unique
@@ -269,15 +269,14 @@ class SpecifierIntegralBase : public SpecifierBase {
 		inline virtual ~SpecifierIntegralBase(void) {}
 
 	protected:
-		char* write_uint(char* buffer, uint64_t value) {
+		char* write_udec(char* buffer, uint64_t value) const {
 			if (precision==0 && value==0ull) return buffer;
 
 			//largest is 18446744073709551615 => 20 characters long
 			char temp[20];
 			int i = 0;
 			LOOP:
-				unsigned char digit = (unsigned char)(value%10ull);
-				value /= 10ull;
+				uint8_t digit = static_cast<uint8_t>(value%10ull); value/=10ull;
 				temp[i] = digit + '0';
 				if (value>0) {
 					++i;
@@ -295,32 +294,73 @@ class SpecifierIntegralBase : public SpecifierBase {
 
 			return buffer;
 		}
+		char* write_uhex(char* buffer, uint64_t value) const {
+			if (precision==0 && value==0ull) return buffer;
+
+			//largest is FFFFFFFFFFFFFFFF => 16 characters long
+			char temp[16];
+			int i = 0;
+			LOOP:
+				uint8_t hexit = static_cast<uint8_t>(value%0x0Full); value>>=4;
+				if (hexit<10u) temp[i]=hexit   +'0';
+				else           temp[i]=hexit-10+'A';
+
+				if (value>0) {
+					++i;
+					goto LOOP;
+				}
+
+			int num_zeros = precision - (i+1);
+			for (int j=0;j<num_zeros;++j) {
+				*(buffer++) = '0';
+			}
+
+			while (i>=0) {
+				*(buffer++) = temp[i--];
+			}
+
+			return buffer;
+		}
 };
-class SpecifierSignedIntegral final : public SpecifierIntegralBase {
+class SpecifierSignedDec final : public SpecifierIntegralBase {
 	public:
-		SpecifierSignedIntegral(va_list* args, char const* specifier_str,int specifier_length) : SpecifierIntegralBase(args, specifier_str,specifier_length) {
+		SpecifierSignedDec(va_list* args, char const* specifier_str,int specifier_length) : SpecifierIntegralBase(args, specifier_str,specifier_length) {
 			if (flag_hash) valid=false;
 		}
-		inline virtual ~SpecifierSignedIntegral(void) {}
+		inline virtual ~SpecifierSignedDec(void) {}
 
 		char* write(char* buffer) override {
 			int value = va_arg(*args,int);
 			buffer = write_sign_s(buffer,&value);
-			TEMP_BUFFER_WRITE(INTEGRAL_BUFFER_SIZE,write_uint)
+			TEMP_BUFFER_WRITE(INTEGRAL_BUFFER_SIZE,write_udec)
 			return write_data(buffer, temp,num_written);
 		}
 };
-class SpecifierUnsignedIntegral final : public SpecifierIntegralBase {
+class SpecifierUnsignedDec final : public SpecifierIntegralBase {
 	public:
-		SpecifierUnsignedIntegral(va_list* args, char const* specifier_str,int specifier_length) : SpecifierIntegralBase(args, specifier_str,specifier_length) {
+		SpecifierUnsignedDec(va_list* args, char const* specifier_str,int specifier_length) : SpecifierIntegralBase(args, specifier_str,specifier_length) {
 			if (flag_hash) valid=false;
 		}
-		inline virtual ~SpecifierUnsignedIntegral(void) {}
+		inline virtual ~SpecifierUnsignedDec(void) {}
 
 		char* write(char* buffer) override {
 			unsigned int value = va_arg(*args,unsigned int);
 			buffer = write_sign_u(buffer);
-			TEMP_BUFFER_WRITE(INTEGRAL_BUFFER_SIZE,write_uint)
+			TEMP_BUFFER_WRITE(INTEGRAL_BUFFER_SIZE,write_udec)
+			return write_data(buffer, temp,num_written);
+		}
+};
+class SpecifierUnsignedHex final : public SpecifierIntegralBase {
+	public:
+		SpecifierUnsignedHex(va_list* args, char const* specifier_str,int specifier_length) : SpecifierIntegralBase(args, specifier_str,specifier_length) {
+			if (flag_hash) valid=false;
+		}
+		inline virtual ~SpecifierUnsignedHex(void) {}
+
+		char* write(char* buffer) override {
+			unsigned int value = va_arg(*args,unsigned int);
+			buffer = write_sign_u(buffer);
+			TEMP_BUFFER_WRITE(INTEGRAL_BUFFER_SIZE,write_uhex)
 			return write_data(buffer, temp,num_written);
 		}
 };
@@ -343,7 +383,7 @@ class SpecifierPointer final : public SpecifierIntegralBase {
 		char* write_pointer(char* buffer, void* value) {
 			uint64_t value2 = (uint64_t)(value);
 
-			int bits = (int)(sizeof(void*)) * 8;
+			int bits = static_cast<int>(sizeof(void*)) * 8;
 
 			for (int i=bits-4;i>=0;i-=4) {
 				unsigned int nibble = (value2>>i)&0x0F;
@@ -546,11 +586,11 @@ static char* write_fmtspecifier(char* str, char const* specifier_str,int specifi
 	//TODO: the ones that aren't yet supported!
 	switch (specifier_ch) {
 		case 'd': //Fallthrough
-		case 'i': specifier=new   SpecifierSignedIntegral(args, specifier_str,specifier_length); break; //Signed decimal
-		case 'u': specifier=new SpecifierUnsignedIntegral(args, specifier_str,specifier_length); break; //Unsigned decimal
+		case 'i': specifier=new   SpecifierSignedDec(args, specifier_str,specifier_length); break; //Signed decimal
+		case 'u': specifier=new SpecifierUnsignedDec(args, specifier_str,specifier_length); break; //Unsigned decimal
 		case 'o': break; //Unsigned octal
 		case 'x': break; //Unsigned hex
-		case 'X': break; //Unsigned hex (uppercase)
+		case 'X': specifier=new SpecifierUnsignedHex(args, specifier_str,specifier_length); break; //Unsigned hex (uppercase)
 		case 'f': //Fallthrough //TODO: I don't know what the difference is supposed to be! //Floating-point
 		case 'F': specifier=new SpecifierFloat(args, specifier_str,specifier_length); break; //Floating-point (uppercase)
 		case 'e': break; //Scientific notation

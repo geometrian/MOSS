@@ -1,6 +1,6 @@
 #include "block.h"
 
-#include "../../ata/ata.h"
+#include "../../ata/controller.h"
 #include "../../kernel.h"
 
 #include "superblock.h"

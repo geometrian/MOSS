@@ -2,7 +2,7 @@
 
 #include "../mossc/cstdio"
 
-#include "ata/ata.h"
+#include "ata/controller.h"
 
 #include "graphics/gui/manager.h"
 #include "graphics/vesa/controller.h"
@@ -39,17 +39,17 @@ Kernel::Kernel(void) {
 }
 Kernel::~Kernel(void) {}
 
-void Kernel::handle_key_down(const Input::Keys::Event&/* event*/) {
+void Kernel::handle_key_down(Input::Keys::Event const&/* event*/) {
 	/*//terminal->write('A');
 	if (Input::Keys::is_printable(event.key)) {
 		//write("Keyboard got scan code %d!\n",scan_code);
 		write(Input::Keys::get_printable(event.key));
 	}*/
 }
-void Kernel::handle_key_up(const Input::Keys::Event&/* event*/) {
+void Kernel::handle_key_up(Input::Keys::Event const&/* event*/) {
 }
 
-void Kernel::handle_mouse_move(const Input::Mouse::EventMouseMove& event) {
+void Kernel::handle_mouse_move(Input::Mouse::EventMouseMove const& event) {
 	//write("Mouse position: %d, %d\n",event.x,event.y);
 
 	/*graphics->current_framebuffer->set_pixel(event.x,event.y, Graphics::Color(255u,0u,255u,255u));
@@ -61,10 +61,10 @@ void Kernel::handle_mouse_move(const Input::Mouse::EventMouseMove& event) {
 	//graphics->draw_text(50,50, "Hello World!", Graphics::Color(0u,255u,255u));
 	gui->handle_mouse(event);
 }
-void Kernel::handle_mouse_click(const Input::Mouse::EventMouseClick& event) {
+void Kernel::handle_mouse_click(Input::Mouse::EventMouseClick const& event) {
 	gui->handle_mouse(event);
 }
-void Kernel::handle_mouse_unclick(const Input::Mouse::EventMouseUnclick& event) {
+void Kernel::handle_mouse_unclick(Input::Mouse::EventMouseUnclick const& event) {
 	gui->handle_mouse(event);
 }
 

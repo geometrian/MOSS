@@ -19,7 +19,7 @@ namespace MOSS { namespace Interrupts { namespace PIC {
 #define PIC_EOI 0x20 //End-of-interrupt command code
 
 
-void send_EOI(unsigned char irq) {
+void send_EOI(uint8_t irq) {
 	//If the IRQ came from the master PIC, it is sufficient to issue this command only to the Master PIC
 	//If the IRQ came from the slave PIC, it is necessary to issue the command to both PICs.
 	if (irq >= 8) {
@@ -38,8 +38,8 @@ void remap(int offset_master, int offset_slave) {
 	#define ICW1_INIT      0x10 //Initialization - required!
 
 	//Save masks
-	unsigned char mask1 = IO::recv<uint8_t>(PIC_MASTER_DATA);
-	unsigned char mask2 = IO::recv<uint8_t>( PIC_SLAVE_DATA);
+	uint8_t mask1 = IO::recv<uint8_t>(PIC_MASTER_DATA);
+	uint8_t mask2 = IO::recv<uint8_t>( PIC_SLAVE_DATA);
 
 	//The initialization sequence is made up of four "initialization words" ("ICWs") (actually bytes).  Pass the first
 	//initialization word (ICW1_INIT|ICW1_ICW4=0x11) (a command) that begins the sequence (in cascade mode).  This will

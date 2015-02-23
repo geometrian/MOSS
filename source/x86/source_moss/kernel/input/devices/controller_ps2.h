@@ -16,14 +16,15 @@ namespace MOSS { namespace Input { namespace Devices {
 class InterfaceDevicePS2Base;
 
 //http://wiki.osdev.org/%228042%22_PS/2_Controller
-class ControllerPS2 {
+class ControllerPS2 final {
 	private:
-		enum ControllerIO {
+		enum _ControllerIO {
 			DataPort        = 0x0060u,
 			StatusRegister  = 0x0064u,
 			CommandRegister = 0x0064u
 		};
-		class StatusByte final { public:  //"Compaq status byte" (not actually Compaq-specific (anymore).
+
+		class _StatusByte final { public:  //"Compaq status byte" (not actually Compaq-specific (anymore).
 			union {
 				struct {
 					bool                output_buffer_full : 1;
@@ -38,8 +39,9 @@ class ControllerPS2 {
 				uint8_t data_byte;
 			};
 		};
-		static_assert(sizeof(StatusByte)==1,"Status byte was the wrong size!");
-		class ConfigurationByte final { public:
+		static_assert(sizeof(_StatusByte)==sizeof(uint8_t),"Status byte was the wrong size!");
+
+		class _ConfigurationByte final { public:
 			union {
 				struct {
 					bool  first_port_interrupts_enabled : 1;
@@ -54,7 +56,8 @@ class ControllerPS2 {
 				uint8_t data_byte;
 			};
 		};
-		static_assert(sizeof(ConfigurationByte)==1,"Configuration byte was the wrong size!");
+		static_assert(sizeof(_ConfigurationByte)==sizeof(uint8_t),"Configuration byte was the wrong size!");
+
 	public:
 #if 0
 		//http://www.virtualbox.org/svn/vbox/trunk/src/VBox/Devices/Input/DevPS2.cpp
@@ -124,10 +127,10 @@ class ControllerPS2 {
 		void wait_for_outputbuffer_full(void) const;
 
 	private:
-		StatusByte _get_status_byte(void) const;
+		_StatusByte _get_status_byte(void) const;
 
-		ConfigurationByte _get_configuration_byte(void);
-		void _set_configuration_byte(const ConfigurationByte& config_byte);
+		_ConfigurationByte _get_configuration_byte(void);
+		void _set_configuration_byte(_ConfigurationByte const& config_byte);
 };
 
 

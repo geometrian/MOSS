@@ -6,7 +6,6 @@
 
 #include "../../../mossc/cstring"
 
-#include "../../ata/ata.h"
 #include "../../kernel.h"
 
 #include "superblock.h"

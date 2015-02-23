@@ -71,11 +71,11 @@ class Kernel final {
 		Kernel(void);
 		~Kernel(void);
 
-		void handle_key_down(const Input::Keys::Event& event);
-		void handle_key_up(const Input::Keys::Event& event);
-		void handle_mouse_move(const Input::Mouse::EventMouseMove& event);
-		void handle_mouse_click(const Input::Mouse::EventMouseClick& event);
-		void handle_mouse_unclick(const Input::Mouse::EventMouseUnclick& event);
+		void handle_key_down(Input::Keys::Event const& event);
+		void handle_key_up(Input::Keys::Event const& event);
+		void handle_mouse_move(Input::Mouse::EventMouseMove const& event);
+		void handle_mouse_click(Input::Mouse::EventMouseClick const& event);
+		void handle_mouse_unclick(Input::Mouse::EventMouseUnclick const& event);
 
 		void write(char const* format, ...);
 

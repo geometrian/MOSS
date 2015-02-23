@@ -14,23 +14,23 @@ namespace MOSS { namespace Interrupts {
 //	See http://wiki.osdev.org/IDT
 class EntryIDT final {
 	private:
-		uint32_t       offset_low : 16; //See above
-		uint16_t         selector : 16; //See above
+		uint32_t      _offset_low : 16; //See above
+		uint16_t        _selector : 16; //See above
 	public:
 		uint8_t           unused1 :  5; //Not used
 		uint8_t           unused2 :  3; //Reserved for interrupt/trap gates and must be 0, unused for task gates.
 		union Type {
-			struct TypeByte {
+			struct TypeByte final {
 				//Of the format 0bX110, where X determines size
 				//According to BrokenThorn, the first five bits here are one field, but according to OSDev, they're separate.  OSDev says
 				//	they must be 0 for interrupt gates, but doesn't say anything about other cases.  I'm leaving the fifth bit separate
 				//	but leaving it zero as per BrokenThorn's direction.
 				enum GateType { //Be sure to update code for storage_elem if change this!  See also http://www.acm.uiuc.edu/sigops/roll_your_own/i386/systbl.html#SystemDesc
-					Task32      = (uint8_t)(0x05u),
-					Interrupt16 = (uint8_t)(0x06u),
-					Trap16      = (uint8_t)(0x07u),
-					Interrupt32 = (uint8_t)(0x0Eu),
-					Trap32      = (uint8_t)(0x0Fu),
+					Task32      = static_cast<uint8_t>(0x05u),
+					Interrupt16 = static_cast<uint8_t>(0x06u),
+					Trap16      = static_cast<uint8_t>(0x07u),
+					Interrupt32 = static_cast<uint8_t>(0x0Eu),
+					Trap32      = static_cast<uint8_t>(0x0Fu),
 				};// gate_type :  4; //See link above
 				uint8_t gate_type :  4; //TODO: this can't be of type GateType because of some weird alignment issue.
 				bool storage_elem :  1; //Initialized to 0
@@ -40,50 +40,45 @@ class EntryIDT final {
 			uint8_t          byte :  8;
 		} type;
 	private:
-		uint32_t offset_high  : 16; //See above
+		uint32_t    _offset_high  : 16; //See above
 
 	public:
-		void set_offset(uint32_t offset);
-		uint32_t get_offset(void) const;
+		void set_offset(uint32_t offset) {
+			_offset_low  =  offset&0x0000FFFF       ;
+			_offset_high = (offset&0xFFFF0000) >> 16;
+		}
+		inline uint32_t get_offset(void) const {
+			return (_offset_high<<16) | _offset_low;
+		}
 
-		static void construct(EntryIDT* entry, uint32_t offset, Type::TypeByte::GateType type, int privilege);
+		static void construct(EntryIDT* entry, uint32_t offset, Type::TypeByte::GateType type, int privilege) {
+			entry->set_offset(offset);
+			entry->_selector = 0x0008; //Location of kernel code segment in GDT
+
+			entry->unused1 = 0;
+			entry->unused2 = 0;
+
+			entry->type.flags.gate_type    =      type;
+			//OSDev seems to *imply* this
+			/*switch (type) {
+				case Type::TypeByte::Interrupt16:
+				case Type::TypeByte::Interrupt32:
+					entry->type.flags.storage_elem =         0;
+					break;
+				case Type::TypeByte::     Trap16:
+				case Type::TypeByte::     Trap32:
+				case Type::TypeByte::     Task32:
+					entry->type.flags.storage_elem =         1;
+					break;
+				//Hopefully the compiler will give a warning if other enum types are possible
+			}*/
+			//. . . but BrokenThorn *states* this
+			entry->type.flags.storage_elem =         0;
+			entry->type.flags.   privilege = privilege;
+			entry->type.flags.     present =         1;
+		}
 } __attribute__((packed));
 static_assert(sizeof(EntryIDT)==8,"EntryIDT is the wrong size!");
-
-void EntryIDT::set_offset(uint32_t offset) {
-	offset_low  =  offset&0x0000FFFF       ;
-	offset_high = (offset&0xFFFF0000) >> 16;
-}
-uint32_t EntryIDT::get_offset(void) const {
-	return (offset_high<<16) | offset_low;
-}
-
-void EntryIDT::construct(EntryIDT* entry, uint32_t offset, Type::TypeByte::GateType type, int privilege) {
-	entry->set_offset(offset);
-	entry->selector = 0x0008; //Location of kernel code segment in GDT
-
-	entry->unused1 = 0;
-	entry->unused2 = 0;
-
-	entry->type.flags.gate_type    =      type;
-	//OSDev seems to *imply* this
-	/*switch (type) {
-		case Type::TypeByte::Interrupt16:
-		case Type::TypeByte::Interrupt32:
-			entry->type.flags.storage_elem =         0;
-			break;
-		case Type::TypeByte::     Trap16:
-		case Type::TypeByte::     Trap32:
-		case Type::TypeByte::     Task32:
-			entry->type.flags.storage_elem =         1;
-			break;
-		//Hopefully the compiler will give a warning if other enum types are possible
-	}*/
-	//. . . but BrokenThorn *states* this
-	entry->type.flags.storage_elem =         0;
-	entry->type.flags.   privilege = privilege;
-	entry->type.flags.     present =         1;
-}
 
 
 #define MOSS_INTERRUPT(MACRO)\

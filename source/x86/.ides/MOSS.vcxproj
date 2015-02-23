@@ -20,7 +20,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\source_moss\includes.cpp" />
-    <ClCompile Include="..\source_moss\kernel\ata\ata.cpp" />
+    <ClCompile Include="..\source_moss\kernel\ata\controller.cpp" />
+    <ClCompile Include="..\source_moss\kernel\ata\bus.cpp" />
+    <ClCompile Include="..\source_moss\kernel\ata\drive.cpp" />
     <ClCompile Include="..\source_moss\kernel\fs\ext2\block.cpp" />
     <ClCompile Include="..\source_moss\kernel\fs\ext2\superblock.cpp" />
     <ClCompile Include="..\source_moss\kernel\graphics\bg.cpp" />
@@ -40,13 +42,14 @@
     <ClCompile Include="..\source_moss\kernel\input\devices\interface_mouse_ps2.cpp" />
     <ClCompile Include="..\source_moss\kernel\input\keys.cpp" />
     <ClCompile Include="..\source_moss\kernel\interrupt\idt.cpp" />
-    <ClCompile Include="..\source_moss\kernel\interrupt\isr.cpp" />
+    <ClCompile Include="..\source_moss\kernel\interrupt\irq_isr.cpp" />
     <ClCompile Include="..\source_moss\kernel\interrupt\pic.cpp" />
     <ClCompile Include="..\source_moss\kernel\io\io.cpp" />
     <ClCompile Include="..\source_moss\kernel\kernel.cpp" />
     <ClCompile Include="..\source_moss\kernel\memory\gdt.cpp" />
     <ClCompile Include="..\source_moss\kernel\memory\simple.cpp" />
-    <ClCompile Include="..\source_moss\kernel\setup.cpp" />
+    <ClCompile Include="..\source_moss\kernel\kernel_entry.cpp" />
+    <ClCompile Include="..\source_moss\kernel\misc.cpp" />
     <ClCompile Include="..\source_moss\kernel\text_mode_terminal.cpp" />
     <ClCompile Include="..\source_moss\mossc\math\trig.cpp" />
     <ClCompile Include="..\source_moss\mossc\stdio\fmt_io.cpp" />
@@ -62,7 +65,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source_moss\includes.h" />
-    <ClInclude Include="..\source_moss\kernel\ata\ata.h" />
+    <ClInclude Include="..\source_moss\kernel\ata\controller.h" />
+    <ClInclude Include="..\source_moss\kernel\ata\bus.h" />
+    <ClInclude Include="..\source_moss\kernel\ata\drive.h" />
     <ClInclude Include="..\source_moss\kernel\boot\boot_memorymap.h" />
     <ClInclude Include="..\source_moss\kernel\boot\multiboot.h" />
     <ClInclude Include="..\source_moss\kernel\fs\ext2\block.h" />
@@ -90,14 +95,15 @@
     <ClInclude Include="..\source_moss\kernel\input\mouse.h" />
     <ClInclude Include="..\source_moss\kernel\interrupt\idt.h" />
     <ClInclude Include="..\source_moss\kernel\interrupt\int32.h" />
-    <ClInclude Include="..\source_moss\kernel\interrupt\isr.h" />
+    <ClInclude Include="..\source_moss\kernel\interrupt\irq_isr.h" />
     <ClInclude Include="..\source_moss\kernel\interrupt\misc.h" />
     <ClInclude Include="..\source_moss\kernel\interrupt\pic.h" />
     <ClInclude Include="..\source_moss\kernel\io\io.h" />
     <ClInclude Include="..\source_moss\kernel\kernel.h" />
     <ClInclude Include="..\source_moss\kernel\memory\gdt.h" />
     <ClInclude Include="..\source_moss\kernel\memory\simple.h" />
-    <ClInclude Include="..\source_moss\kernel\setup.h" />
+    <ClInclude Include="..\source_moss\kernel\kernel_entry.h" />
+    <ClInclude Include="..\source_moss\kernel\misc.h" />
     <ClInclude Include="..\source_moss\kernel\text_mode_terminal.h" />
     <ClInclude Include="..\source_moss\mossc\math.h" />
     <ClInclude Include="..\source_moss\mossc\math\trig.h" />
@@ -127,7 +133,7 @@
     <None Include="..\source_moss\kernel\boot\boot.asm" />
     <None Include="..\source_moss\kernel\interrupt\idt.asm" />
     <None Include="..\source_moss\kernel\interrupt\int32.asm" />
-    <None Include="..\source_moss\kernel\interrupt\isr.asm" />
+    <None Include="..\source_moss\kernel\interrupt\irq_isr.asm" />
     <None Include="..\source_moss\kernel\memory\gdt.asm" />
     <None Include="..\source_moss\linker.ld" />
     <None Include="..\source_moss\mossc\cmath" />

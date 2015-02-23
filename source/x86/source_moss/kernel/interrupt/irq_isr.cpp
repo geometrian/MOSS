@@ -1,6 +1,7 @@
-#include "isr.h"
+#include "irq_isr.h"
 
-#include "../ata/ata.h"
+#include "../ata/bus.h"
+#include "../ata/controller.h"
 #include "../input/devices/controller_ps2.h"
 #include "../input/devices/interface_device_ps2.h"
 #include "../kernel.h"
@@ -251,16 +252,16 @@ bool isr45(void) {
 //ISR 46 = IRQ 14 (Primary ATA Hard Disk)
 bool isr46(void) {
 	//assert_term(false,"Handling IRQ 14 (stub)\n"); return false;
-	assert_term(kernel->controller_ata->channel0!=nullptr,"ATA controller channel 0 is null!");
-	kernel->controller_ata->channel0->handle_irq();
+	assert_term(kernel->controller_ata->buses[0]!=nullptr,"ATA controller bus 0 is null!");
+	kernel->controller_ata->buses[0]->handle_irq();
 	return true;
 }
 
 //ISR 47 = IRQ 15 (Secondary ATA Hard Disk)
 bool isr47(void) {
 	//assert_term(false,"Handling IRQ 15 (stub)"); return false;
-	assert_term(kernel->controller_ata->channel1!=nullptr,"ATA controller channel 1 is null!");
-	kernel->controller_ata->channel1->handle_irq();
+	assert_term(kernel->controller_ata->buses[1]!=nullptr,"ATA controller channel 1 is null!");
+	kernel->controller_ata->buses[1]->handle_irq();
 	return true;
 }
 
@@ -299,13 +300,13 @@ void init_irqs(void) {
 }
 
 
-void isr_common(State* state) {
+void isr_common(State const* state) {
 	//MOSS_DEBUG_BOCHSBREAK;
 
 	//See sign-extending about unsigned bytes here: http://forum.osdev.org/viewtopic.php?f=1&t=23998&sid=98cd3b1e6b1256f0dbdb0885e84ba05f&start=15.
-	//Shouldn't be an issue since everything pushed is 32 bits.
+	//	Shouldn't be an issue since everything pushed is 32 bits.
 
-	uint32_t& which = state->int_ind;
+	uint32_t which = state->int_ind;
 
 	/*kernel->write("Received interrupt:\n");
 	kernel->write("  Interrupt index: %d\n",state->int_ind);
@@ -367,8 +368,8 @@ void isr_common(State* state) {
 			case 47: handled&=isr47(); break;
 		}
 		if (handled) {
-			//Tell the PIC that we handled the interrupt and that it can send another/reset hardware interrupt at 8259 chip
-			//The only reason why we wouldn't is if the interrupt was erroneous (spurious, for example).
+			//Tell the PIC that we handled the interrupt and that it can send another/reset hardware interrupt at 8259 chip.
+			//	The only reason why we wouldn't is if the interrupt was erroneous (spurious, for example).
 			Interrupts::PIC::send_EOI(which);
 		}
 	} else {

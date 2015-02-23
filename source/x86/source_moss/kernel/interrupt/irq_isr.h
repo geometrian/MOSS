@@ -32,6 +32,7 @@ typedef bool(*ISR)(void);
 class IQR_ISR final { public:
 	ISR def; //the default ISR
 	ISR isr; //Any overriding ISR
+
 	bool operator()(void) const;
 };
 
@@ -53,7 +54,7 @@ class State final { public:
 	uint32_t eip, cs, eflags, useresp, ss; //pushed by the processor automatically
 };
 
-extern "C" void isr_common(State* state); //defined in isr.cpp; not assembly TODO: const
+extern "C" void isr_common(State const* state); //defined in "irq_isr.cpp"; not assembly
 
 
 }}

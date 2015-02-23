@@ -66,9 +66,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\source_moss\kernel\ata\ata.cpp">
-      <Filter>source_moss\kernel\ata</Filter>
-    </ClCompile>
     <ClCompile Include="..\source_moss\kernel\fs\ext2\block.cpp">
       <Filter>source_moss\kernel\fs\ext2</Filter>
     </ClCompile>
@@ -126,9 +123,6 @@
     <ClCompile Include="..\source_moss\kernel\interrupt\idt.cpp">
       <Filter>source_moss\kernel\interrupt</Filter>
     </ClCompile>
-    <ClCompile Include="..\source_moss\kernel\interrupt\isr.cpp">
-      <Filter>source_moss\kernel\interrupt</Filter>
-    </ClCompile>
     <ClCompile Include="..\source_moss\kernel\interrupt\pic.cpp">
       <Filter>source_moss\kernel\interrupt</Filter>
     </ClCompile>
@@ -145,9 +139,6 @@
       <Filter>source_moss\kernel</Filter>
     </ClCompile>
     <ClCompile Include="..\source_moss\kernel\kernel.cpp">
-      <Filter>source_moss\kernel</Filter>
-    </ClCompile>
-    <ClCompile Include="..\source_moss\kernel\setup.cpp">
       <Filter>source_moss\kernel</Filter>
     </ClCompile>
     <ClCompile Include="..\source_moss\mossc\math\trig.cpp">
@@ -186,11 +177,26 @@
     <ClCompile Include="..\source_moss\includes.cpp">
       <Filter>source_moss</Filter>
     </ClCompile>
+    <ClCompile Include="..\source_moss\kernel\kernel_entry.cpp">
+      <Filter>source_moss\kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source_moss\kernel\misc.cpp">
+      <Filter>source_moss\kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source_moss\kernel\interrupt\irq_isr.cpp">
+      <Filter>source_moss\kernel\interrupt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source_moss\kernel\ata\drive.cpp">
+      <Filter>source_moss\kernel\ata</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source_moss\kernel\ata\bus.cpp">
+      <Filter>source_moss\kernel\ata</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source_moss\kernel\ata\controller.cpp">
+      <Filter>source_moss\kernel\ata</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\source_moss\kernel\ata\ata.h">
-      <Filter>source_moss\kernel\ata</Filter>
-    </ClInclude>
     <ClInclude Include="..\source_moss\kernel\boot\boot_memorymap.h">
       <Filter>source_moss\kernel\boot</Filter>
     </ClInclude>
@@ -272,9 +278,6 @@
     <ClInclude Include="..\source_moss\kernel\interrupt\int32.h">
       <Filter>source_moss\kernel\interrupt</Filter>
     </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\interrupt\isr.h">
-      <Filter>source_moss\kernel\interrupt</Filter>
-    </ClInclude>
     <ClInclude Include="..\source_moss\kernel\interrupt\misc.h">
       <Filter>source_moss\kernel\interrupt</Filter>
     </ClInclude>
@@ -353,8 +356,23 @@
     <ClInclude Include="..\source_moss\includes.h">
       <Filter>source_moss</Filter>
     </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\setup.h">
+    <ClInclude Include="..\source_moss\kernel\kernel_entry.h">
       <Filter>source_moss\kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\kernel\misc.h">
+      <Filter>source_moss\kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\kernel\interrupt\irq_isr.h">
+      <Filter>source_moss\kernel\interrupt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\kernel\ata\drive.h">
+      <Filter>source_moss\kernel\ata</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\kernel\ata\bus.h">
+      <Filter>source_moss\kernel\ata</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\kernel\ata\controller.h">
+      <Filter>source_moss\kernel\ata</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -365,9 +383,6 @@
       <Filter>source_moss\kernel\interrupt</Filter>
     </None>
     <None Include="..\source_moss\kernel\interrupt\int32.asm">
-      <Filter>source_moss\kernel\interrupt</Filter>
-    </None>
-    <None Include="..\source_moss\kernel\interrupt\isr.asm">
       <Filter>source_moss\kernel\interrupt</Filter>
     </None>
     <None Include="..\source_moss\kernel\memory\gdt.asm">
@@ -402,6 +417,9 @@
     </None>
     <None Include="..\source_moss\linker.ld">
       <Filter>source_moss</Filter>
+    </None>
+    <None Include="..\source_moss\kernel\interrupt\irq_isr.asm">
+      <Filter>source_moss\kernel\interrupt</Filter>
     </None>
   </ItemGroup>
 </Project>
