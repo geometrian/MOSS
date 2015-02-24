@@ -22,7 +22,7 @@
     <ClCompile Include="..\source_moss\includes.cpp" />
     <ClCompile Include="..\source_moss\kernel\ata\controller.cpp" />
     <ClCompile Include="..\source_moss\kernel\ata\bus.cpp" />
-    <ClCompile Include="..\source_moss\kernel\ata\drive.cpp" />
+    <ClCompile Include="..\source_moss\kernel\ata\device.cpp" />
     <ClCompile Include="..\source_moss\kernel\fs\ext2\block.cpp" />
     <ClCompile Include="..\source_moss\kernel\fs\ext2\superblock.cpp" />
     <ClCompile Include="..\source_moss\kernel\graphics\bg.cpp" />
@@ -65,9 +65,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source_moss\includes.h" />
+    <ClInclude Include="..\source_moss\kernel\ata\ata.h" />
     <ClInclude Include="..\source_moss\kernel\ata\controller.h" />
     <ClInclude Include="..\source_moss\kernel\ata\bus.h" />
-    <ClInclude Include="..\source_moss\kernel\ata\drive.h" />
+    <ClInclude Include="..\source_moss\kernel\ata\device.h" />
     <ClInclude Include="..\source_moss\kernel\boot\boot_memorymap.h" />
     <ClInclude Include="..\source_moss\kernel\boot\multiboot.h" />
     <ClInclude Include="..\source_moss\kernel\fs\ext2\block.h" />

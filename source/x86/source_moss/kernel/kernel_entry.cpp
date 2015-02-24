@@ -80,7 +80,7 @@ extern "C" void kernel_entry(unsigned long magic, unsigned long addr) {
 		kernel->write("Setting up ATA controller\n");
 		ATA::Controller controller_ata;
 		kernel->controller_ata = &controller_ata;
-		while (1);
+		controller_ata.print(1);
 	#endif
 	#if 1 //Set up FPU
 		//TODO: assumes it exists and is on-board the CPU
@@ -118,16 +118,17 @@ extern "C" void kernel_entry(unsigned long magic, unsigned long addr) {
 	kernel->gui = &gui;
 
 	#if 1
-		uint8_t const* data;
+		uint8_t buffer[512];
 		kernel->write("Reading bootsector from HDD . . .\n");
-		data = kernel->controller_ata->read_sector(0);
+		kernel->controller_ata->read_sectors(buffer, 0,1);
 		kernel->write("Doing it again . . .\n");
-		data = kernel->controller_ata->read_sector(0);
-		kernel->write("Outputting data . . .\n");
-		for (int i=0;i<512;++i) {
-			kernel->write("%X ",data[i]);
-		}
-		//kernel->write("Bytes at index 510, 511: %u %u\n",data[510],data[511]); //For MBR should be 0x55 0xAA
+		kernel->controller_ata->read_sectors(buffer, 0,1);
+		#if 1
+			kernel->write("Outputting data . . .\n");
+			//for (int i=0;i<512;++i) kernel->write("%X ",static_cast<int>(buffer[i]));
+			//for (int i=0;i<512;++i) kernel->write("%d ",static_cast<int>(buffer[i]));
+			kernel->write("Bytes at index 510, 511: 0x%X 0x%X\n",buffer[510],buffer[511]); //For MBR should be 0x55 0xAA
+		#endif
 		kernel->write("Complete!\n"); while (true);
 	#endif
 

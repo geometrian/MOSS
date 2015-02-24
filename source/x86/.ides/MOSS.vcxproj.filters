@@ -186,13 +186,13 @@
     <ClCompile Include="..\source_moss\kernel\interrupt\irq_isr.cpp">
       <Filter>source_moss\kernel\interrupt</Filter>
     </ClCompile>
-    <ClCompile Include="..\source_moss\kernel\ata\drive.cpp">
-      <Filter>source_moss\kernel\ata</Filter>
-    </ClCompile>
     <ClCompile Include="..\source_moss\kernel\ata\bus.cpp">
       <Filter>source_moss\kernel\ata</Filter>
     </ClCompile>
     <ClCompile Include="..\source_moss\kernel\ata\controller.cpp">
+      <Filter>source_moss\kernel\ata</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source_moss\kernel\ata\device.cpp">
       <Filter>source_moss\kernel\ata</Filter>
     </ClCompile>
   </ItemGroup>
@@ -365,13 +365,16 @@
     <ClInclude Include="..\source_moss\kernel\interrupt\irq_isr.h">
       <Filter>source_moss\kernel\interrupt</Filter>
     </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\ata\drive.h">
-      <Filter>source_moss\kernel\ata</Filter>
-    </ClInclude>
     <ClInclude Include="..\source_moss\kernel\ata\bus.h">
       <Filter>source_moss\kernel\ata</Filter>
     </ClInclude>
     <ClInclude Include="..\source_moss\kernel\ata\controller.h">
+      <Filter>source_moss\kernel\ata</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\kernel\ata\ata.h">
+      <Filter>source_moss\kernel\ata</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\kernel\ata\device.h">
       <Filter>source_moss\kernel\ata</Filter>
     </ClInclude>
   </ItemGroup>

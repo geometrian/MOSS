@@ -66,16 +66,16 @@ class BlockGroupDescriptorTable final {
 			groups = new BlockGroupDescriptor[superblock->num_blockgroups];
 			int i = 0;
 			LOOP1:
-				const uint8_t* sector = kernel->controller_ata->read_sector(lba);
-				//The 32 in this loop is sizeof(BlockGroupDescriptor), replaced with its value for clarity.  Note
-				//the check for this equivalence above.
-				int j = 0;
+				uint8_t sector[512];
+				kernel->controller_ata->read_sectors(sector, lba,1);
+				uint8_t const* sector_pointer = sector;
+				size_t j = 0;
 				LOOP2:
 					kernel->write("Filling group descriptor %d / %d\n",i,superblock->num_blockgroups);
-					MOSSC::memcpy(groups+j,sector,32);
+					MOSSC::memcpy(groups+j,sector_pointer,sizeof(BlockGroupDescriptor));
 					if (++i==superblock->num_blockgroups) goto END;
-					if (++j<512/32) {
-						sector += 32;
+					if (++j<512/sizeof(BlockGroupDescriptor)) {
+						sector_pointer += sizeof(BlockGroupDescriptor);
 						goto LOOP2;
 					}
 				++lba;

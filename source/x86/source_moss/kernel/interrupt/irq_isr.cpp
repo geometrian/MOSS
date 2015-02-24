@@ -260,8 +260,8 @@ bool isr46(void) {
 //ISR 47 = IRQ 15 (Secondary ATA Hard Disk)
 bool isr47(void) {
 	//assert_term(false,"Handling IRQ 15 (stub)"); return false;
-	assert_term(kernel->controller_ata->buses[1]!=nullptr,"ATA controller channel 1 is null!");
-	kernel->controller_ata->buses[1]->handle_irq();
+	assert_warn(kernel->controller_ata->buses[1]!=nullptr,"ATA controller bus 1 is null!");
+	//kernel->controller_ata->buses[1]->handle_irq();
 	return true;
 }
 

@@ -17,7 +17,7 @@ BlockBase::~BlockBase(void) {
 }
 BlockBase* BlockBase::get_new(Superblock* superblock, uint64_t block_index) {
 	BlockBase* result = new BlockBase(superblock);
-	kernel->controller_ata->read_sectors(block_index*superblock->block_size/512, result->data, superblock->block_size/512);
+	kernel->controller_ata->read_sectors(result->data, block_index*superblock->block_size/512,superblock->block_size/512);
 	return result;
 }
 

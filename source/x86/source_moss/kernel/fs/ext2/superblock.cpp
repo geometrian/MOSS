@@ -12,10 +12,11 @@ Superblock::Superblock(void) {
 
 	//Superblock is at LBA 2, 3 (it's 1024 bytes big and starts at byte 1024).
 	kernel->write("Loading superblock . . .\n");
-	const uint8_t* sector2 = kernel->controller_ata->read_sector(2ull); kernel->write("  Got 2!\n");
-	for (int i=0;i<512;++i) data.bytes[i    ]=sector2[i];
-	const uint8_t* sector3 = kernel->controller_ata->read_sector(3ull); kernel->write("  Got 3!\n");
-	for (int i=0;i<512;++i) data.bytes[i+512]=sector3[i];
+	uint8_t temp[512];
+	kernel->controller_ata->read_sectors(temp,2ull,1); kernel->write("  Got 2!\n");
+	for (int i=0;i<512;++i) data.bytes[i    ]=temp[i];
+	kernel->controller_ata->read_sectors(temp,3ull,1); kernel->write("  Got 3!\n");
+	for (int i=0;i<512;++i) data.bytes[i+512]=temp[i];
 	kernel->write("Loaded!\n");
 
 	assert_term(data.magic==0xEF53,"Superblock contains wrong magic number (got %p)!",data.magic);

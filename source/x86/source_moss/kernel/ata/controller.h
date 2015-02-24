@@ -17,15 +17,13 @@ class Controller final {
 	public:
 		Bus*restrict buses[4];
 
-	private:
-		uint8_t _buffer[512];
-
 	public:
 		Controller(void);
 		~Controller(void);
 
-		uint8_t const* read_sector(uint64_t lba);
-		void read_sectors(uint64_t lba, uint8_t* data_buffer,int num_sectors);
+		void read_sectors(uint8_t* data_buffer, uint64_t lba,int num_sectors) const;
+
+		void print(int indent) const;
 };
 
 

@@ -276,7 +276,7 @@ class SpecifierIntegralBase : public SpecifierBase {
 			char temp[20];
 			int i = 0;
 			LOOP:
-				uint8_t digit = static_cast<uint8_t>(value%10ull); value/=10ull;
+				uint8_t digit=static_cast<uint8_t>(value%10ull); value/=10ull;
 				temp[i] = digit + '0';
 				if (value>0) {
 					++i;
@@ -284,13 +284,9 @@ class SpecifierIntegralBase : public SpecifierBase {
 				}
 
 			int num_zeros = precision - (i+1);
-			for (int j=0;j<num_zeros;++j) {
-				*(buffer++) = '0';
-			}
+			for (int j=0;j<num_zeros;++j) *(buffer++)='0';
 
-			while (i>=0) {
-				*(buffer++) = temp[i--];
-			}
+			while (i>=0) *(buffer++)=temp[i--];
 
 			return buffer;
 		}
@@ -301,7 +297,7 @@ class SpecifierIntegralBase : public SpecifierBase {
 			char temp[16];
 			int i = 0;
 			LOOP:
-				uint8_t hexit = static_cast<uint8_t>(value%0x0Full); value>>=4;
+				uint8_t hexit=static_cast<uint8_t>(value&0x0Full); value>>=4;
 				if (hexit<10u) temp[i]=hexit   +'0';
 				else           temp[i]=hexit-10+'A';
 
@@ -311,13 +307,9 @@ class SpecifierIntegralBase : public SpecifierBase {
 				}
 
 			int num_zeros = precision - (i+1);
-			for (int j=0;j<num_zeros;++j) {
-				*(buffer++) = '0';
-			}
+			for (int j=0;j<num_zeros;++j) *(buffer++)='0';
 
-			while (i>=0) {
-				*(buffer++) = temp[i--];
-			}
+			while (i>=0) *(buffer++)=temp[i--];
 
 			return buffer;
 		}
@@ -386,9 +378,9 @@ class SpecifierPointer final : public SpecifierIntegralBase {
 			int bits = static_cast<int>(sizeof(void*)) * 8;
 
 			for (int i=bits-4;i>=0;i-=4) {
-				unsigned int nibble = (value2>>i)&0x0F;
-				if (nibble<10u) *(buffer++)=nibble   +'0';
-				else            *(buffer++)=nibble-10+'A';
+				uint8_t hexit = static_cast<uint8_t>((value2>>i)&0x0F);
+				if (hexit<10u) *(buffer++)=hexit   +'0';
+				else           *(buffer++)=hexit-10+'A';
 			}
 
 			return buffer;
