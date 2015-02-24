@@ -1,12 +1,12 @@
 #include "bus.h"
 
-#include "../io/io.h"
-#include "../kernel.h"
+#include "../../io/io.h"
+#include "../../kernel.h"
 
 #include "device.h"
 
 
-namespace MOSS { namespace ATA {
+namespace MOSS { namespace Disk { namespace ATA {
 
 
 void Bus::_StatusByte::print(void) const {
@@ -259,23 +259,23 @@ bool Bus::command_identify(int device_index, uint8_t data_buffer[512]) {
 		return true;
 	#endif
 }
-void Bus::command_readsectors(int device_index, uint8_t* data_buffer, uint64_t lba,int num_sectors) {
+void Bus::command_readsectors(int device_index, uint8_t* data_buffer, uint64_t absolute_lba,int num_sectors) {
 	//ATA/ATAPI-4 8.27 (logical pg. 138)
 	//	  7 |   6 |   5 |   4 |    3      2  1   0 |
 	//	obs | LBA | obs | DEV | Head number or LBA |
 	//	Protocol: PIO data in
 	_select_device_as_necessary(device_index);
 
-	assert_term(lba<=268435455ull,"LBA is larger than (2^28)-1!"); //Only have 28 bits (maximum (2^28)-1 ~= 256 million sectors)
+	assert_term(absolute_lba<=268435455ull,"LBA is larger than (2^28)-1!"); //Only have 28 bits (maximum (2^28)-1 ~= 256 million sectors)
 	assert_term(num_sectors<=256,"Number of sectors was larger than 256!"); //Can't be uint8_t, since 256 is valid (we have to pass it as zero though)
 	uint8_t num_sectors_arg = num_sectors==256 ? 0 : static_cast<uint8_t>(num_sectors);
 
 	//Write::RegisterOffset::FEATURES_ERRORINFO not applicable
-	_write_uint8(Write::RegisterOffset::NUM_SECTORS,              num_sectors_arg);
-	_write_uint8(Write::RegisterOffset::    LBA_LOW, (lba&0x00000000000000FF)    );
-	_write_uint8(Write::RegisterOffset::    LBA_MID, (lba&0x000000000000FF00)>> 8);
-	_write_uint8(Write::RegisterOffset::   LBA_HIGH, (lba&0x0000000000FF0000)>>16);
-	_write_uint8(Write::RegisterOffset::DEVICE_HEAD, 0x40 | (device_index<<4) | (lba>>24)); //Note: 0x40 is because using LBA.  Also note: (lba>>24) is <= 0x0F already.
+	_write_uint8(Write::RegisterOffset::NUM_SECTORS,                       num_sectors_arg);
+	_write_uint8(Write::RegisterOffset::    LBA_LOW, (absolute_lba&0x00000000000000FF)    );
+	_write_uint8(Write::RegisterOffset::    LBA_MID, (absolute_lba&0x000000000000FF00)>> 8);
+	_write_uint8(Write::RegisterOffset::   LBA_HIGH, (absolute_lba&0x0000000000FF0000)>>16);
+	_write_uint8(Write::RegisterOffset::DEVICE_HEAD, 0x40 | (device_index<<4) | (absolute_lba>>24)); //Note: 0x40 is because using an LBA.  Also note: (lba>>24) is <= 0x0F already.
 	_current_command                               = 0x20; _current_command_buffer=data_buffer;
 	_write_uint8(Write::RegisterOffset::    COMMAND, 0x20);
 
@@ -395,4 +395,4 @@ void Bus::print(int indent) const {
 }
 
 
-}}
+}}}

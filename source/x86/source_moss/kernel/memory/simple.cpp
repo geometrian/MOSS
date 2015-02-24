@@ -18,7 +18,7 @@ void Block::print(void) const {
 
 
 BlockGRUB::BlockGRUB(void) {}
-BlockGRUB::BlockGRUB(const BlockGRUB& block) {
+BlockGRUB::BlockGRUB(BlockGRUB const& block) {
 	record_size = block.record_size;
 	start = block.start;
 	size = block.size;
@@ -38,7 +38,7 @@ void BlockGRUB::print(void) const {
 }
 
 
-MemoryManager::MemoryManager(const Boot::multiboot_info_t* mbi) {
+MemoryManager::MemoryManager(Boot::multiboot_info_t const* mbi) {
 	//GRUB reports some addresses (in particular 0x00000000 to 0x0009FC00) below 1MiB as free for use.
 	//However, they aren't for us since we need to retain the ability to set VESA modes.  Therefore,
 	//all memory allocation will take place at least at the 1MiB mark.

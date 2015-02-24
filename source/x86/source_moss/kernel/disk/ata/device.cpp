@@ -1,11 +1,11 @@
 #include "device.h"
 
-#include "../kernel.h"
+#include "../../kernel.h"
 
-#include "../../mossc/cstring"
+#include "../../../mossc/cstring"
 
 
-namespace MOSS { namespace ATA {
+namespace MOSS { namespace Disk { namespace ATA {
 
 
 static void fix_ide_string(char* data, int len) {
@@ -94,4 +94,4 @@ void Device::print(int indent) const {
 }
 
 
-}}
+}}}

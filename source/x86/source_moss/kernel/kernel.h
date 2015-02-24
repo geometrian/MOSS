@@ -9,8 +9,14 @@ namespace MOSSC {
 	void* realloc(void* ptr, size_t size);
 	void free(void* ptr);
 } namespace MOSS {
-	namespace ATA {
-		class Controller;
+	namespace Disk {
+		namespace ATA {
+			class Controller;
+		}
+		namespace FileSystem {
+			class FileSystemBase;
+		}
+		class HardDiskDrive;
 	}
 	namespace Graphics {
 		namespace GUI {
@@ -61,7 +67,9 @@ class Kernel final {
 
 		Input::Devices::ControllerPS2* controller_ps2;
 
-		ATA::Controller* controller_ata;
+		Disk::ATA::Controller* controller_ata;
+		Disk::HardDiskDrive* disk;
+		Disk::FileSystem::FileSystemBase* filesystem;
 
 	private:
 		Memory::MemoryManager* memory;

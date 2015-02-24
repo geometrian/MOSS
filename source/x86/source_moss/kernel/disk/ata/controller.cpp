@@ -1,12 +1,11 @@
 #include "controller.h"
 
-#include "../kernel.h"
+#include "../../kernel.h"
 
 #include "bus.h"
-#include "device.h"
 
 
-namespace MOSS { namespace ATA {
+namespace MOSS { namespace Disk { namespace ATA {
 
 
 Controller::Controller(void) {
@@ -24,8 +23,11 @@ Controller::~Controller(void) {
 	}
 }
 
-void Controller::read_sectors(uint8_t* data_buffer, uint64_t lba,int num_sectors) const {
-	buses[0]->command_readsectors(0, data_buffer, lba,num_sectors);
+void Controller::read_sectors(uint8_t* data_buffer, uint64_t absolute_lba,int num_sectors, int index_bus,int index_device) const {
+	assert_term(index_bus>=0&&index_bus<=1,"Invalid bus index \"%d\"!",index_bus);
+	assert_term(buses[index_bus]!=nullptr,"Invalid bus %d!",index_bus);
+
+	buses[index_bus]->command_readsectors(index_device, data_buffer, absolute_lba,num_sectors);
 }
 
 void Controller::print(int indent) const {
@@ -41,4 +43,4 @@ void Controller::print(int indent) const {
 }
 
 
-}}
+}}}

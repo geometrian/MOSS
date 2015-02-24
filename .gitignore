@@ -10,6 +10,8 @@
 
 *.pyc
 
+*.ppm
+
 resources/bochs-2.6.7/
 resources/bochs-2.6.7-msvc-src/
 resources/nircmd/

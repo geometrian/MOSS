@@ -1,12 +1,14 @@
 #pragma once
 
-#include "../../../includes.h"
+#include "../../../../includes.h"
+
+#include "common.h"
 
 
-namespace MOSS { namespace FS {
+namespace MOSS { namespace Disk { namespace FileSystem {
 
 
-class INode final {
+/*class INode final {
 	uint16_t type_and_permissions;
 	uint16_t user_id;
 	uint32_t size_lower; //lower 32 bits of size in bytes
@@ -28,7 +30,7 @@ class INode final {
 	uint32_t reserved_or_size_upper_or_acl;
 	addrblock fragment;
 	uint8_t os_specific2[12];
-};
+};*/
 
 
-}}
+}}}

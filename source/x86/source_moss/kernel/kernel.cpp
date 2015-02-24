@@ -2,7 +2,8 @@
 
 #include "../mossc/cstdio"
 
-#include "ata/controller.h"
+#include "disk/ata/controller.h"
+#include "disk/disk.h"
 
 #include "graphics/gui/manager.h"
 #include "graphics/vesa/controller.h"
@@ -33,6 +34,8 @@ Kernel::Kernel(void) {
 		controller_ps2 = nullptr;
 
 		controller_ata = nullptr;
+		disk = nullptr;
+		filesystem = nullptr;
 
 		memory = nullptr;
 	#endif

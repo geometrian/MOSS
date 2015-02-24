@@ -1,11 +1,11 @@
 #pragma once
 
-#include "../../includes.h"
+#include "../../../includes.h"
 
 #include "bus.h"
 
 
-namespace MOSS { namespace ATA {
+namespace MOSS { namespace Disk { namespace ATA {
 
 
 class Device final {
@@ -43,4 +43,4 @@ class Device final {
 };
 
 
-}}
+}}}

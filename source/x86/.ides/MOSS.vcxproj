@@ -20,11 +20,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\source_moss\includes.cpp" />
-    <ClCompile Include="..\source_moss\kernel\ata\controller.cpp" />
-    <ClCompile Include="..\source_moss\kernel\ata\bus.cpp" />
-    <ClCompile Include="..\source_moss\kernel\ata\device.cpp" />
-    <ClCompile Include="..\source_moss\kernel\fs\ext2\block.cpp" />
-    <ClCompile Include="..\source_moss\kernel\fs\ext2\superblock.cpp" />
+    <ClCompile Include="..\source_moss\kernel\disk\ata\bus.cpp" />
+    <ClCompile Include="..\source_moss\kernel\disk\ata\controller.cpp" />
+    <ClCompile Include="..\source_moss\kernel\disk\ata\device.cpp" />
+    <ClCompile Include="..\source_moss\kernel\disk\disk.cpp" />
+    <ClCompile Include="..\source_moss\kernel\disk\filesystems\ext2\block.cpp" />
+    <ClCompile Include="..\source_moss\kernel\disk\filesystems\ext2\blockgroup.cpp" />
+    <ClCompile Include="..\source_moss\kernel\disk\filesystems\ext2\superblock.cpp" />
     <ClCompile Include="..\source_moss\kernel\graphics\bg.cpp" />
     <ClCompile Include="..\source_moss\kernel\graphics\font.cpp" />
     <ClCompile Include="..\source_moss\kernel\graphics\gui\button.cpp" />
@@ -65,17 +67,21 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source_moss\includes.h" />
-    <ClInclude Include="..\source_moss\kernel\ata\ata.h" />
-    <ClInclude Include="..\source_moss\kernel\ata\controller.h" />
-    <ClInclude Include="..\source_moss\kernel\ata\bus.h" />
-    <ClInclude Include="..\source_moss\kernel\ata\device.h" />
     <ClInclude Include="..\source_moss\kernel\boot\boot_memorymap.h" />
     <ClInclude Include="..\source_moss\kernel\boot\multiboot.h" />
-    <ClInclude Include="..\source_moss\kernel\fs\ext2\block.h" />
-    <ClInclude Include="..\source_moss\kernel\fs\ext2\ext2.h" />
-    <ClInclude Include="..\source_moss\kernel\fs\ext2\inode.h" />
-    <ClInclude Include="..\source_moss\kernel\fs\ext2\superblock.h" />
-    <ClInclude Include="..\source_moss\kernel\fs\fs.h" />
+    <ClInclude Include="..\source_moss\kernel\disk\ata\ata.h" />
+    <ClInclude Include="..\source_moss\kernel\disk\ata\bus.h" />
+    <ClInclude Include="..\source_moss\kernel\disk\ata\controller.h" />
+    <ClInclude Include="..\source_moss\kernel\disk\ata\device.h" />
+    <ClInclude Include="..\source_moss\kernel\disk\disk.h" />
+    <ClInclude Include="..\source_moss\kernel\disk\filesystems\ext2\block.h" />
+    <ClInclude Include="..\source_moss\kernel\disk\filesystems\ext2\blockgroup.h" />
+    <ClInclude Include="..\source_moss\kernel\disk\filesystems\ext2\common.h" />
+    <ClInclude Include="..\source_moss\kernel\disk\filesystems\ext2\ext2.h" />
+    <ClInclude Include="..\source_moss\kernel\disk\filesystems\ext2\inode.h" />
+    <ClInclude Include="..\source_moss\kernel\disk\filesystems\ext2\superblock.h" />
+    <ClInclude Include="..\source_moss\kernel\disk\filesystems\fat\fat.h" />
+    <ClInclude Include="..\source_moss\kernel\disk\filesystems\filesystem.h" />
     <ClInclude Include="..\source_moss\kernel\graphics\bg.h" />
     <ClInclude Include="..\source_moss\kernel\graphics\color.h" />
     <ClInclude Include="..\source_moss\kernel\graphics\font.h" />

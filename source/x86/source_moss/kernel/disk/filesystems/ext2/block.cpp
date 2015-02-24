@@ -1,15 +1,16 @@
 #include "block.h"
 
-#include "../../ata/controller.h"
-#include "../../kernel.h"
+//#include "../../../kernel.h"
 
-#include "superblock.h"
+//#include "../../ata/controller.h"
 
-
-namespace MOSS { namespace FS {
+//#include "superblock.h"
 
 
-BlockBase::BlockBase(Superblock* superblock) : superblock(superblock) {
+namespace MOSS { namespace Disk { namespace FileSystem {
+
+
+/*BlockBase::BlockBase(Superblock* superblock) : superblock(superblock) {
 	data = new uint8_t[superblock->block_size];
 }
 BlockBase::~BlockBase(void) {
@@ -19,7 +20,7 @@ BlockBase* BlockBase::get_new(Superblock* superblock, uint64_t block_index) {
 	BlockBase* result = new BlockBase(superblock);
 	kernel->controller_ata->read_sectors(result->data, block_index*superblock->block_size/512,superblock->block_size/512);
 	return result;
-}
+}*/
 
 
-}}
+}}}

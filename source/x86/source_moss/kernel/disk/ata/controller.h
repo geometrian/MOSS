@@ -1,9 +1,9 @@
 #pragma once
 
-#include "../../includes.h"
+#include "../../../includes.h"
 
 
-namespace MOSS { namespace ATA {
+namespace MOSS { namespace Disk { namespace ATA {
 
 
 //Based on information here:
@@ -21,10 +21,10 @@ class Controller final {
 		Controller(void);
 		~Controller(void);
 
-		void read_sectors(uint8_t* data_buffer, uint64_t lba,int num_sectors) const;
+		void read_sectors(uint8_t* data_buffer, uint64_t absolute_lba,int num_sectors, int index_bus,int index_device) const;
 
 		void print(int indent) const;
 };
 
 
-}}
+}}}

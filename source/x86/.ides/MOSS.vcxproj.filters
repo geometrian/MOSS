@@ -7,17 +7,8 @@
     <Filter Include="source_moss\kernel">
       <UniqueIdentifier>{9cbf488b-739b-4917-b111-bd956eff554c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="source_moss\kernel\ata">
-      <UniqueIdentifier>{a8aa6293-5d02-4f1a-b372-442ce316b72c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="source_moss\kernel\boot">
       <UniqueIdentifier>{1bda608b-b9f9-4e1a-bfb8-a3bcd96fb83d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="source_moss\kernel\fs">
-      <UniqueIdentifier>{d3b6e2f1-d2e1-453e-a185-f7bdd7547d44}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="source_moss\kernel\fs\ext2">
-      <UniqueIdentifier>{91eb9018-96b9-4bcd-aa6e-e6c867262cec}</UniqueIdentifier>
     </Filter>
     <Filter Include="source_moss\kernel\graphics">
       <UniqueIdentifier>{f78fd928-af19-46f0-a83b-307a4e214733}</UniqueIdentifier>
@@ -64,14 +55,23 @@
     <Filter Include="source_moss\grub">
       <UniqueIdentifier>{08a35c83-8c5c-4c19-b431-8f0a04e9165e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="source_moss\kernel\disk">
+      <UniqueIdentifier>{d3b6e2f1-d2e1-453e-a185-f7bdd7547d44}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source_moss\kernel\disk\ata">
+      <UniqueIdentifier>{a8aa6293-5d02-4f1a-b372-442ce316b72c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source_moss\kernel\disk\filesystems">
+      <UniqueIdentifier>{e85fa722-ca7e-48d7-978b-5c8c98891b46}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source_moss\kernel\disk\filesystems\ext2">
+      <UniqueIdentifier>{91eb9018-96b9-4bcd-aa6e-e6c867262cec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source_moss\kernel\disk\filesystems\fat">
+      <UniqueIdentifier>{d8a38e5a-9133-480c-b8fc-4a0980c8a0f6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\source_moss\kernel\fs\ext2\block.cpp">
-      <Filter>source_moss\kernel\fs\ext2</Filter>
-    </ClCompile>
-    <ClCompile Include="..\source_moss\kernel\fs\ext2\superblock.cpp">
-      <Filter>source_moss\kernel\fs\ext2</Filter>
-    </ClCompile>
     <ClCompile Include="..\source_moss\kernel\graphics\gui\button.cpp">
       <Filter>source_moss\kernel\graphics\gui</Filter>
     </ClCompile>
@@ -186,14 +186,26 @@
     <ClCompile Include="..\source_moss\kernel\interrupt\irq_isr.cpp">
       <Filter>source_moss\kernel\interrupt</Filter>
     </ClCompile>
-    <ClCompile Include="..\source_moss\kernel\ata\bus.cpp">
-      <Filter>source_moss\kernel\ata</Filter>
+    <ClCompile Include="..\source_moss\kernel\disk\filesystems\ext2\block.cpp">
+      <Filter>source_moss\kernel\disk\filesystems\ext2</Filter>
     </ClCompile>
-    <ClCompile Include="..\source_moss\kernel\ata\controller.cpp">
-      <Filter>source_moss\kernel\ata</Filter>
+    <ClCompile Include="..\source_moss\kernel\disk\ata\bus.cpp">
+      <Filter>source_moss\kernel\disk\ata</Filter>
     </ClCompile>
-    <ClCompile Include="..\source_moss\kernel\ata\device.cpp">
-      <Filter>source_moss\kernel\ata</Filter>
+    <ClCompile Include="..\source_moss\kernel\disk\ata\controller.cpp">
+      <Filter>source_moss\kernel\disk\ata</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source_moss\kernel\disk\ata\device.cpp">
+      <Filter>source_moss\kernel\disk\ata</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source_moss\kernel\disk\disk.cpp">
+      <Filter>source_moss\kernel\disk</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source_moss\kernel\disk\filesystems\ext2\superblock.cpp">
+      <Filter>source_moss\kernel\disk\filesystems\ext2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source_moss\kernel\disk\filesystems\ext2\blockgroup.cpp">
+      <Filter>source_moss\kernel\disk\filesystems\ext2</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -202,21 +214,6 @@
     </ClInclude>
     <ClInclude Include="..\source_moss\kernel\boot\multiboot.h">
       <Filter>source_moss\kernel\boot</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\fs\fs.h">
-      <Filter>source_moss\kernel\fs</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\fs\ext2\block.h">
-      <Filter>source_moss\kernel\fs\ext2</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\fs\ext2\ext2.h">
-      <Filter>source_moss\kernel\fs\ext2</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\fs\ext2\inode.h">
-      <Filter>source_moss\kernel\fs\ext2</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\fs\ext2\superblock.h">
-      <Filter>source_moss\kernel\fs\ext2</Filter>
     </ClInclude>
     <ClInclude Include="..\source_moss\kernel\graphics\gui\button.h">
       <Filter>source_moss\kernel\graphics\gui</Filter>
@@ -365,17 +362,44 @@
     <ClInclude Include="..\source_moss\kernel\interrupt\irq_isr.h">
       <Filter>source_moss\kernel\interrupt</Filter>
     </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\ata\bus.h">
-      <Filter>source_moss\kernel\ata</Filter>
+    <ClInclude Include="..\source_moss\kernel\disk\filesystems\ext2\block.h">
+      <Filter>source_moss\kernel\disk\filesystems\ext2</Filter>
     </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\ata\controller.h">
-      <Filter>source_moss\kernel\ata</Filter>
+    <ClInclude Include="..\source_moss\kernel\disk\filesystems\ext2\ext2.h">
+      <Filter>source_moss\kernel\disk\filesystems\ext2</Filter>
     </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\ata\ata.h">
-      <Filter>source_moss\kernel\ata</Filter>
+    <ClInclude Include="..\source_moss\kernel\disk\filesystems\ext2\inode.h">
+      <Filter>source_moss\kernel\disk\filesystems\ext2</Filter>
     </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\ata\device.h">
-      <Filter>source_moss\kernel\ata</Filter>
+    <ClInclude Include="..\source_moss\kernel\disk\ata\bus.h">
+      <Filter>source_moss\kernel\disk\ata</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\kernel\disk\ata\controller.h">
+      <Filter>source_moss\kernel\disk\ata</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\kernel\disk\ata\device.h">
+      <Filter>source_moss\kernel\disk\ata</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\kernel\disk\ata\ata.h">
+      <Filter>source_moss\kernel\disk\ata</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\kernel\disk\filesystems\filesystem.h">
+      <Filter>source_moss\kernel\disk\filesystems</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\kernel\disk\disk.h">
+      <Filter>source_moss\kernel\disk</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\kernel\disk\filesystems\ext2\superblock.h">
+      <Filter>source_moss\kernel\disk\filesystems\ext2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\kernel\disk\filesystems\ext2\blockgroup.h">
+      <Filter>source_moss\kernel\disk\filesystems\ext2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\kernel\disk\filesystems\ext2\common.h">
+      <Filter>source_moss\kernel\disk\filesystems\ext2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\kernel\disk\filesystems\fat\fat.h">
+      <Filter>source_moss\kernel\disk\filesystems\fat</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

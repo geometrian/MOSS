@@ -2,11 +2,11 @@
 
 #include "../mossc/_misc.h"
 
-#include "ata/controller.h"
+#include "disk/ata/controller.h"
+#include "disk/filesystems/ext2/ext2.h"
+#include "disk/disk.h"
 
 #include "boot/multiboot.h"
-
-#include "fs/ext2/ext2.h"
 
 #include "graphics/gui/manager.h"
 #include "graphics/vesa/controller.h"
@@ -76,9 +76,9 @@ extern "C" void kernel_entry(unsigned long magic, unsigned long addr) {
 		Input::Devices::ControllerPS2 controller_ps2;
 		kernel->controller_ps2 = &controller_ps2;
 	#endif
-	#if 1 //Set up ATA
+	#if 1 //Set up ATA and hard disk
 		kernel->write("Setting up ATA controller\n");
-		ATA::Controller controller_ata;
+		Disk::ATA::Controller controller_ata;
 		kernel->controller_ata = &controller_ata;
 		controller_ata.print(1);
 	#endif
@@ -91,10 +91,19 @@ extern "C" void kernel_entry(unsigned long magic, unsigned long addr) {
 		kernel->write("Enabling hardware interrupts\n");
 		MOSS::Interrupts::enable_hw_int();
 	#endif
-
-	//Must come after setting up ATA and after enabling interrupts
-	//FS::InterfaceFileSystemEXT2 fs;
-	//while (true);
+	#if 1 //Set up HDD representation (note must come after ATA and enable interrupts)
+		kernel->write("Setting up hard disk drive\n");
+		Disk::HardDiskDrive disk(&controller_ata, 0,0);
+		kernel->disk = &disk;
+		disk.print(1);
+	#endif
+	#if 1 //Set up file system representation (note must come after ATA, enable interrupts, and HDD representation)
+		kernel->write("Setting up file system\n");
+		Disk::FileSystem::FileSystemExt2 filesystem(disk.partitions[0]);
+		kernel->filesystem = &filesystem;
+		//kernel->filesystem->print();
+		//while (true);
+	#endif
 
 	/*kernel->write("float a\n");
 	float a = 1.0f;
@@ -117,7 +126,7 @@ extern "C" void kernel_entry(unsigned long magic, unsigned long addr) {
 	Graphics::GUI::Manager gui;
 	kernel->gui = &gui;
 
-	#if 1
+	#if 0
 		uint8_t buffer[512];
 		kernel->write("Reading bootsector from HDD . . .\n");
 		kernel->controller_ata->read_sectors(buffer, 0,1);

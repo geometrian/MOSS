@@ -1,47 +1,44 @@
 #pragma once
 
-#include "../../../includes.h"
+#include "../../../../includes.h"
 
-#include "../fs.h"
+//#include "../../../../mossc/cstring"
 
-#include "../../../mossc/cstring"
+#include "../../../kernel.h"
 
-#include "../../kernel.h"
+#include "../filesystem.h"
 
+#include "common.h"
 #include "superblock.h"
 
 
-namespace MOSS { namespace FS {
+namespace MOSS { namespace Disk { namespace FileSystem {
 
 
-//http://wiki.osdev.org/Ext2
-
-typedef uint32_t addrblock; //direct pointer
+/*typedef uint32_t addrblock; //direct pointer
 typedef uint32_t addrblocki; //indirect pointer
 typedef uint32_t addrblockii; //doubly indirect pointer
 typedef uint32_t addrblockiii; //triply indirect pointer
 typedef uint32_t addrgroup;
 typedef uint32_t addrinode;
 
-class Superblock;
-
-uint32_t get_lba(const Superblock* superblock, addrblock addr) {
+uint32_t get_lba(Superblock const* superblock, addrblock addr) {
 	return addr * superblock->block_size/512;
 }
-uint32_t get_blockgroup(const Superblock* superblock, addrinode addr) {
+uint32_t get_blockgroup(Superblock const* superblock, addrinode addr) {
 	return (addr - 1) / superblock->data.blockgroup_num_inodes; //remember is 1-indexed
-}
+}*/
 
 //Does not necessarily fit into one block, so it doesn't subclass BlockBase.
-class BlockGroupDescriptorTable final {
+/*class BlockGroupDescriptorTable final {
 	public:
 		const Superblock*const superblock;
 
 		class BlockGroupDescriptor { public:
 			//http://wiki.osdev.org/Ext2#Block_Group_Descriptor
-			addrblock bitmap_usage_block;
-			addrblock bitmap_usage_inode;
-			addrblock inode_table;
+			BlockAddr bitmap_usage_block;
+			BlockAddr bitmap_usage_inode;
+			BlockAddr inode_table;
 			uint16_t num_unallocated_blocks;
 			uint16_t num_unallocated_inodes;
 			uint16_t num_directories;
@@ -85,24 +82,26 @@ class BlockGroupDescriptorTable final {
 		inline ~BlockGroupDescriptorTable(void) {
 			delete [] groups;
 		}
-};
+};*/
 
-//http://www.nongnu.org/ext2-doc/ext2.html#DISK-ORGANISATION
-class InterfaceFileSystemEXT2 final : public InterfaceFileSystemBase {
+class FileSystemExt2 final : public FileSystemBase {
 	private:
-		Superblock superblock;
-		BlockGroupDescriptorTable* blockgroup_descriptor_table;
+		Superblock* _superblock;
+		//BlockGroupDescriptorTable* _blockgroup_descriptor_table;
 
 	public:
-		InterfaceFileSystemEXT2(void) : superblock() {
-			kernel->write("Setting up ext2 filesystem!\n");
-			superblock.print();
-			//blockgroup_descriptor_table = new BlockGroupDescriptorTable(&superblock);
+		explicit FileSystemExt2(Partition* partition) : FileSystemBase(partition) {
+			_superblock = new Superblock(this);
+			_superblock->print();
+
+			//_blockgroup_descriptor_table = new BlockGroupDescriptorTable(&superblock);
 		}
-		~InterfaceFileSystemEXT2(void) {
-			//delete blockgroup_descriptor_table;
+		virtual ~FileSystemExt2(void) {
+			//delete _blockgroup_descriptor_table;
+
+			delete _superblock;
 		}
 };
 
 
-}}
+}}}

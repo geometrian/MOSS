@@ -1,11 +1,11 @@
 #pragma once
 
-#include "../../includes.h"
+#include "../../../includes.h"
 
 #include "ata.h"
 
 
-namespace MOSS { namespace ATA {
+namespace MOSS { namespace Disk { namespace ATA {
 
 
 class Controller;
@@ -75,7 +75,7 @@ class Bus final {
 		//void command_flushcache(int device_index);
 		bool command_identify(int device_index, uint8_t data_buffer[512]);
 		//Read up to 256 sectors starting at "lba" into "data_buffer".
-		void command_readsectors(int device_index, uint8_t* data_buffer, uint64_t lba,int num_sectors);
+		void command_readsectors(int device_index, uint8_t* data_buffer, uint64_t absolute_lba,int num_sectors);
 		//void command_writesectors(int device_index);
 
 		void handle_irq(void);
@@ -91,4 +91,4 @@ class Bus final {
 };
 
 
-}}
+}}}

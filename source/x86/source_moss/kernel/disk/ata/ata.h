@@ -1,9 +1,9 @@
 #pragma once
 
-#include "../../includes.h"
+#include "../../../includes.h"
 
 
-namespace MOSS { namespace ATA {
+namespace MOSS { namespace Disk { namespace ATA {
 
 
 //Each disk controller chip has probably at least two ATA buses/channels ("primary" and "secondary").
@@ -93,4 +93,4 @@ namespace Write {
 }
 
 
-}}
+}}}

@@ -1,7 +1,7 @@
 #include "irq_isr.h"
 
-#include "../ata/bus.h"
-#include "../ata/controller.h"
+#include "../disk/ata/bus.h"
+#include "../disk/ata/controller.h"
 #include "../input/devices/controller_ps2.h"
 #include "../input/devices/interface_device_ps2.h"
 #include "../kernel.h"
