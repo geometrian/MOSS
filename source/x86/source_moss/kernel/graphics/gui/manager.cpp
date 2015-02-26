@@ -13,41 +13,41 @@ namespace MOSS { namespace Graphics { namespace GUI {
 
 
 Manager::Manager(void) {
-	mouse = new Mouse();
+	_mouse = new Mouse();
 }
 Manager::~Manager(void) {
-	delete mouse;
+	delete _mouse;
 }
 
 void Manager::update(void) {
-	for (int i=0;i<frames.size;++i) {
-		if (!frames[i]->alive) {
-			delete frames[i];
-			frames.remove(i);
+	for (auto iter=_frames.cbegin(); iter!=_frames.cend(); ++iter) {
+		if (!((*iter)->alive)) {
+			delete *iter;
+			~iter;
 		}
 	}
 }
 
 void Manager::handle_mouse(Input::Mouse::   EventMouseMove const& event) {
-	mouse->x = event.x;
-	mouse->y = event.y;
+	_mouse->x = event.x;
+	_mouse->y = event.y;
 
-	for (int i=0;i<frames.size;++i) {
-		if (frames[i]->handle_mouse(event)) break;
+	for (auto iter=_frames.cbegin(); iter!=_frames.cend(); ++iter) {
+		if ((*iter)->handle_mouse(event)) break;
 	}
 }
 void Manager::handle_mouse(Input::Mouse::  EventMouseClick const& event) {
-	mouse->buttons[event.index] =  true;
+	_mouse->buttons[event.index] =  true;
 
-	for (int i=0;i<frames.size;++i) {
-		if (frames[i]->handle_mouse(event)) break;
+	for (auto iter=_frames.cbegin(); iter!=_frames.cend(); ++iter) {
+		if ((*iter)->handle_mouse(event)) break;
 	}
 }
 void Manager::handle_mouse(Input::Mouse::EventMouseUnclick const& event) {
-	mouse->buttons[event.index] = false;
+	_mouse->buttons[event.index] = false;
 
-	for (int i=0;i<frames.size;++i) {
-		if (frames[i]->handle_mouse(event)) break;
+	for (auto iter=_frames.cbegin(); iter!=_frames.cend(); ++iter) {
+		if ((*iter)->handle_mouse(event)) break;
 	}
 }
 
@@ -55,17 +55,17 @@ void Manager::add_frame(MOSST::String const& title, int x,int y,int w,int h) {
 	Frame* frame = new Frame(nullptr, x,y,w,h);
 	frame->set_title(title);
 
-	frames.insert_back(frame);
+	_frames.insert_back(frame);
 }
 
 void Manager::draw(VESA::Framebuffer* framebuffer) const {
 	framebuffer->draw_fill(Color(0,0,0));
 
-	for (int i=0;i<frames.size;++i) {
-		frames[i]->draw(framebuffer);
+	for (auto iter=_frames.cbegin(); iter!=_frames.cend(); ++iter) {
+		(*iter)->draw(framebuffer);
 	}
 
-	mouse->draw(framebuffer);
+	_mouse->draw(framebuffer);
 }
 
 

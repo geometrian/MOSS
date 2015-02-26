@@ -16,7 +16,7 @@
 
 
 function wait_for_enter() {
-   read -p "  <Press ENTER to continue . . .>"
+	read -p "  <Press ENTER to continue . . .>"
 }
 
 
@@ -26,6 +26,7 @@ export remake_disk=0
 export remake_partitions=0
 export remake_fs=0
 export remake_grub=0
+export fs_ext2_fat=1 #0 is Ext2, 1 is FAT 32
 
 #Note: on changing these, change also the Bochs configuration files.
 export CYLINDERS=100
@@ -53,12 +54,22 @@ then
 	sudo parted ~/moss_disk_temp mktable msdos
 
 	echo "######## Making partition thereon . . ."
-	cat <<-EOF | sudo parted  ~/moss_disk_temp  mkpart
-	primary
-	ext2
-	1
-	-0
-	EOF
+	if [ $fs_ext2_fat -eq 0 ]
+	then
+		cat <<-EOF | sudo parted  ~/moss_disk_temp  mkpart
+		primary
+		ext2
+		1
+		-0
+		EOF
+	else
+		cat <<-EOF | sudo parted  ~/moss_disk_temp  mkpart
+		primary
+		fat32
+		1
+		-0
+		EOF
+	fi
 
 	wait_for_enter
 else
@@ -78,9 +89,13 @@ if [ $remake_fs -eq 1 ]
 then
 	echo "######## Making a filesystem . . ."
 
-	#"m" is reserved blocks percentage.
-	sudo mkfs  -t ext2  -m 1  -v  /dev/mapper/loop0p1
-	#sudo mkfs  -t vfat  -F 32  /dev/mapper/loop0p1
+	if [ $fs_ext2_fat -eq 0 ]
+	then
+		#"m" is reserved blocks percentage.
+		sudo mkfs  -t ext2  -m 1  -v  /dev/mapper/loop0p1
+	else
+		sudo mkfs  -t vfat  -F 32  /dev/mapper/loop0p1
+	fi
 	#Note: may have to unmount loops, restart, and then remount loops here.  See http://forum.osdev.org/viewtopic.php?f=1&t=26907
 
 	wait_for_enter
@@ -98,8 +113,13 @@ fi
 echo "######## Filling disk . . ."
 
 #Mount the first partition onto "/mnt"
-sudo mount -t ext2 /dev/mapper/loop0p1 /mnt #If you get an error here, see comment at top of file.
-#sudo mount -t vfat /dev/mapper/loop0p1 /mnt
+#	If you get an error here, see comment at top of file.
+if [ $fs_ext2_fat -eq 0 ]
+then
+	sudo mount -t ext2 /dev/mapper/loop0p1 /mnt
+else
+	sudo mount -t vfat /dev/mapper/loop0p1 /mnt
+fi
 #wait_for_enter
 
 #Set up first partition's /boot directory

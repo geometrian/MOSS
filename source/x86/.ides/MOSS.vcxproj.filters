@@ -70,6 +70,9 @@
     <Filter Include="source_moss\kernel\disk\filesystems\fat">
       <UniqueIdentifier>{d8a38e5a-9133-480c-b8fc-4a0980c8a0f6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="source_moss\kernel\disk\filesystems\lean">
+      <UniqueIdentifier>{47c07fb2-34a3-46ca-829d-d6b913152056}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\source_moss\kernel\graphics\gui\button.cpp">
@@ -206,6 +209,15 @@
     </ClCompile>
     <ClCompile Include="..\source_moss\kernel\disk\filesystems\ext2\blockgroup.cpp">
       <Filter>source_moss\kernel\disk\filesystems\ext2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source_moss\kernel\disk\filesystems\filesystem.cpp">
+      <Filter>source_moss\kernel\disk\filesystems</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source_moss\kernel\disk\filesystems\fat\fat.cpp">
+      <Filter>source_moss\kernel\disk\filesystems\fat</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source_moss\kernel\disk\filesystems\lean\lean.cpp">
+      <Filter>source_moss\kernel\disk\filesystems\lean</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -400,6 +412,9 @@
     </ClInclude>
     <ClInclude Include="..\source_moss\kernel\disk\filesystems\fat\fat.h">
       <Filter>source_moss\kernel\disk\filesystems\fat</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\kernel\disk\filesystems\lean\lean.h">
+      <Filter>source_moss\kernel\disk\filesystems\lean</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -4,6 +4,7 @@
 
 #include "disk/ata/controller.h"
 #include "disk/filesystems/ext2/ext2.h"
+#include "disk/filesystems/fat/fat.h"
 #include "disk/disk.h"
 
 #include "boot/multiboot.h"
@@ -71,7 +72,7 @@ extern "C" void kernel_entry(unsigned long magic, unsigned long addr) {
 		kernel->write("Remapping PIC\n\n");
 		MOSS::Interrupts::PIC::remap(32,40);
 	#endif
-	#if 1 //Set up PS/2 devices
+	#if 0 //Set up PS/2 devices
 		kernel->write("Setting up PS/2 controller\n\n");
 		Input::Devices::ControllerPS2 controller_ps2;
 		kernel->controller_ps2 = &controller_ps2;
@@ -99,10 +100,10 @@ extern "C" void kernel_entry(unsigned long magic, unsigned long addr) {
 	#endif
 	#if 1 //Set up file system representation (note must come after ATA, enable interrupts, and HDD representation)
 		kernel->write("Setting up file system\n");
-		Disk::FileSystem::FileSystemExt2 filesystem(disk.partitions[0]);
+		Disk::FileSystem::FileSystemFAT filesystem(disk.partitions[0]);
 		kernel->filesystem = &filesystem;
-		//kernel->filesystem->print();
-		//while (true);
+		kernel->filesystem->print();
+		while (true);
 	#endif
 
 	/*kernel->write("float a\n");

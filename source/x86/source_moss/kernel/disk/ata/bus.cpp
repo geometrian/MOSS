@@ -227,7 +227,7 @@ bool Bus::command_identify(int device_index, uint8_t data_buffer[512]) {
 		//"Then send the IDENTIFY command (0xEC) to the Command IO port (0x1F7)."
 		_current_command                               = 0xEC;
 		_write_uint8(Write::RegisterOffset::    COMMAND, 0xEC);
-		
+
 		//"Then read the Status port (0x1F7) again."
 		for (int i=0;i<5;++i) IO::wait();
 		_StatusByte status = _read_uint8(Read::RegisterOffset::STATUS_REGULAR);

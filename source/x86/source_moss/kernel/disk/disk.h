@@ -2,6 +2,8 @@
 
 #include "../../includes.h"
 
+#include "../../mosst/linked_list.h"
+
 
 namespace MOSS { namespace Disk {
 
@@ -14,6 +16,27 @@ namespace ATA {
 //See http://wiki.osdev.org/Partition_Table#MBR
 
 class HardDiskDrive;
+class Partition;
+
+class LazySector final {
+	friend class HardDiskDrive;
+	public:
+		HardDiskDrive*const drive;
+		Partition* const partition;
+
+		uint64_t const absolute_lba;
+		uint64_t const relative_lba;
+
+		uint8_t data[512];
+
+	private:
+		LazySector(HardDiskDrive* drive, Partition* partition, uint64_t absolute_lba);
+	public:
+		inline ~LazySector(void) {}
+
+		LazySector* get_previous(void) const;
+		LazySector*     get_next(void) const;
+};
 
 class Partition final {
 	public:
@@ -29,7 +52,9 @@ class Partition final {
 				uint16_t starting_cylinder : 10;
 			} __attribute__((packed));
 
-			uint8_t system_id;
+			//Hint for the filesystem type (e.g. 0x0B or 0x0C for FAT32).  See:
+			//	http://www.win.tue.nl/~aeb/partitions/partition_types-1.html
+			uint8_t type_code;
 
 			//Don't worry about reading this; use ".relative_sector" and ".total_sectors" instead.
 			uint8_t ending_head;
@@ -39,7 +64,7 @@ class Partition final {
 			} __attribute__((packed));
 
 			uint32_t relative_sector; //Relative Sector (to start of partition; also equals the partition's starting LBA value)
-			uint32_t   total_sectors; //Total Sectors in partition 
+			uint32_t   total_sectors; //Total number of sectors in partition
 		} __attribute__((packed));
 		static_assert(sizeof(PartitionTableEntry)==16,"PartitionTableEntry is the wrong size!");
 
@@ -49,6 +74,8 @@ class Partition final {
 	public:
 		inline Partition(HardDiskDrive* drive, PartitionTableEntry* entry,int index) : drive(drive), entry(entry),index(index) {}
 		inline ~Partition(void) {}
+
+		LazySector* operator[](uint64_t relative_lba) const;
 
 		void  read_sectors(uint8_t*       data_buffer, uint64_t relative_lba,int num_sectors) const;
 		void write_sectors(uint8_t const* data_buffer, uint64_t relative_lba,int num_sectors);
@@ -79,9 +106,13 @@ class HardDiskDrive final {
 		uint64_t const _HPC; //maximum number of heads per cylinder (reported by disk drive, typically 16 for 28-bit LBA)
 		uint64_t const _SPT; //maximum number of sectors per track (reported by disk drive, typically 63 for 28-bit LBA)
 
+		MOSST::LinkedList<LazySector*> _open_sectors;
+
 	public:
 		HardDiskDrive(ATA::Controller* controller, int index_bus,int index_device);
 		~HardDiskDrive(void);
+
+		LazySector* operator[](uint64_t absolute_lba);
 
 		void  read_sectors(uint8_t*       data_buffer, uint64_t absolute_lba,int num_sectors) const;
 		void write_sectors(uint8_t const* data_buffer, uint64_t absolute_lba,int num_sectors);

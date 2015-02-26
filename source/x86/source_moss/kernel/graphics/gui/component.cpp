@@ -18,10 +18,9 @@ ComponentBase::ComponentBase(ComponentBase* parent, const Rect& rect_component,c
 }
 ComponentBase::~ComponentBase(void) {
 	if (parent!=nullptr) {
-		//TODO: this algorithm actually has n^2 complexity.
-		for (int i=0;i<parent->children->size;++i) {
-			if ((*parent->children)[i]==this) {
-				parent->children->remove(i);
+		for (auto iter=parent->children->cbegin(); iter!=parent->children->cend(); ++iter) {
+			if (*iter==this) {
+				~iter;
 				break;
 			}
 		}
@@ -30,20 +29,20 @@ ComponentBase::~ComponentBase(void) {
 }
 
 bool ComponentBase::handle_mouse(const Input::Mouse::EventMouseMove& event) {
-	for (int i=0;i<children->size;++i) {
-		if ((*children)[i]->handle_mouse(event)) return true;
+	for (auto iter=parent->children->cbegin(); iter!=parent->children->cend(); ++iter) {
+		if ((*iter)->handle_mouse(event)) return true;
 	}
 	return false;
 }
 bool ComponentBase::handle_mouse(const Input::Mouse::EventMouseClick& event) {
-	for (int i=0;i<children->size;++i) {
-		if ((*children)[i]->handle_mouse(event)) return true;
+	for (auto iter=parent->children->cbegin(); iter!=parent->children->cend(); ++iter) {
+		if ((*iter)->handle_mouse(event)) return true;
 	}
 	return false;
 }
 bool ComponentBase::handle_mouse(const Input::Mouse::EventMouseUnclick& event) {
-	for (int i=0;i<children->size;++i) {
-		if ((*children)[i]->handle_mouse(event)) return true;
+	for (auto iter=parent->children->cbegin(); iter!=parent->children->cend(); ++iter) {
+		if ((*iter)->handle_mouse(event)) return true;
 	}
 	return false;
 }

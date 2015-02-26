@@ -17,7 +17,7 @@ class InterfaceDevicePS2Base {
 			DeviceMouseScroll, //Mouse with scrollwheel
 			DeviceMouse5, //Five-button mouse
 			DeviceKeyboardMF2, //MF2 keyboard
-			DeviceKeyboardMF2Trans, //MF2 keyboard with (scancode set?) translation enabled in the PS/Controller (not possible for the second PS/2 port) 
+			DeviceKeyboardMF2Trans, //MF2 keyboard with (scancode set?) translation enabled in the PS/Controller (not possible for the second PS/2 port)
 		};
 
 		ControllerPS2*const controller;

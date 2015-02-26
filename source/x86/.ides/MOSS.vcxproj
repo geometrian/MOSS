@@ -27,6 +27,9 @@
     <ClCompile Include="..\source_moss\kernel\disk\filesystems\ext2\block.cpp" />
     <ClCompile Include="..\source_moss\kernel\disk\filesystems\ext2\blockgroup.cpp" />
     <ClCompile Include="..\source_moss\kernel\disk\filesystems\ext2\superblock.cpp" />
+    <ClCompile Include="..\source_moss\kernel\disk\filesystems\fat\fat.cpp" />
+    <ClCompile Include="..\source_moss\kernel\disk\filesystems\filesystem.cpp" />
+    <ClCompile Include="..\source_moss\kernel\disk\filesystems\lean\lean.cpp" />
     <ClCompile Include="..\source_moss\kernel\graphics\bg.cpp" />
     <ClCompile Include="..\source_moss\kernel\graphics\font.cpp" />
     <ClCompile Include="..\source_moss\kernel\graphics\gui\button.cpp" />
@@ -82,6 +85,7 @@
     <ClInclude Include="..\source_moss\kernel\disk\filesystems\ext2\superblock.h" />
     <ClInclude Include="..\source_moss\kernel\disk\filesystems\fat\fat.h" />
     <ClInclude Include="..\source_moss\kernel\disk\filesystems\filesystem.h" />
+    <ClInclude Include="..\source_moss\kernel\disk\filesystems\lean\lean.h" />
     <ClInclude Include="..\source_moss\kernel\graphics\bg.h" />
     <ClInclude Include="..\source_moss\kernel\graphics\color.h" />
     <ClInclude Include="..\source_moss\kernel\graphics\font.h" />

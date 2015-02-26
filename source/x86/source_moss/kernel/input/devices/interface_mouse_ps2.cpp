@@ -47,7 +47,7 @@ bool InterfaceDevicePS2Mouse::handle_irq(void) /*override*/ {
 			received_data.byte2 = byte;
 			++mouse_cycle;
 			break;
-		case 2: 
+		case 2:
 			received_data.byte3 = byte;
 			_handle_current_packet();
 			mouse_cycle = 0;

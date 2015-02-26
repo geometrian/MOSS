@@ -10,8 +10,12 @@ namespace MOSS { namespace Disk {
 namespace FileSystem {
 
 
+class FileSystemBase;
+
 class ObjectBase {
 	public:
+		FileSystemBase*const filesystem;
+
 		MOSST::String const path;
 
 		enum Type {
@@ -20,13 +24,13 @@ class ObjectBase {
 		} const type;
 
 	protected:
-		inline ObjectBase(char const* path, Type type) : path(path), type(type) {}
+		inline ObjectBase(FileSystemBase* filesystem, char const* path, Type type) : filesystem(filesystem), path(path), type(type) {}
 	public:
 		inline virtual ~ObjectBase(void) {}
 };
 class ObjectFile final : public ObjectBase {
 	public:
-		inline explicit ObjectFile(char const* path) : ObjectBase(path,TYPE_FILE) {}
+		inline ObjectFile(FileSystemBase* filesystem, char const* path) : ObjectBase(filesystem,path,TYPE_FILE) {}
 		inline virtual ~ObjectFile(void) {}
 
 		MOSST::Vector<uint8_t>* get_new_data(void) const {
@@ -37,19 +41,15 @@ class ObjectFile final : public ObjectBase {
 			assert_term(false,"Not implemented!");
 		}
 };
-
 class ObjectDirectory final : public ObjectBase {
 	public:
 		MOSST::Vector<MOSST::String> paths_children;
 
 	public:
-		inline explicit ObjectDirectory(char const* path) : ObjectBase(path,TYPE_DIRECTORY) {}
+		inline ObjectDirectory(FileSystemBase* filesystem, char const* path) : ObjectBase(filesystem,path,TYPE_DIRECTORY) {}
 		inline virtual ~ObjectDirectory(void) {}
 
-		ObjectBase* get_new_child(MOSST::String const& /*path_child*/) const {
-			assert_term(false,"Not implemented!");
-			return nullptr;
-		}
+		ObjectBase* get_new_child(MOSST::String const& path_child) const;
 };
 
 class FileSystemBase {
@@ -60,7 +60,7 @@ class FileSystemBase {
 
 	protected:
 		inline explicit FileSystemBase(Partition* partition) : partition(partition) {
-			root = new ObjectDirectory("/");
+			root = new ObjectDirectory(this,"/");
 		}
 	public:
 		inline virtual ~FileSystemBase(void) {
@@ -71,25 +71,10 @@ class FileSystemBase {
 		//virtual File* read_new(char const* path) = 0;
 		//virtual void write(const File* file) = 0;
 
+		virtual ObjectBase* get_new_child(ObjectDirectory const* directory, MOSST::String const& path_child) const = 0;
+
 	private:
-		void _helper_print(ObjectDirectory* directory, int depth) const {
-			for (int i=0;i<directory->paths_children.size;++i) {
-				ObjectBase* child = directory->get_new_child(directory->paths_children[i]);
-
-				for (int i=0;i<depth;++i) kernel->write("  ");
-				kernel->write("\"%s\"\n",child->path.c_str());
-
-				switch (child->type) {
-					case ObjectBase::Type::TYPE_FILE:
-						break;
-					case ObjectBase::Type::TYPE_DIRECTORY:
-						_helper_print(static_cast<ObjectDirectory*>(child),depth+1);
-						break;
-				}
-
-				delete child;
-			}
-		}
+		void _helper_print(ObjectDirectory* directory, int depth) const;
 	public:
 		inline void print(void) const { _helper_print(root,0); }
 };

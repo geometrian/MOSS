@@ -8,6 +8,20 @@
 namespace MOSS { namespace Disk {
 
 
+LazySector::LazySector(HardDiskDrive* drive, Partition* partition, uint64_t absolute_lba) :
+	drive(drive), partition(partition),
+	absolute_lba(absolute_lba), relative_lba(absolute_lba-partition->entry->relative_sector)
+{
+	assert_term(absolute_lba>=partition->entry->relative_sector,"Implementation error!");
+	drive->read_sectors(data, absolute_lba,1);
+}
+
+LazySector* LazySector::get_previous(void) const { assert_term(absolute_lba>0,"No previous sector exists!"); return (*drive)[absolute_lba-1]; }
+LazySector* LazySector::    get_next(void) const {                                                           return (*drive)[absolute_lba+1]; }
+
+
+LazySector* Partition::operator[](uint64_t relative_lba) const { return (*drive)[entry->relative_sector+relative_lba]; }
+
 void Partition:: read_sectors(uint8_t*       data_buffer, uint64_t relative_lba,int num_sectors) const {
 	assert_term(
 		relative_lba+num_sectors <= entry->total_sectors,
@@ -57,9 +71,39 @@ HardDiskDrive::HardDiskDrive(ATA::Controller* controller, int index_bus,int inde
 	}
 }
 HardDiskDrive::~HardDiskDrive(void) {
+	while (_open_sectors.size>0) {
+		delete _open_sectors.remove_back();
+	}
+
 	for (int i=0;i<4;++i) {
 		if (partitions[i]!=nullptr) delete partitions[i];
 	}
+}
+
+LazySector* HardDiskDrive::operator[](uint64_t absolute_lba) {
+	for (auto iter=_open_sectors.cbegin(); iter!=_open_sectors.cend(); ++iter) {
+		if ((*iter)->absolute_lba == absolute_lba) return *iter;
+	}
+
+	Partition* inside;
+	int i = 0;
+	LOOP:
+		inside = partitions[i];
+		if (!( absolute_lba>=inside->entry->relative_sector && absolute_lba<inside->entry->relative_sector+inside->entry->total_sectors )) {
+			++i;
+			assert_term(i<4,"Invalid LBA \"%d\"!  Not in range of partitions!",static_cast<int>(absolute_lba));
+			goto LOOP;
+		}
+
+	LazySector* result = new LazySector(this,inside,absolute_lba);
+	_open_sectors.insert_back(result);
+
+	if (_open_sectors.size>4) {
+		LazySector* closing = _open_sectors.remove_front();
+		delete closing;
+	}
+
+	return result;
 }
 
 void HardDiskDrive:: read_sectors(uint8_t*         data_buffer,   uint64_t   absolute_lba,  int   num_sectors  ) const {

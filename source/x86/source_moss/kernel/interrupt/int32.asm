@@ -77,7 +77,7 @@ section .text
 		lgdt [REBASE(gdt16_ptr)]               ; load 16bit gdt pointer
 		lea  esi, [esp+0x24]                   ; set position of intnum on 32bit stack
 		lodsd                                  ; read intnum into eax
-		mov  [REBASE(ib)], al                  ; set intrrupt immediate byte from our arguments 
+		mov  [REBASE(ib)], al                  ; set intrrupt immediate byte from our arguments
 		mov  esi, [esi]                        ; read regs pointer in esi as source
 		mov  edi, STACK16                      ; set destination to 16bit stack
 		mov  ecx, regs16_t_size                ; set copy size to our struct size
@@ -145,7 +145,7 @@ section .text
 		popa                                   ; restore registers
 		sti                                    ; enable interrupts
 		ret                                    ; return to caller
-		
+
 	resetpic:                                  ; reset's 8259 master and slave pic vectors
 		push ax                                ; expects bh = master vector, bl = slave vector
 		mov  al, 0x11                          ; 0x11 = ICW1_INIT | ICW1_ICW4
@@ -164,27 +164,27 @@ section .text
 		out  0xA1, al                          ; send ICW4 to slave pic
 		pop  ax                                ; restore ax from stack
 		ret                                    ; return to caller
-		
+
 	stack32_ptr:                               ; address in 32bit stack after we
 		dd 0x00000000                          ;   save all general purpose registers
-		
+
 	idt32_ptr:                                 ; IDT table pointer for 32bit access
 		dw 0x0000                              ; table limit (size)
 		dd 0x00000000                          ; table base address
-		
+
 	gdt32_ptr:                                 ; GDT table pointer for 32bit access
 		dw 0x0000                              ; table limit (size)
 		dd 0x00000000                          ; table base address
-		
+
 	idt16_ptr:                                 ; IDT table pointer for 16bit access
 		dw 0x03FF                              ; table limit (size)
 		dd 0x00000000                          ; table base address
-		
+
 	gdt16_base:                                ; GDT descriptor table
 		.null:                                 ; 0x00 - null segment descriptor
 			dd 0x00000000                      ; must be left zero'd
 			dd 0x00000000                      ; must be left zero'd
-			
+
 		.code32:                               ; 0x01 - 32bit code segment descriptor 0xFFFFFFFF
 			dw 0xFFFF                          ; limit  0:15
 			dw 0x0000                          ; base   0:15
@@ -192,7 +192,7 @@ section .text
 			db 0x9A                            ; present, iopl/0, code, execute/read
 			db 0xCF                            ; 4Kbyte granularity, 32bit selector; limit 16:19
 			db 0x00                            ; base  24:31
-			
+
 		.data32:                               ; 0x02 - 32bit data segment descriptor 0xFFFFFFFF
 			dw 0xFFFF                          ; limit  0:15
 			dw 0x0000                          ; base   0:15
@@ -200,7 +200,7 @@ section .text
 			db 0x92                            ; present, iopl/0, data, read/write
 			db 0xCF                            ; 4Kbyte granularity, 32bit selector; limit 16:19
 			db 0x00                            ; base  24:31
-			
+
 		.code16:                               ; 0x03 - 16bit code segment descriptor 0x000FFFFF
 			dw 0xFFFF                          ; limit  0:15
 			dw 0x0000                          ; base   0:15
@@ -208,7 +208,7 @@ section .text
 			db 0x9A                            ; present, iopl/0, code, execute/read
 			db 0x0F                            ; 1Byte granularity, 16bit selector; limit 16:19
 			db 0x00                            ; base  24:31
-			
+
 		.data16:                               ; 0x04 - 16bit data segment descriptor 0x000FFFFF
 			dw 0xFFFF                          ; limit  0:15
 			dw 0x0000                          ; base   0:15
@@ -216,9 +216,9 @@ section .text
 			db 0x92                            ; present, iopl/0, data, read/write
 			db 0x0F                            ; 1Byte granularity, 16bit selector; limit 16:19
 			db 0x00                            ; base  24:31
-			
+
 	gdt16_ptr:                                 ; GDT table pointer for 16bit access
 		dw gdt16_ptr - gdt16_base - 1          ; table limit (size)
 		dd gdt16_base                          ; table base address
-		
+
 	int32_end:                                 ; end marker (so we can copy the code)

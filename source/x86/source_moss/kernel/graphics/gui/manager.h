@@ -25,9 +25,9 @@ class Mouse;
 
 class Manager final {
 	private:
-		MOSST::LinkedList<Frame*> frames;
+		MOSST::LinkedList<Frame*> _frames;
 
-		Mouse* mouse;
+		Mouse* _mouse;
 
 	public:
 		Manager(void);

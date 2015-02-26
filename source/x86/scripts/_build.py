@@ -24,7 +24,7 @@ else:
     only_recompile = ["gui"]
 
 #TODO: do we need -nostartfiles?
-args_compile = "-ffreestanding -O0 -Wall -Wextra -fno-exceptions -fno-rtti -std=c++11"
+args_compile = "-ffreestanding -O0 -Wall -Wextra -Wno-packed-bitfield-compat -fno-exceptions -fno-rtti -std=c++11"
 args_link = "-ffreestanding -O0 -nostdlib"
 
 
