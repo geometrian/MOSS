@@ -13,10 +13,17 @@ namespace ATA {
 }
 
 
+typedef uint64_t AbsoluteLBA;
+typedef uint64_t RelativeLBA;
+
 //See http://wiki.osdev.org/Partition_Table#MBR
 
 class HardDiskDrive;
 class Partition;
+
+//The maximum number of open sectors.  Do not use a pointer to a "LazySector" that you obtained more than
+//	this number of times ago.
+#define MOSS_MAX_OPEN_SECTORS 4
 
 class LazySector final {
 	friend class HardDiskDrive;
@@ -24,15 +31,15 @@ class LazySector final {
 		HardDiskDrive*const drive;
 		Partition* const partition;
 
-		uint64_t const absolute_lba;
-		uint64_t const relative_lba;
+		AbsoluteLBA const lba_abs;
+		RelativeLBA const lba_rel;
 
 		uint8_t data[512];
 
 	private:
-		LazySector(HardDiskDrive* drive, Partition* partition, uint64_t absolute_lba);
+		LazySector(HardDiskDrive* drive, Partition* partition, AbsoluteLBA lba);
 	public:
-		inline ~LazySector(void) {}
+		inline ~LazySector(void) { assert_term(false,"Not implemented!"); } //Should write back data to disk!
 
 		LazySector* get_previous(void) const;
 		LazySector*     get_next(void) const;
@@ -75,10 +82,10 @@ class Partition final {
 		inline Partition(HardDiskDrive* drive, PartitionTableEntry* entry,int index) : drive(drive), entry(entry),index(index) {}
 		inline ~Partition(void) {}
 
-		LazySector* operator[](uint64_t relative_lba) const;
+		LazySector* operator[](RelativeLBA lba) const;
 
-		void  read_sectors(uint8_t*       data_buffer, uint64_t relative_lba,int num_sectors) const;
-		void write_sectors(uint8_t const* data_buffer, uint64_t relative_lba,int num_sectors);
+		void  read_sectors(uint8_t*       data_buffer, RelativeLBA lba,int num_sectors) const;
+		void write_sectors(uint8_t const* data_buffer, RelativeLBA lba,int num_sectors);
 
 		void print(int indent) const;
 };
@@ -112,14 +119,14 @@ class HardDiskDrive final {
 		HardDiskDrive(ATA::Controller* controller, int index_bus,int index_device);
 		~HardDiskDrive(void);
 
-		LazySector* operator[](uint64_t absolute_lba);
+		LazySector* operator[](AbsoluteLBA lba);
 
-		void  read_sectors(uint8_t*       data_buffer, uint64_t absolute_lba,int num_sectors) const;
-		void write_sectors(uint8_t const* data_buffer, uint64_t absolute_lba,int num_sectors);
+		void  read_sectors(uint8_t*       data_buffer, AbsoluteLBA lba,int num_sectors) const;
+		void write_sectors(uint8_t const* data_buffer, AbsoluteLBA lba,int num_sectors);
 
 		//https://en.wikipedia.org/wiki/Logical_block_addressing#CHS_conversion
-		uint64_t chs_to_lba(uint64_t cylinder,uint64_t head,uint64_t sector) const;
-		void lba_to_chs(uint64_t absolute_lba, uint64_t*restrict cylinder,uint64_t*restrict head,uint64_t*restrict sector) const;
+		AbsoluteLBA chs_to_lba(uint64_t cylinder,uint64_t head,uint64_t sector) const;
+		void lba_to_chs(AbsoluteLBA lba, uint64_t*restrict cylinder,uint64_t*restrict head,uint64_t*restrict sector) const;
 
 		void print(int indent) const;
 };

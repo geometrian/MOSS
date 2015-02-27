@@ -10,7 +10,7 @@ void*  memcpy(void*restrict destination, void const*restrict source, size_t num)
 	#if 1
 		uint8_t*        dst1 = reinterpret_cast<uint8_t*       >(destination);
 		uint8_t  const* src1 = reinterpret_cast<uint8_t  const*>(     source);
-		assert_term(src1+num<=dst1,"Blocks overlap!");
+		assert_term(src1+num<=dst1 || dst1+num<=src1,"Blocks overlap!");
 
 		for (size_t i=0;i<num;++i) {
 			dst1[i] = src1[i];
@@ -21,7 +21,7 @@ void*  memcpy(void*restrict destination, void const*restrict source, size_t num)
 		uint8_t  const* src1 = reinterpret_cast<uint8_t  const*>(     source);
 		uint64_t*       dst8 = reinterpret_cast<uint64_t*      >(destination);
 		uint64_t const* src8 = reinterpret_cast<uint64_t const*>(     source);
-		assert_term(src1+num<=dst1,"Blocks overlap!");
+		assert_term(src1+num<=dst1 || dst1+num<=src1,"Blocks overlap!");
 
 		size_t i = 0;
 

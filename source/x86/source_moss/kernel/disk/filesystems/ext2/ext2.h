@@ -22,7 +22,7 @@ typedef uint32_t addrblockiii; //triply indirect pointer
 typedef uint32_t addrgroup;
 typedef uint32_t addrinode;
 
-uint32_t get_lba(Superblock const* superblock, addrblock addr) {
+AbsoluteLBA get_lba(Superblock const* superblock, addrblock addr) {
 	return addr * superblock->block_size/512;
 }
 uint32_t get_blockgroup(Superblock const* superblock, addrinode addr) {
@@ -58,7 +58,7 @@ uint32_t get_blockgroup(Superblock const* superblock, addrinode addr) {
 			} else {
 				addr = 1; //must be second block
 			}
-			uint64_t lba = get_lba(superblock,addr);
+			AbsoluteLBA lba = get_lba(superblock,addr);
 
 			groups = new BlockGroupDescriptor[superblock->num_blockgroups];
 			int i = 0;

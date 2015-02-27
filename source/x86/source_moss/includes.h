@@ -1,5 +1,7 @@
 #pragma once
 
+
+//#include <limits>
 //Note cannot be e.g. <cstddef>; cross-compilers evidently do not support that.
 #include <stddef.h>
 #include <stdint.h>

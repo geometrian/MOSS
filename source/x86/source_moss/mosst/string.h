@@ -8,7 +8,7 @@
 namespace MOSST {
 
 
-class String final : Vector<char> {
+class String final : public Vector<char> {
 	public:
 		inline String(void) : Vector() {}
 		String(char const* data); //Note not explicit

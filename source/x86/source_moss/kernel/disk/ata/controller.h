@@ -2,6 +2,8 @@
 
 #include "../../../includes.h"
 
+#include "../disk.h"
+
 
 namespace MOSS { namespace Disk { namespace ATA {
 
@@ -21,7 +23,7 @@ class Controller final {
 		Controller(void);
 		~Controller(void);
 
-		void read_sectors(uint8_t* data_buffer, uint64_t absolute_lba,int num_sectors, int index_bus,int index_device) const;
+		void read_sectors(uint8_t* data_buffer, AbsoluteLBA lba,int num_sectors, int index_bus,int index_device) const;
 
 		void print(int indent) const;
 };

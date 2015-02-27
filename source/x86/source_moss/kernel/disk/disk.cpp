@@ -8,35 +8,35 @@
 namespace MOSS { namespace Disk {
 
 
-LazySector::LazySector(HardDiskDrive* drive, Partition* partition, uint64_t absolute_lba) :
+LazySector::LazySector(HardDiskDrive* drive, Partition* partition, AbsoluteLBA lba) :
 	drive(drive), partition(partition),
-	absolute_lba(absolute_lba), relative_lba(absolute_lba-partition->entry->relative_sector)
+	lba_abs(lba), lba_rel(lba-partition->entry->relative_sector)
 {
-	assert_term(absolute_lba>=partition->entry->relative_sector,"Implementation error!");
-	drive->read_sectors(data, absolute_lba,1);
+	assert_term(lba>=partition->entry->relative_sector,"Implementation error!");
+	drive->read_sectors(data, lba,1);
 }
 
-LazySector* LazySector::get_previous(void) const { assert_term(absolute_lba>0,"No previous sector exists!"); return (*drive)[absolute_lba-1]; }
-LazySector* LazySector::    get_next(void) const {                                                           return (*drive)[absolute_lba+1]; }
+LazySector* LazySector::get_previous(void) const { assert_term(lba_abs>0,"No previous sector exists!"); return (*drive)[lba_abs-1]; }
+LazySector* LazySector::    get_next(void) const {                                                      return (*drive)[lba_abs+1]; }
 
 
-LazySector* Partition::operator[](uint64_t relative_lba) const { return (*drive)[entry->relative_sector+relative_lba]; }
+LazySector* Partition::operator[](RelativeLBA lba) const { return (*drive)[entry->relative_sector+lba]; }
 
-void Partition:: read_sectors(uint8_t*       data_buffer, uint64_t relative_lba,int num_sectors) const {
+void Partition:: read_sectors(uint8_t*       data_buffer, RelativeLBA lba,int num_sectors) const {
 	assert_term(
-		relative_lba+num_sectors <= entry->total_sectors,
+		lba+num_sectors <= entry->total_sectors,
 		"Read (offset %u, sectors %d) requested outside of partition (sectors %u)!",
-		static_cast<uint32_t>(relative_lba), num_sectors, entry->total_sectors
+		static_cast<uint32_t>(lba), num_sectors, entry->total_sectors
 	);
-	drive->read_sectors(data_buffer, entry->relative_sector+relative_lba,num_sectors);
+	drive->read_sectors(data_buffer, entry->relative_sector+lba,num_sectors);
 }
-void Partition::write_sectors(uint8_t const* data_buffer, uint64_t relative_lba,int num_sectors)       {
+void Partition::write_sectors(uint8_t const* data_buffer, RelativeLBA lba,int num_sectors)       {
 	assert_term(
-		relative_lba+num_sectors <= entry->total_sectors,
+		lba+num_sectors <= entry->total_sectors,
 		"Write (offset %u, sectors %d) requested outside of partition (sectors %u)!",
-		static_cast<uint32_t>(relative_lba), num_sectors, entry->total_sectors
+		static_cast<uint32_t>(lba), num_sectors, entry->total_sectors
 	);
-	drive->write_sectors(data_buffer, entry->relative_sector+relative_lba,num_sectors);
+	drive->write_sectors(data_buffer, entry->relative_sector+lba,num_sectors);
 }
 
 void Partition::print(int indent) const {
@@ -80,25 +80,25 @@ HardDiskDrive::~HardDiskDrive(void) {
 	}
 }
 
-LazySector* HardDiskDrive::operator[](uint64_t absolute_lba) {
+LazySector* HardDiskDrive::operator[](AbsoluteLBA lba) {
 	for (auto iter=_open_sectors.cbegin(); iter!=_open_sectors.cend(); ++iter) {
-		if ((*iter)->absolute_lba == absolute_lba) return *iter;
+		if ((*iter)->lba_abs == lba) return *iter;
 	}
 
 	Partition* inside;
 	int i = 0;
 	LOOP:
 		inside = partitions[i];
-		if (!( absolute_lba>=inside->entry->relative_sector && absolute_lba<inside->entry->relative_sector+inside->entry->total_sectors )) {
+		if (!( lba>=inside->entry->relative_sector && lba<inside->entry->relative_sector+inside->entry->total_sectors )) {
 			++i;
-			assert_term(i<4,"Invalid LBA \"%d\"!  Not in range of partitions!",static_cast<int>(absolute_lba));
+			assert_term(i<4,"Invalid LBA \"%d\"!  Not in range of partitions!",static_cast<int>(lba));
 			goto LOOP;
 		}
 
-	LazySector* result = new LazySector(this,inside,absolute_lba);
+	LazySector* result = new LazySector(this,inside,lba);
 	_open_sectors.insert_back(result);
 
-	if (_open_sectors.size>4) {
+	if (_open_sectors.size>MOSS_MAX_OPEN_SECTORS) {
 		LazySector* closing = _open_sectors.remove_front();
 		delete closing;
 	}
@@ -106,20 +106,20 @@ LazySector* HardDiskDrive::operator[](uint64_t absolute_lba) {
 	return result;
 }
 
-void HardDiskDrive:: read_sectors(uint8_t*         data_buffer,   uint64_t   absolute_lba,  int   num_sectors  ) const {
-	controller->read_sectors(data_buffer, absolute_lba,num_sectors, index_bus,index_device);
+void HardDiskDrive:: read_sectors(uint8_t*         data_buffer,   AbsoluteLBA   lba,  int   num_sectors  ) const {
+	controller->read_sectors(data_buffer, lba,num_sectors, index_bus,index_device);
 }
-void HardDiskDrive::write_sectors(uint8_t const* /*data_buffer*/, uint64_t /*absolute_lba*/,int /*num_sectors*/)       {
+void HardDiskDrive::write_sectors(uint8_t const* /*data_buffer*/, AbsoluteLBA /*lba*/,int /*num_sectors*/)       {
 	assert_term(false,"Not implemented!");
 }
 
-uint64_t HardDiskDrive::chs_to_lba(uint64_t cylinder,uint64_t head,uint64_t sector) const {
+AbsoluteLBA HardDiskDrive::chs_to_lba(uint64_t cylinder,uint64_t head,uint64_t sector) const {
 	return (cylinder*_HPC + head)*_SPT + (sector-1ull);
 }
-void HardDiskDrive::lba_to_chs(uint64_t absolute_lba, uint64_t*restrict cylinder,uint64_t*restrict head,uint64_t*restrict sector) const {
-	*cylinder =  absolute_lba/(_HPC*_SPT);
-	*head     = (absolute_lba/_SPT)%_HPC;
-	*sector   = (absolute_lba%_SPT) + 1ull;
+void HardDiskDrive::lba_to_chs(AbsoluteLBA lba, uint64_t*restrict cylinder,uint64_t*restrict head,uint64_t*restrict sector) const {
+	*cylinder =  lba/(_HPC*_SPT);
+	*head     = (lba/_SPT)%_HPC;
+	*sector   = (lba%_SPT) + 1ull;
 }
 
 void HardDiskDrive::print(int indent) const {
