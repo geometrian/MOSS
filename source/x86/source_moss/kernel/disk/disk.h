@@ -39,7 +39,7 @@ class LazySector final {
 	private:
 		LazySector(HardDiskDrive* drive, Partition* partition, AbsoluteLBA lba);
 	public:
-		inline ~LazySector(void) { assert_term(false,"Not implemented!"); } //Should write back data to disk!
+		inline ~LazySector(void) {} //TODO: should write back data to disk!
 
 		LazySector* get_previous(void) const;
 		LazySector*     get_next(void) const;

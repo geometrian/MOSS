@@ -22,10 +22,10 @@ function wait_for_enter() {
 
 echo "######## MOSS beginning setup for release . . ."
 
-export remake_disk=0
+export       remake_disk=0
 export remake_partitions=0
-export remake_fs=0
-export remake_grub=0
+export         remake_fs=0
+export       remake_grub=0
 export fs_ext2_fat=1 #0 is Ext2, 1 is FAT 32
 
 #Note: on changing these, change also the Bochs configuration files.
@@ -141,8 +141,8 @@ echo "######## Copying over kernel files . . ."
 sudo cp .build/MOSS.bin /mnt/boot/MOSS.bin
 sudo cp source_moss/grub/menu.lst /mnt/boot/grub/menu.lst
 echo "######## Copying over kernel data files . . ."
-sudo mkdir -p /mnt/files
-sudo cp -r files /mnt/files
+#sudo mkdir -p /mnt/files
+sudo cp -r files /mnt/
 #wait_for_enter
 
 #Setup GrUB device map.  I've done this before, but never passing /dev/null in . . .

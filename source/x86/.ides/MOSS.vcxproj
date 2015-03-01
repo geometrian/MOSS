@@ -41,6 +41,9 @@
     <ClCompile Include="..\source_moss\kernel\graphics\vesa\controller.cpp" />
     <ClCompile Include="..\source_moss\kernel\graphics\vesa\framebuffer.cpp" />
     <ClCompile Include="..\source_moss\kernel\graphics\vesa\mode.cpp" />
+    <ClCompile Include="..\source_moss\kernel\graphics\vga\components.cpp" />
+    <ClCompile Include="..\source_moss\kernel\graphics\vga\terminal.cpp" />
+    <ClCompile Include="..\source_moss\kernel\graphics\vga\vga.cpp" />
     <ClCompile Include="..\source_moss\kernel\input\devices\controller_ps2.cpp" />
     <ClCompile Include="..\source_moss\kernel\input\devices\interface_device_ps2.cpp" />
     <ClCompile Include="..\source_moss\kernel\input\devices\interface_keyboard_ps2.cpp" />
@@ -55,7 +58,6 @@
     <ClCompile Include="..\source_moss\kernel\memory\simple.cpp" />
     <ClCompile Include="..\source_moss\kernel\kernel_entry.cpp" />
     <ClCompile Include="..\source_moss\kernel\misc.cpp" />
-    <ClCompile Include="..\source_moss\kernel\text_mode_terminal.cpp" />
     <ClCompile Include="..\source_moss\mossc\math\trig.cpp" />
     <ClCompile Include="..\source_moss\mossc\stdio\fmt_io.cpp" />
     <ClCompile Include="..\source_moss\mossc\stdlib\dyn_mem.cpp" />
@@ -98,6 +100,9 @@
     <ClInclude Include="..\source_moss\kernel\graphics\vesa\controller.h" />
     <ClInclude Include="..\source_moss\kernel\graphics\vesa\framebuffer.h" />
     <ClInclude Include="..\source_moss\kernel\graphics\vesa\mode.h" />
+    <ClInclude Include="..\source_moss\kernel\graphics\vga\components.h" />
+    <ClInclude Include="..\source_moss\kernel\graphics\vga\terminal.h" />
+    <ClInclude Include="..\source_moss\kernel\graphics\vga\vga.h" />
     <ClInclude Include="..\source_moss\kernel\input\devices\controller_ps2.h" />
     <ClInclude Include="..\source_moss\kernel\input\devices\interface_device_ps2.h" />
     <ClInclude Include="..\source_moss\kernel\input\devices\interface_keyboard_ps2.h" />
@@ -115,7 +120,6 @@
     <ClInclude Include="..\source_moss\kernel\memory\simple.h" />
     <ClInclude Include="..\source_moss\kernel\kernel_entry.h" />
     <ClInclude Include="..\source_moss\kernel\misc.h" />
-    <ClInclude Include="..\source_moss\kernel\text_mode_terminal.h" />
     <ClInclude Include="..\source_moss\mossc\math.h" />
     <ClInclude Include="..\source_moss\mossc\math\trig.h" />
     <ClInclude Include="..\source_moss\mossc\stdio.h" />

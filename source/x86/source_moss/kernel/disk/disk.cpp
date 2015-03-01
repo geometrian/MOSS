@@ -89,9 +89,27 @@ LazySector* HardDiskDrive::operator[](AbsoluteLBA lba) {
 	int i = 0;
 	LOOP:
 		inside = partitions[i];
-		if (!( lba>=inside->entry->relative_sector && lba<inside->entry->relative_sector+inside->entry->total_sectors )) {
+		if (inside==nullptr || !( lba>=inside->entry->relative_sector && lba<inside->entry->relative_sector+inside->entry->total_sectors )) {
 			++i;
-			assert_term(i<4,"Invalid LBA \"%d\"!  Not in range of partitions!",static_cast<int>(lba));
+			#ifdef MOSS_DEBUG
+			if (i==4) {
+				kernel->write("Partitions:\n");
+				for (int j=0;j<4;++j) {
+					if (partitions[j]==nullptr) kernel->write("  (Invalid)\n");
+					else kernel->write("  Relative %u, Total %u\n",partitions[j]->entry->relative_sector,partitions[j]->entry->total_sectors);
+				}
+				kernel->write("Invalid LBA: \"0x ");
+				kernel->write("%X ", lba     &0xFF);
+				kernel->write("%X ",(lba>> 8)&0xFF);
+				kernel->write("%X ",(lba>>16)&0xFF);
+				kernel->write("%X ",(lba>>24)&0xFF);
+				kernel->write("%X ",(lba>>32)&0xFF);
+				kernel->write("%X ",(lba>>40)&0xFF);
+				kernel->write("%X ",(lba>>48)&0xFF);
+				kernel->write("%X ",(lba>>56)&0xFF);
+				assert_term(false,"Invalid LBA: \"!  Not in range of partitions!\n");
+			}
+			#endif
 			goto LOOP;
 		}
 

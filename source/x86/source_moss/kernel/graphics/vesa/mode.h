@@ -53,7 +53,7 @@ class Mode final {
 		uint16_t const index;
 
 	public:
-		Mode(uint16_t index);
+		explicit Mode(uint16_t index);
 		~Mode(void);
 
 		void get_printable(char* buffer) const;

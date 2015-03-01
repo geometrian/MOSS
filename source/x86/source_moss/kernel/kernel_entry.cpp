@@ -11,6 +11,7 @@
 
 #include "graphics/gui/manager.h"
 #include "graphics/vesa/controller.h"
+#include "graphics/vga/terminal.h"
 
 #include "input/devices/controller_ps2.h"
 
@@ -21,8 +22,6 @@
 
 #include "memory/gdt.h"
 #include "memory/simple.h"
-
-#include "text_mode_terminal.h"
 
 #include "kernel.h"
 
@@ -38,9 +37,9 @@ extern "C" void kernel_entry(unsigned long magic, unsigned long addr) {
 	kernel = &kernel2;
 
 	//The text mode terminal
-	Terminal::TextModeTerminal terminal;
+	Graphics::VGA::Terminal terminal;
 	kernel->terminal = &terminal;
-	terminal.set_color_text(Terminal::TextModeTerminal::COLOR_RED);
+	terminal.set_color_text(Graphics::VGA::Terminal::COLOR_RED);
 
 	//Check boot went okay
 	Boot::multiboot_info_t* mbi = reinterpret_cast<Boot::multiboot_info_t*>(addr);
@@ -48,9 +47,13 @@ extern "C" void kernel_entry(unsigned long magic, unsigned long addr) {
 	assert_term(mbi->flags&(1<<0),"Invalid GRUB memory flag!\n");
 	assert_term(mbi->flags&(1<<6),"Invalid GRUB memory map!\n");
 
-	//Setup dynamic memory (some of the setup, i.e. PS/2, requires it, so do it first)
+	//Setup dynamic memory (some of the setup, including printing, requires it, so do it first)
 	Memory::MemoryManager memory(mbi);
 	kernel->memory = &memory;
+
+	terminal.interface.crtc.set_mode(Graphics::VGA::CathodeRayTubeController::Mode::text80x25);
+	//terminal.interface.dump_registers();
+	//while(1);
 
 	//The GRUB documentation http://www.gnu.org/software/grub/manual/multiboot/multiboot.html implies
 	//	that interrupts are already disabled.  That's good, because the following allows us to deal with
@@ -102,7 +105,7 @@ extern "C" void kernel_entry(unsigned long magic, unsigned long addr) {
 		kernel->write("Setting up file system\n");
 		Disk::FileSystem::FileSystemFAT filesystem(disk.partitions[0]);
 		kernel->filesystem = &filesystem;
-		kernel->filesystem->print();
+		//kernel->filesystem->print();
 		while (true);
 	#endif
 

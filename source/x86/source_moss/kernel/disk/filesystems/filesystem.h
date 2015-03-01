@@ -16,7 +16,7 @@ class ObjectBase {
 	public:
 		FileSystemBase*const filesystem;
 
-		MOSST::String const path;
+		MOSST::String const name;
 
 		enum Type {
 			TYPE_FILE,
@@ -24,15 +24,17 @@ class ObjectBase {
 		} const type;
 
 	protected:
-		inline ObjectBase(FileSystemBase* filesystem, char const* path, Type type) : filesystem(filesystem), path(path), type(type) {}
+		inline ObjectBase(FileSystemBase* filesystem, char const* name, Type type) : filesystem(filesystem), name(name), type(type) {}
 	public:
 		inline virtual ~ObjectBase(void) {}
 };
-class ObjectFile final : public ObjectBase {
+class ObjectFileBase : public ObjectBase {
+	protected:
+		inline ObjectFileBase(FileSystemBase* filesystem, char const* name) : ObjectBase(filesystem,name,TYPE_FILE) {}
 	public:
-		inline ObjectFile(FileSystemBase* filesystem, char const* path) : ObjectBase(filesystem,path,TYPE_FILE) {}
-		inline virtual ~ObjectFile(void) {}
+		inline virtual ~ObjectFileBase(void) {}
 
+		#if 0
 		MOSST::Vector<uint8_t>* get_new_data(void) const {
 			assert_term(false,"Not implemented!");
 			return nullptr;
@@ -40,28 +42,32 @@ class ObjectFile final : public ObjectBase {
 		void save_data(MOSST::Vector<uint8_t> const& /*data*/) {
 			assert_term(false,"Not implemented!");
 		}
+		#endif
 };
-class ObjectDirectory final : public ObjectBase {
+class ObjectDirectoryBase : public ObjectBase {
 	public:
-		MOSST::Vector<MOSST::String> paths_children;
+		bool is_loaded;
+		MOSST::Vector<ObjectBase*> children;
 
+	protected:
+		inline ObjectDirectoryBase(FileSystemBase* filesystem, char const* name) : ObjectBase(filesystem,name,TYPE_DIRECTORY), is_loaded(false) {}
 	public:
-		inline ObjectDirectory(FileSystemBase* filesystem, char const* path) : ObjectBase(filesystem,path,TYPE_DIRECTORY) {}
-		inline virtual ~ObjectDirectory(void) {}
+		virtual ~ObjectDirectoryBase(void);
 
-		ObjectBase* get_new_child(MOSST::String const& path_child) const;
+		virtual void load_entries(void) = 0;
+
+		virtual ObjectBase* get_new_child(MOSST::String const& child_name) const = 0;
 };
 
 class FileSystemBase {
 	public:
 		Partition*const partition;
 
-		ObjectDirectory* root;
+		ObjectDirectoryBase* root;
 
 	protected:
-		inline explicit FileSystemBase(Partition* partition) : partition(partition) {
-			root = new ObjectDirectory(this,"/");
-		}
+		//Note: derived class must allocate root directory!
+		inline explicit FileSystemBase(Partition* partition) : partition(partition) {}
 	public:
 		inline virtual ~FileSystemBase(void) {
 			delete root;
@@ -71,12 +77,10 @@ class FileSystemBase {
 		//virtual File* read_new(char const* path) = 0;
 		//virtual void write(const File* file) = 0;
 
-		virtual ObjectBase* get_new_child(ObjectDirectory const* directory, MOSST::String const& path_child) const = 0;
-
-	private:
-		void _helper_print(ObjectDirectory* directory, int depth) const;
+	/*private:
+		void _helper_print(ObjectDirectoryBase* directory, int depth) const;
 	public:
-		inline void print(void) const { _helper_print(root,0); }
+		inline void print(void) const { _helper_print(root,0); }*/
 };
 
 

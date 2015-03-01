@@ -8,14 +8,13 @@
 #include "graphics/gui/manager.h"
 #include "graphics/vesa/controller.h"
 #include "graphics/vesa/framebuffer.h"
+#include "graphics/vga/terminal.h"
 #include "graphics/color.h"
 
 #include "input/devices/controller_ps2.h"
 //#include "input/devices/mouse_ps2.h"
 #include "input/keys.h"
 #include "input/mouse.h"
-
-#include "text_mode_terminal.h"
 
 
 namespace MOSS {

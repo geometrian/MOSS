@@ -22,6 +22,9 @@ namespace MOSSC {
 		namespace GUI {
 			class Manager;
 		}
+		namespace VGA {
+			class Terminal;
+		}
 		namespace VESA {
 			class Controller;
 		}
@@ -38,9 +41,6 @@ namespace MOSSC {
 			class EventMouseClick;
 			class EventMouseUnclick;
 		}
-	}
-	namespace Terminal {
-		class TextModeTerminal;
 	}
 	namespace Memory {
 		class MemoryManager;
@@ -60,7 +60,7 @@ class Kernel final {
 	friend void* MOSSC::realloc(void* ptr, size_t size);
 	friend void  MOSSC::free(void* ptr);
 	public:
-		Terminal::TextModeTerminal* terminal;
+		Graphics::VGA::Terminal* terminal;
 
 		Graphics::VESA::Controller* graphics;
 		Graphics::GUI::Manager* gui;

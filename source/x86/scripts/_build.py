@@ -22,6 +22,8 @@ if only == 0:
     only_recompile = []
 else:
     only_recompile = ["gui"]
+    
+skipped = 0
 
 #TODO: do we need -nostartfiles?
 args_compile = "-ffreestanding -O0 -Wall -Wextra -Wno-packed-bitfield-compat -fno-exceptions -fno-rtti -std=c++11"
@@ -67,21 +69,25 @@ def get_will_compile(in_name):
 
     return True
 def compile_cpp(in_name,out_name):
+    global skipped
     if get_will_compile(in_name):
         print("    Compiling:  \""+in_name+"\"")
         command = ["../../cross/bin/i586-elf-g++","-c",in_name,"-o",out_name]
         command += args_compile.split(" ")
         call(command)
     else:
-        print("  ##SKIPPING##: \""+in_name+"\"")
+        skipped += 1
+        #print("  ##SKIPPING##: \""+in_name+"\"")
     link_files.append(out_name)
 def assemble_asm(in_name,out_name):
+    global skipped
     if get_will_compile(in_name):
         print("    Assembling: \""+in_name+"\"")
         command = ["nasm","-felf",in_name,"-o",out_name]
         call(command)
     else:
-        print("  ##SKIPPING##: \""+in_name+"\"")
+        skipped += 1
+        #print("  ##SKIPPING##: \""+in_name+"\"")
     link_files.append(out_name)
 
 def compile_directory(directory):
@@ -125,6 +131,8 @@ def main():
     try:
         print("  Compiling:")
         compile_directory(root_source)
+        if skipped > 0:
+            print("  Skipped %d files" % (skipped))
 
         print("  Linking")
         link()

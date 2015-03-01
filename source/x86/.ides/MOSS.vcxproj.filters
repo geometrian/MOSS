@@ -73,6 +73,9 @@
     <Filter Include="source_moss\kernel\disk\filesystems\lean">
       <UniqueIdentifier>{47c07fb2-34a3-46ca-829d-d6b913152056}</UniqueIdentifier>
     </Filter>
+    <Filter Include="source_moss\kernel\graphics\vga">
+      <UniqueIdentifier>{305cc36a-0dc8-4390-8773-054c804c41b8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\source_moss\kernel\graphics\gui\button.cpp">
@@ -137,9 +140,6 @@
     </ClCompile>
     <ClCompile Include="..\source_moss\kernel\memory\simple.cpp">
       <Filter>source_moss\kernel\memory</Filter>
-    </ClCompile>
-    <ClCompile Include="..\source_moss\kernel\text_mode_terminal.cpp">
-      <Filter>source_moss\kernel</Filter>
     </ClCompile>
     <ClCompile Include="..\source_moss\kernel\kernel.cpp">
       <Filter>source_moss\kernel</Filter>
@@ -218,6 +218,15 @@
     </ClCompile>
     <ClCompile Include="..\source_moss\kernel\disk\filesystems\lean\lean.cpp">
       <Filter>source_moss\kernel\disk\filesystems\lean</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source_moss\kernel\graphics\vga\vga.cpp">
+      <Filter>source_moss\kernel\graphics\vga</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source_moss\kernel\graphics\vga\components.cpp">
+      <Filter>source_moss\kernel\graphics\vga</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source_moss\kernel\graphics\vga\terminal.cpp">
+      <Filter>source_moss\kernel\graphics\vga</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -301,9 +310,6 @@
     </ClInclude>
     <ClInclude Include="..\source_moss\kernel\memory\simple.h">
       <Filter>source_moss\kernel\memory</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\text_mode_terminal.h">
-      <Filter>source_moss\kernel</Filter>
     </ClInclude>
     <ClInclude Include="..\source_moss\kernel\kernel.h">
       <Filter>source_moss\kernel</Filter>
@@ -415,6 +421,15 @@
     </ClInclude>
     <ClInclude Include="..\source_moss\kernel\disk\filesystems\lean\lean.h">
       <Filter>source_moss\kernel\disk\filesystems\lean</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\kernel\graphics\vga\vga.h">
+      <Filter>source_moss\kernel\graphics\vga</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\kernel\graphics\vga\components.h">
+      <Filter>source_moss\kernel\graphics\vga</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\kernel\graphics\vga\terminal.h">
+      <Filter>source_moss\kernel\graphics\vga</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

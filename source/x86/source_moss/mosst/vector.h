@@ -23,8 +23,20 @@ template <typename type> class Vector {
 			_capacity = 0;
 			size = 0;
 		}
+		Vector(Vector const& other) : Vector() {
+			reserve(other.size);
+			for (int i=0;i<other.size;++i) reinterpret_cast<type*>(_data)[i]=reinterpret_cast<type*>(other._data)[i];
+		}
 		inline virtual ~Vector(void) {
 			if (_data!=nullptr) delete [] _data;
+		}
+
+		Vector& operator=(Vector const& other) {
+			size = 0;
+			reserve(other.size);
+			for (int i=0;i<other.size;++i) reinterpret_cast<type*>(_data)[i]=reinterpret_cast<type*>(other._data)[i];
+			size = other.size;
+			return *this;
 		}
 
 		//Reserves space for at least the given number of elements.  Returns whether a reallocation happened.
@@ -33,9 +45,8 @@ template <typename type> class Vector {
 
 			uint8_t* data2 = new uint8_t[num_elements*sizeof(type)];
 			if (_data!=nullptr) {
-				if (size>0) {
-					MOSSC::memcpy(data2,_data, size*sizeof(type));
-				}
+				//if (size>0) MOSSC::memcpy(data2,_data, size*sizeof(type));
+				for (int i=0;i<size;++i) reinterpret_cast<type*>(data2)[i]=reinterpret_cast<type*>(_data)[i];
 				delete [] _data;
 			}
 			_data = data2;

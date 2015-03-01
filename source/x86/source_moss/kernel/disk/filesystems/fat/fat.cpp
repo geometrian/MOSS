@@ -92,7 +92,7 @@ void FAT::_get_required_sectors_for_access(RelativeLBA fatentry_lba,uint32_t fat
 
 	fatsectors[0] = (*filesystem->partition)[fatentry_lba];
 
-	if (filesystem->type==FileSystemFAT::TYPE::FAT12) {
+	if (filesystem->type==FileSystemFAT::Type::FAT12) {
 		//This cluster access spans a sector boundary in the FAT
 		if (fatentry_offset == filesystem->bytes_per_sector-1u) {
 			assert_term(
@@ -117,9 +117,9 @@ bool FAT::get_next_cluster_number(uint32_t cluster_number, uint32_t* next_cluste
 	//	for FAT16, and 0x0FFFFFFF for FAT32 when they set the contents of a cluster to the EOC mark.
 	//	There are various disk utilities that use a different value, however.
 	switch (filesystem->type) {
-		case FileSystemFAT::TYPE::FAT12: *next_cluster_number=_get_next_cluster_number_fat12(fatsectors,fatentry_offset,cluster_number); return *next_cluster_number<    0x0FF8;
-		case FileSystemFAT::TYPE::FAT16: *next_cluster_number=_get_next_cluster_number_fat16(fatsectors,fatentry_offset               ); return *next_cluster_number<    0xFFF8;
-		case FileSystemFAT::TYPE::FAT32: *next_cluster_number=_get_next_cluster_number_fat32(fatsectors,fatentry_offset               ); return *next_cluster_number<0x0FFFFFF8;
+		case FileSystemFAT::Type::FAT12: *next_cluster_number=_get_next_cluster_number_fat12(fatsectors,fatentry_offset,cluster_number); return *next_cluster_number<    0x0FF8;
+		case FileSystemFAT::Type::FAT16: *next_cluster_number=_get_next_cluster_number_fat16(fatsectors,fatentry_offset               ); return *next_cluster_number<    0xFFF8;
+		case FileSystemFAT::Type::FAT32: *next_cluster_number=_get_next_cluster_number_fat32(fatsectors,fatentry_offset               ); return *next_cluster_number<0x0FFFFFF8;
 		default: assert_term(false,"Implementation error!"); return false;
 	}
 }
@@ -131,9 +131,9 @@ void FAT::set_next_cluster_number(uint32_t cluster_number, uint32_t  next_cluste
 	_get_required_sectors_for_access(fatentry_lba,fatentry_offset, fatsectors);
 
 	switch (filesystem->type) {
-		case FileSystemFAT::TYPE::FAT12: return _set_next_cluster_number_fat12(fatsectors,fatentry_offset,cluster_number,static_cast<uint16_t>(next_cluster_number));
-		case FileSystemFAT::TYPE::FAT16: return _set_next_cluster_number_fat16(fatsectors,fatentry_offset,                                     next_cluster_number );
-		case FileSystemFAT::TYPE::FAT32: return _set_next_cluster_number_fat32(fatsectors,fatentry_offset,                                     next_cluster_number );
+		case FileSystemFAT::Type::FAT12: return _set_next_cluster_number_fat12(fatsectors,fatentry_offset,cluster_number,static_cast<uint16_t>(next_cluster_number));
+		case FileSystemFAT::Type::FAT16: return _set_next_cluster_number_fat16(fatsectors,fatentry_offset,                                     next_cluster_number );
+		case FileSystemFAT::Type::FAT32: return _set_next_cluster_number_fat32(fatsectors,fatentry_offset,                                     next_cluster_number );
 		default: assert_term(false,"Implementation error!");
 	}
 }
@@ -142,12 +142,12 @@ void FAT::set_next_cluster_number(uint32_t cluster_number, uint32_t  next_cluste
 void FAT::get_addr_cluster_fatentry(uint32_t cluster_number, RelativeLBA*restrict fatentry_lba,uint32_t*restrict fatentry_offset, int fat_index/*=0*/) const {
 	//Given any valid cluster number N, where in the FAT(s) is the entry for that cluster number?
 	uint32_t fat_offset;
-	if        (filesystem->type==FileSystemFAT::TYPE::FAT12) {
+	if        (filesystem->type==FileSystemFAT::Type::FAT12) {
 		//1.5 bytes per FAT entry.  Multiply by 1.5 without using floating point; the divide by 2 rounds down.
 		fat_offset = cluster_number + (cluster_number / 2);
-	} else if (filesystem->type==FileSystemFAT::TYPE::FAT16) {
+	} else if (filesystem->type==FileSystemFAT::Type::FAT16) {
 		fat_offset = cluster_number * 2;
-	} else { assert_term(filesystem->type==FileSystemFAT::TYPE::FAT32,"Implementation error!");
+	} else { assert_term(filesystem->type==FileSystemFAT::Type::FAT32,"Implementation error!");
 		fat_offset = cluster_number * 4;
 	}
 
@@ -158,62 +158,70 @@ void FAT::get_addr_cluster_fatentry(uint32_t cluster_number, RelativeLBA*restric
 }
 
 
-/*void DirectoryEntry::print(void) const {
+void DirectoryEntry::add_name_to_string(MOSST::String* string) const {
+	if ((DIR_AttrValue&0x0F)==0x0F) { //long
+		char temp[13];
+		for (int i=0;i<5;++i) temp[i    ]=static_cast<char>(LDIR_Name1[i]);
+		for (int i=0;i<6;++i) temp[i+5  ]=static_cast<char>(LDIR_Name2[i]);
+		for (int i=0;i<2;++i) temp[i+5+6]=static_cast<char>(LDIR_Name3[i]);
+
+		//kernel->write("Adding long name \"");
+		for (int i=0;i<13;++i) {
+			char c = temp[i];
+			if (c=='\0') break;
+
+			string->insert_back(c);
+			//kernel->write("%c",c);
+		}
+		//kernel->write("\"\n");
+	} else { //short
+		char temp[11];
+		if (DIR_Name[0]==0x05) temp[0]=           0xE5; //Work around for the Japanese.
+		else                   temp[0]=DIR_NameMain[0];
+		int size = 1;
+		for (;size<8;++size) temp[size]=DIR_NameMain[size];
+		for (;/*size>=0*/;--size) { if (temp[size-1]!=' ') break; }
+
+		if (DIR_NameExt[0]==' '&&DIR_NameExt[1]==' '&&DIR_NameExt[2]==' ') {
+		} else {
+			temp[size++] = '.';
+
+			for (int i=0;i<3;++i) temp[size++]=DIR_NameExt[i];
+			for (;/*size>=0*/;--size) { if (temp[size-1]!=' ') break; }
+		}
+
+		//kernel->write("Adding short name \"");
+		for (int i=0;i<size;++i) {
+			string->insert_back(temp[i]);
+			//kernel->write("%c",temp[i]);
+		}
+		//kernel->write("\"\n");
+	}
+}
+
+void DirectoryEntry::print(void) const {
 	if        (DIR_Name[0]==0x00) {
 		kernel->write("Directory Record:    [End]\n");
 	} else if (DIR_Name[0]==0xE5) {
 		kernel->write("Directory Record: [Unused]\n");
 	} else {
-		if ((DIR_AttrValue&0x0F) == 0x0F) { //Long file names
-			kernel->write("Directory Record:   [Long]\n");
-		} else { //Normal
-			kernel->write("Directory Record: [Normal] \"%s\"",get_filename());
+		MOSST::String name;
+		add_name_to_string(&name);
+		if ((DIR_AttrValue&0x0F)==0x0F) { //long
+			kernel->write("Directory Record:   [Long] \"%s\"\n",name.c_str());
+		} else { //short
+			kernel->write("Directory Record: [Normal] \"%s\"",name.c_str());
 			if (DIR_Attr.is_read_only) kernel->write(" readonly");
 			if (DIR_Attr.is_hidden) kernel->write(" hidden");
 			if (DIR_Attr.is_system) kernel->write(" system");
 			if (DIR_Attr.is_volume_ID) kernel->write(" volume_ID");
-			if (DIR_Attr.is_directory) kernel->write(" subdirectory");
+			if (DIR_Attr.is_directory) kernel->write(" directory");
 			if (DIR_Attr.has_changed_since_backup) kernel->write(" changed-since-backup");
 			kernel->write("\n");
 		}
 	}
-}*/
-
-void DirectoryEntry::add_name_to_string(MOSST::String* string) const {
-	/*//TODO: long filenames!
-	static uint8_t temp[12];
-
-	for (int i=0;i<11;++i) temp[i]=DIR_Name[i];
-	if (temp[0]==0x05) temp[0]=0xE5; 
-	temp[11]='\0';
-	for (int i=10;i>=0;--i) if (temp[i]==' ') temp[i]='\0';
-
-	return reinterpret_cast<char const*>(temp);*/
-
-	if (DIR_AttrValue&0x0F) { //short
-		if (DIR_Name[0]==0x05) string->insert_back(0xE5); //Work around for the Japanese.
-		else                   string->insert_back(DIR_NameMain[0]);
-
-		for (int i=1;i<8;++i) string->insert_back(DIR_NameMain[i]);
-		for (int i=7;i>=0;--i) { if (DIR_Name[i]==' ') { string->remove_back(); } else { break; } }
-
-		if (DIR_NameExt[0]==' '&&DIR_NameMain[1]==' '&&DIR_NameMain[2]==' ') {
-		} else {
-			string->insert_back('.');
-			for (int i=0;i<3;++i) string->insert_back(DIR_NameExt[i]);
-			if (DIR_NameExt[2]==' ') {
-				string->remove_back();
-				if (DIR_NameExt[1]==' ') {
-					string->remove_back();
-				}
-			}
-		}
-	} else { //long
-		for (int i=0;i<5;++i) string->insert_back(static_cast<char>(LDIR_Name1[i]));
-		for (int i=0;i<6;++i) string->insert_back(static_cast<char>(LDIR_Name2[i]));
-		for (int i=0;i<2;++i) string->insert_back(static_cast<char>(LDIR_Name3[i]));
-	}
 }
+
 
 Chunk::Chunk(FileSystemFAT* filesystem, RelativeLBA lba_start,uint32_t num_sectors) :
 	filesystem(filesystem), lba_start(lba_start), num_sectors(num_sectors)
@@ -230,6 +238,109 @@ Chunk::Chunk(FileSystemFAT* filesystem, RelativeLBA lba_start,uint32_t num_secto
 Chunk::~Chunk(void) {
 	//TODO: should write back any changes!
 	delete [] data;
+}
+
+
+ObjectFileFAT::ObjectFileFAT(FileSystemFAT* filesystem, char const* name, uint32_t cluster_number) : ObjectFileBase(filesystem,name), _cluster_number(cluster_number) {}
+
+
+ObjectDirectoryFAT::ObjectDirectoryFAT(FileSystemFAT* filesystem, char const* name, uint32_t cluster_number) : ObjectDirectoryBase(filesystem,name), _cluster_number(cluster_number) {}
+
+void ObjectDirectoryFAT::load_entries(void) /*override*/ {
+	#define FATFS static_cast<FileSystemFAT*>(filesystem)
+	MOSST::LinkedList<Chunk*> clusters;
+
+	FATFS->_fill_new_cluster_chain(&clusters,_cluster_number);
+	assert_term(clusters.size>0,"No clusters found for root directory!");
+
+	int const top = static_cast<int>(FATFS->bytes_per_sector * FATFS->sectors_per_cluster / sizeof(DirectoryEntry));
+	for (auto iter=clusters.cbegin(); iter!=clusters.cend(); ++iter) {
+		DirectoryEntry const* entries = reinterpret_cast<DirectoryEntry const*>((*iter)->data);
+		for (int i=0;i<top;++i) {
+			DirectoryEntry const* entry = entries + i;
+
+			//entry->print();
+			//if (i==7) while(1);
+
+			if (entry->DIR_Name[0]==0x00) goto END;
+
+			if (entry->DIR_Name[0]==0xE5) continue; //unused
+
+			if ((entry->DIR_AttrValue&0x0F)==0x0F) continue; //long name; we'll load these from the short name that uses them
+
+			MOSST::String name;
+
+			//Unclear.  I suppose I just assume there's a long filename preceding and check if I'm proven wrong.
+			bool found = false;
+			int j = i - 1;
+			LOOP:
+				if (j>=0) {
+					DirectoryEntry const* entry_long = entries + j;
+					if ((entry_long->DIR_AttrValue&0x0F)==0x0F) { //this really is a long name entry
+						found = true;
+
+						entry_long->add_name_to_string(&name);
+						if (!(entry_long->LDIR_Ord & 0x40)) { //not last entry
+							--j;
+							goto LOOP;
+						}
+					}
+				}
+			if (!found) {
+				entry->add_name_to_string(&name);
+			}
+
+			ObjectBase* object;
+			uint32_t cluster_number = static_cast<uint32_t>(entry->DIR_FstClusLO) | (static_cast<uint32_t>(entry->DIR_FstClusHI)<<16u);
+			if (cluster_number==0u) { //This is the ".." entry pointing to root.
+				assert_term(name=="..","Unexpected zero cluster number!");
+				cluster_number = FATFS->_sector_to_cluster(FATFS->first_root_sector);
+			}
+			if (entry->DIR_Attr.is_directory) {
+				//kernel->write("Adding directory \"%s\"\n",name.c_str());
+				object = new ObjectDirectoryFAT(FATFS,name.c_str(),cluster_number);
+			} else {
+				//kernel->write("Adding file \"%s\"\n",name.c_str());
+				object = new ObjectFileFAT(FATFS,name.c_str(),cluster_number);
+			}
+			children.insert_back(object);
+		}
+	}
+	END:;
+
+	//Chunk* all = new Chunk(this, (*clusters.cbegin())->lba_start,clusters.size()*sectors_per_cluster);
+
+	while (clusters.size>0) delete clusters.remove_back();
+
+	/*kernel->write("Directory listing:\n");
+	for (int i=0;i<directory->paths_children.size;++i) {
+		kernel->write("  \"%s\"\n",directory->paths_children[i].c_str());
+
+		for (
+	}
+	kernel->write("Done!\n");*/
+
+	//while (1);
+
+	/*for (int i=0;i<512;++i) {
+		kernel->write("%X ",static_cast<int>(temp[i]));
+		if (i>0 && i%32==0) kernel->write("\n");
+	}*/
+
+	//MOSST::String path;
+	//root->paths_children.insert_back(path);
+
+	is_loaded = true;
+	#undef FATFS
+}
+
+ObjectBase* ObjectDirectoryFAT::get_new_child(MOSST::String const& child_name) const /*override*/ {
+	for (int i=0;i<children.size;++i) {
+		if (children[i]->name==child_name) {
+			return children[i];
+		}
+	}
+	assert_term(false,"Name \"%s\" was not found in directory \"%s\"!",child_name.c_str(),name.c_str()); return nullptr;
 }
 
 
@@ -392,7 +503,7 @@ FileSystemFAT::FileSystemFAT(Partition* partition) : FileSystemBase(partition), 
 
 		//BS_Reserved1
 
-		assert_term(bs_bpb.fat1216.BS_BootSig==0x29,"FAT12/16 invalid extended boot signature %d!",static_cast<int>(bs_bpb.fat1216.BS_BootSig));
+		assert_term(bs_bpb.fat1216.BS_BootSig==0x29,"FAT12/16 invalid extended boot signature \"%d\"!",static_cast<int>(bs_bpb.fat1216.BS_BootSig));
 
 		//BS_VolID
 
@@ -435,71 +546,12 @@ FileSystemFAT::FileSystemFAT(Partition* partition) : FileSystemBase(partition), 
 	//I don't know how the Root Directory Region is supposed to work.
 	assert_term(type==FAT32,"Only FAT32 implemented!");
 
-	_fill_directory(root,_sector_to_cluster(first_root_sector));
-}
+	root = new ObjectDirectoryFAT(this,"/",_sector_to_cluster(first_root_sector));
+	root->load_entries();
 
-void FileSystemFAT::_fill_directory(ObjectDirectory* directory, uint32_t cluster_number) {
-	MOSST::LinkedList<Chunk*> clusters;
-
-	_fill_new_cluster_chain(&clusters,cluster_number);
-	assert_term(clusters.size>0,"No clusters found for root directory!");
-
-	for (auto iter=clusters.cbegin(); iter!=clusters.cend(); ++iter) {
-		DirectoryEntry const* entries = reinterpret_cast<DirectoryEntry const*>((*iter)->data);
-		for (int i=0;i<bytes_per_sector*sectors_per_cluster;i+=sizeof(DirectoryEntry)) {
-			DirectoryEntry const* entry = entries + i;
-
-			if (entry->DIR_Name[0]==0x00) goto END;
-
-			if (entry->DIR_Name[0]==0xE5) continue; //unused
-
-			MOSST::String name;
-			entry->add_name_to_string(&name);
-
-			if (entry->DIR_AttrValue & 0x0F) { //long file names
-				int j = 1;
-				LOOP:
-					DirectoryEntry const* entry_long = entries - j;
-					if (entry_long->LDIR_Ord & 0x40) { //last entry
-						entry_long->add_name_to_string(&name);
-					} else {
-						++j;
-						goto LOOP;
-					}
-			}
-
-			directory->paths_children.insert_back(name);
-		}
-	}
-	END:;
-
-	//Chunk* all = new Chunk(this, (*clusters.cbegin())->lba_start,clusters.size()*sectors_per_cluster);
-
-	while (clusters.size>0) delete clusters.remove_back();
-
-	for (int i=0;i<directory->paths_children.size;++i) {
-		kernel->write("\"%s\"\n",directory->paths_children[i].c_str());
-	}
-
-
-	/*uint8_t temp[512];
-
-	//AbsoluteLBA lba = cluster_begin_lba + (cluster_number-2ull)*sectors_per_cluster;
-	partition->read_sectors(temp, lba,1);
-
-	for (int i=0;i<512/32;++i) {
-		reinterpret_cast<DirectoryEntry*>(temp)[i].print();
-	}
-
-	kernel->write("Stop %d\n",static_cast<int>(first_root_sector)); while (1);*/
-
-	/*for (int i=0;i<512;++i) {
-		kernel->write("%X ",static_cast<int>(temp[i]));
-		if (i>0 && i%32==0) kernel->write("\n");
-	}*/
-
-	//MOSST::String path;
-	//root->paths_children.insert_back(path);
+	kernel->write("Printing filesystem:\n");
+	_print_recursive(static_cast<ObjectDirectoryFAT*>(root),0);
+	kernel->write("Done!\n");
 }
 
 //TODO: inline?
@@ -521,14 +573,34 @@ void FileSystemFAT::_fill_new_cluster_chain(MOSST::LinkedList<Chunk*>* clusters,
 	//	4: The end of the cluster chain has been found.
 	#define cluster_number first_cluster_number
 	LOOP:
+		Chunk* cluster = new Chunk(this, _cluster_to_sector(cluster_number),sectors_per_cluster);
+		clusters->insert_back(cluster);
+
 		if (_fat.get_next_cluster_number(cluster_number,&cluster_number)) {
-			kernel->write("Got %d\n",static_cast<int>(cluster_number));
-			Chunk* cluster = new Chunk(this, _cluster_to_sector(cluster_number),sectors_per_cluster);
-			clusters->insert_back(cluster);
+			//kernel->write("Got %d\n",static_cast<int>(cluster_number));
 			goto LOOP;
 		}
-		kernel->write("Missed %d\n",static_cast<int>(cluster_number));
+		//kernel->write("Missed %d\n",static_cast<int>(cluster_number));
 	#undef cluster_number
+}
+
+void FileSystemFAT::_print_recursive(ObjectDirectoryFAT* dir, int depth) const {
+	//assert_term(depth<10,"Implementation error!");
+	if (!dir->is_loaded) dir->load_entries();
+
+	for (int i=0;i<dir->children.size;++i) {
+		ObjectBase* object = dir->children[i];
+		if (object->type==ObjectBase::TYPE_DIRECTORY) {
+			ObjectDirectoryFAT* dir2 = static_cast<ObjectDirectoryFAT*>(object);
+			if (!(dir2->name=="." || dir2->name=="..")) {
+				for (int i=0;i<depth;++i) kernel->write("  "); kernel->write("\"%s\" (directory)\n",dir2->name.c_str());
+				_print_recursive(dir2,depth+1);
+			}
+		} else {
+			ObjectFileFAT* file = static_cast<ObjectFileFAT*>(object);
+			for (int i=0;i<depth;++i) kernel->write("  "); kernel->write("\"%s\" (file)\n",file->name.c_str());
+		}
+	}
 }
 
 

@@ -1,23 +1,27 @@
 #pragma once
 
-#include "../includes.h"
+#include "../../../includes.h"
+
+#include "components.h"
 
 
-namespace MOSS { namespace Terminal {
+namespace MOSS { namespace Graphics { namespace VGA {
 
 
-//NOTE: All numbers and coordinates start at 0!
+//Note: all numbers and coordinates start at zero.
 
-class TextModeTerminal final {
+class Terminal final {
 	private:
 		//char data[VGA_HEIGHT][VGA_WIDTH];
 
 		int _x;
 		int _y;
-		uint8_t color;
-		uint16_t* buffer;
+		uint8_t _color;
+		uint16_t volatile* _buffer;
 
 	public:
+		Interface interface;
+
 		enum COLORS {
 			COLOR_BLACK         =  0,
 			COLOR_BLUE          =  1,
@@ -38,8 +42,8 @@ class TextModeTerminal final {
 		};
 
 	public:
-		TextModeTerminal(void);
-		~TextModeTerminal(void);
+		Terminal(void);
+		~Terminal(void);
 
 		void scroll(int lines);
 
@@ -61,4 +65,4 @@ class TextModeTerminal final {
 };
 
 
-}}
+}}}

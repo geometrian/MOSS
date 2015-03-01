@@ -268,8 +268,8 @@ class DirectoryEntry final {
 				bool is_volume_ID             : 1; //ATTR_VOLUME_ID      := 0x08
 				bool is_directory             : 1; //ATTR_DIRECTORY      := 0x10
 				bool has_changed_since_backup : 1; //ATTR_ARCHIVE        := 0x20
-					                                //ATTR_LONG_NAME      := ATTR_READ_ONLY | ATTR_HIDDEN | ATTR_SYSTEM | ATTR_VOLUME_ID = 0x0F
-					                                //ATTR_LONG_NAME_MASK := ATTR_READ_ONLY | ATTR_HIDDEN | ATTR_SYSTEM | ATTR_VOLUME_ID | ATTR_DIRECTORY | ATTR_ARCHIVE = 0x2F
+				                                    //ATTR_LONG_NAME      := ATTR_READ_ONLY | ATTR_HIDDEN | ATTR_SYSTEM | ATTR_VOLUME_ID = 0x0F
+				                                    //ATTR_LONG_NAME_MASK := ATTR_READ_ONLY | ATTR_HIDDEN | ATTR_SYSTEM | ATTR_VOLUME_ID | ATTR_DIRECTORY | ATTR_ARCHIVE = 0x2F
 			private:
 				//The upper two bits of the attribute byte are reserved, and should always be set to zero when a file is created and never modified or looked at after that.
 				uint8_t _reserved             : 2;
@@ -384,7 +384,7 @@ class DirectoryEntry final {
 				//	}
 				uint8_t LDIR_Chksum;
 
-				//Characters 6-11 of the long-name sub-component in this dir entry.
+				//Characters [6,11] of the long-name sub-component in this dir entry.
 				uint16_t LDIR_Name2[6];
 
 				//Must be zero.  This is an artifact of the FAT "first cluster" and must be zero for compatibility with existing
@@ -398,6 +398,8 @@ class DirectoryEntry final {
 
 	public:
 		void add_name_to_string(MOSST::String* string) const;
+
+		void print(void) const;
 } __attribute__((packed));
 static_assert(sizeof(DirectoryEntry)==32,"DirectoryEntry is wrong size!");
 
@@ -425,11 +427,33 @@ class Chunk final {
 		}*/
 };
 
+class ObjectFileFAT final : public ObjectFileBase {
+	private:
+		uint32_t const _cluster_number;
+
+	public:
+		ObjectFileFAT(FileSystemFAT* filesystem, char const* name, uint32_t cluster_number);
+		inline ~ObjectFileFAT(void) {}
+};
+class ObjectDirectoryFAT final : public ObjectDirectoryBase {
+	private:
+		uint32_t const _cluster_number;
+
+	public:
+		ObjectDirectoryFAT(FileSystemFAT* filesystem, char const* name, uint32_t cluster_number);
+		inline ~ObjectDirectoryFAT(void) {}
+
+		void load_entries(void) override;
+
+		ObjectBase* get_new_child(MOSST::String const& child_name) const override;
+};
+
 class FileSystemFAT final : public FileSystemBase {
+	friend class ObjectDirectoryFAT;
 	public:
 		//User can read all of these but should not change any of them directly.
 
-		enum TYPE {
+		enum Type {
 			FAT12 = 12,
 			FAT16 = 16,
 			FAT32 = 32
@@ -458,20 +482,22 @@ class FileSystemFAT final : public FileSystemBase {
 		explicit FileSystemFAT(Partition* partition);
 		inline virtual ~FileSystemFAT(void) {}
 
+		#if 0
 		ObjectBase* get_new_child(ObjectDirectory const* /*directory*/, MOSST::String const& /*path_child*/) const override {
 			assert_term(false,"Not implemented!");
 			return nullptr;
 		}
+		#endif
 
 	private:
-		void _fill_directory(ObjectDirectory* directory, uint32_t cluster_number);
-
 		//Returns LBA of the first sector of the given cluster.
 		RelativeLBA _cluster_to_sector(uint32_t cluster_number) const;
 		//Returns the cluster number associated with the given sector.
 		uint32_t _sector_to_cluster(RelativeLBA sector) const;
 
 		void _fill_new_cluster_chain(MOSST::LinkedList<Chunk*>* clusters, uint32_t first_cluster_number);
+
+		void _print_recursive(ObjectDirectoryFAT* dir, int depth) const;
 };
 
 

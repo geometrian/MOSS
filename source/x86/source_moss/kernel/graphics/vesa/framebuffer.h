@@ -20,7 +20,7 @@ class Framebuffer final {
 		const int size;
 
 	public:
-		Framebuffer(Mode* mode);
+		explicit Framebuffer(Mode* mode);
 		~Framebuffer(void);
 
 		void draw_fill(Color const& color);
