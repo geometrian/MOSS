@@ -29,9 +29,20 @@ class Manager final {
 
 		Mouse* _mouse;
 
+		class _Image final { public:
+			int const w, h;
+			uint8_t* data;
+
+			_Image(int w,int h);
+			~_Image(void);
+		};
+		_Image* _bg;
+
 	public:
 		Manager(void);
 		~Manager(void);
+
+		void load_bg(char const* path);
 
 		void update(void);
 

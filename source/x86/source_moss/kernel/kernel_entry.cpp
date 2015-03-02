@@ -125,7 +125,12 @@ extern "C" void kernel_entry(unsigned long magic, unsigned long addr) {
 		Disk::FileSystem::FileSystemFAT filesystem(disk.partitions[0]);
 		kernel->filesystem = &filesystem;
 		//kernel->filesystem->print();
-		while (true);
+
+		/*Disk::FileSystem::ObjectFileBase* file = filesystem.open("/files/folder_a/folder_ab/file_aba.txt");
+		MOSST::Vector<uint8_t>* data = file->get_new_data();
+		delete data;*/
+
+		//while (true);
 	#endif
 
 	/*kernel->write("float a\n");
@@ -148,6 +153,11 @@ extern "C" void kernel_entry(unsigned long magic, unsigned long addr) {
 	//Set up the GUI manager
 	Graphics::GUI::Manager gui;
 	kernel->gui = &gui;
+
+	//kernel->write("Loading BG\n");
+	gui.load_bg("/files/sunspirenight_sm.ppm");
+	//kernel->write("Success!\n");
+	//while (1);
 
 	#if 0
 		uint8_t buffer[512];

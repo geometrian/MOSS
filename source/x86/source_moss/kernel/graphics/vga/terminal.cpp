@@ -64,22 +64,25 @@ void Terminal::scroll(int lines) {
 	}
 }
 
-void Terminal::fill_line(int number, char with) {
+void Terminal::fill_line(int line_index, char with) {
 	for (int x=0; x<interface.crtc.cols; ++x) {
-		write(with, x,number);
+		write(with, x,line_index);
 	}
 }
 
 void Terminal::next_line(void) {
 	_x = 0;
 	if (++_y == interface.crtc.rows) {
-		/*scroll(1);
+		scroll(1);
 		--_y;
 
-		uint8_t temp_color = _color;
-		set_color(EMPTY_FG,EMPTY_BG);
-		fill_line(interface.crtc.rows-1,EMPTY_CH);
-		_color = temp_color;*/
+		Color temp_color_text = color_text;
+		Color temp_color_bg   = color_bg;
+		set_color(COLOR_LIGHT_GREY,COLOR_BLACK);
+
+		fill_line(interface.crtc.rows-1,' ');
+
+		set_color(temp_color_text,temp_color_bg);
 	}
 }
 

@@ -31,6 +31,8 @@ template <typename type> class Vector {
 			if (_data!=nullptr) delete [] _data;
 		}
 
+		inline type* get_backing(void) { return reinterpret_cast<type*>(_data); }
+
 		Vector& operator=(Vector const& other) {
 			size = 0;
 			reserve(other.size);

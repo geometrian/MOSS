@@ -57,7 +57,7 @@ class Terminal final {
 
 		void scroll(int lines);
 
-		void fill_line(int number, char with);
+		void fill_line(int line_index, char with);
 
 		void next_line(void);
 

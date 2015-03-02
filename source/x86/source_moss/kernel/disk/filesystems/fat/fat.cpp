@@ -6,6 +6,8 @@
 namespace MOSS { namespace Disk { namespace FileSystem {
 
 
+#define FATFS static_cast<FileSystemFAT*>(filesystem)
+
 uint16_t FAT::_get_next_cluster_number_fat12(LazySector*restrict fatsectors[2],uint32_t fatentry_offset, uint16_t cluster_number) const {
 	//Fetch the next cluster number:
 	//	Access the FAT entry as an "uint16_t" just as we do for FAT16, but if the cluster number is even,
@@ -241,17 +243,49 @@ Chunk::~Chunk(void) {
 }
 
 
-ObjectFileFAT::ObjectFileFAT(FileSystemFAT* filesystem, char const* name, uint32_t cluster_number) : ObjectFileBase(filesystem,name), _cluster_number(cluster_number) {}
+ObjectFileFAT::ObjectFileFAT(FileSystemFAT* filesystem, char const* name, uint32_t cluster_number, uint32_t file_size) :
+	ObjectFileBase(filesystem,name), _cluster_number(cluster_number), _file_size(file_size)
+{}
+
+MOSST::Vector<uint8_t>* ObjectFileFAT::get_new_data(void) const /*override*/ {
+	uint32_t bytes_per_cluster = FATFS->bytes_per_sector*FATFS->sectors_per_cluster;
+
+	#ifdef MOSS_DEBUG
+	uint32_t expected_num_clusters = (_file_size + bytes_per_cluster-1)/bytes_per_cluster; //Note rounding up
+	#endif
+	/*kernel->write("Loading clusters (filesize %u, so at %u bytes/cluster expecting %u clusters)\n",
+		_file_size, bytes_per_cluster, expected_num_clusters
+	);*/
+	MOSST::LinkedList<Chunk*> clusters;
+	FATFS->_fill_new_cluster_chain(&clusters,_cluster_number); assert_term(clusters.size>0,"No clusters found for file \"%s\"!",name.c_str());
+	assert_term(static_cast<uint32_t>(clusters.size)==expected_num_clusters,"Expected %u clusters, but got %d clusters for file of size %u bytes!",expected_num_clusters,clusters.size,_file_size);
+	//kernel->write("Got clusters!\n");
+
+	MOSST::Vector<uint8_t>* result = new MOSST::Vector<uint8_t>();
+	result->reserve(_file_size);
+	//kernel->write("File data (%u bytes, %d clusters): \"",_file_size,clusters.size);
+	for (auto iter=clusters.cbegin(); iter!=clusters.cend(); ++iter) {
+		uint8_t const* data = (*iter)->data;
+		for (uint32_t j=0u;j<bytes_per_cluster;++j) {
+			result->insert_back(data[j]);
+			//kernel->write("%c",data[j]);
+			if (static_cast<uint32_t>(result->size)==_file_size) goto END;
+		}
+	}
+	assert_term(false,"Clusters' data was \"%d\" long, but expected file size of \"%u\"!",result->size,_file_size);
+	END:
+	//kernel->write("\"\n");
+
+	//kernel->write("Complete!\n");
+	return result;
+}
 
 
 ObjectDirectoryFAT::ObjectDirectoryFAT(FileSystemFAT* filesystem, char const* name, uint32_t cluster_number) : ObjectDirectoryBase(filesystem,name), _cluster_number(cluster_number) {}
 
 void ObjectDirectoryFAT::load_entries(void) /*override*/ {
-	#define FATFS static_cast<FileSystemFAT*>(filesystem)
 	MOSST::LinkedList<Chunk*> clusters;
-
-	FATFS->_fill_new_cluster_chain(&clusters,_cluster_number);
-	assert_term(clusters.size>0,"No clusters found for root directory!");
+	FATFS->_fill_new_cluster_chain(&clusters,_cluster_number); assert_term(clusters.size>0,"No clusters found for directory \"%s\"!",name.c_str());
 
 	int const top = static_cast<int>(FATFS->bytes_per_sector * FATFS->sectors_per_cluster / sizeof(DirectoryEntry));
 	for (auto iter=clusters.cbegin(); iter!=clusters.cend(); ++iter) {
@@ -301,7 +335,7 @@ void ObjectDirectoryFAT::load_entries(void) /*override*/ {
 				object = new ObjectDirectoryFAT(FATFS,name.c_str(),cluster_number);
 			} else {
 				//kernel->write("Adding file \"%s\"\n",name.c_str());
-				object = new ObjectFileFAT(FATFS,name.c_str(),cluster_number);
+				object = new ObjectFileFAT(FATFS,name.c_str(),cluster_number,entry->DIR_FileSize);
 			}
 			children.insert_back(object);
 		}
@@ -311,10 +345,9 @@ void ObjectDirectoryFAT::load_entries(void) /*override*/ {
 	while (clusters.size>0) delete clusters.remove_back();
 
 	is_loaded = true;
-	#undef FATFS
 }
 
-ObjectBase* ObjectDirectoryFAT::get_new_child(MOSST::String const& child_name) const /*override*/ {
+ObjectBase* ObjectDirectoryFAT::get_child(MOSST::String const& child_name) const /*override*/ {
 	for (int i=0;i<children.size;++i) {
 		if (children[i]->name==child_name) {
 			return children[i];
@@ -515,13 +548,13 @@ FileSystemFAT::FileSystemFAT(Partition* partition) : FileSystemBase(partition), 
 	}
 
 	//Load root directory
-	if (type==FAT32) {
+	/*if (type==FAT32) {
 		//An ordinary directory
 		//Chunk root_chunk(this, first_root_sector,);
 	} else {
 		//Root directory region
 		//Chunk root_chunk(this, first_root_sector,RootDirSectors);
-	}
+	}*/
 
 	//I don't know how the Root Directory Region is supposed to work.
 	assert_term(type==FAT32,"Only FAT32 implemented!");
@@ -532,6 +565,37 @@ FileSystemFAT::FileSystemFAT(Partition* partition) : FileSystemBase(partition), 
 	kernel->write_sys(2,"Printing filesystem:\n");
 	_print_recursive(static_cast<ObjectDirectoryFAT*>(root),0);
 	kernel->write_sys(2,"Done!\n");
+}
+
+ObjectFileBase* FileSystemFAT::open(char const* path) /*override*/ {
+	//Skip leading "/"
+	++path;
+
+	ObjectDirectoryBase* dir = root;
+
+	LOOP_DIR:
+		MOSST::String name;
+		LOOP_NAME:
+			char c = *(path++);
+			switch (c) {
+				case '/': {
+					//kernel->write("Reached separator; directory is \"%s\".\n",name.c_str());
+					ObjectBase* obj = dir->get_child(name);
+					assert_term(obj->type==ObjectBase::TYPE_DIRECTORY,"Expected \"%s\" to be a directory!",obj->name.c_str());
+					dir = static_cast<ObjectDirectoryBase*>(obj);
+					if (dir->is_loaded) dir->load_entries();
+					goto LOOP_DIR;
+				}
+				case '\0': {
+					//kernel->write("Reached end; filename is \"%s\".\n",name.c_str());
+					ObjectBase* obj = dir->get_child(name);
+					assert_term(obj->type==ObjectBase::TYPE_FILE,"Expected \"%s\" to be the requested file!",obj->name.c_str());
+					return static_cast<ObjectFileBase*>(obj);
+				}
+				default:
+					name.insert_back(c);
+					goto LOOP_NAME;
+			}
 }
 
 //TODO: inline?
@@ -556,12 +620,15 @@ void FileSystemFAT::_fill_new_cluster_chain(MOSST::LinkedList<Chunk*>* clusters,
 	//	3: Read the cluster represented by the extracted value and return for more directory parsing.
 	//	4: The end of the cluster chain has been found.
 	#define cluster_number first_cluster_number
+	#ifdef MOSS_DEBUG
+	//int i = 0;
+	#endif
 	LOOP:
 		Chunk* cluster = new Chunk(this, _cluster_to_sector(cluster_number),sectors_per_cluster);
 		clusters->insert_back(cluster);
 
 		if (_fat.get_next_cluster_number(cluster_number,&cluster_number)) {
-			//kernel->write("Got %d\n",static_cast<int>(cluster_number));
+			//kernel->write("Got cluster %d (number %d)\n",static_cast<int>(cluster_number),i++ + 1);
 			goto LOOP;
 		}
 		//kernel->write("Missed %d\n",static_cast<int>(cluster_number));

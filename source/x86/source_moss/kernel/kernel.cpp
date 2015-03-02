@@ -145,6 +145,8 @@ void Kernel::main(void) {
 		}
 	}*/
 
+	//gui->load_bg("/files/sunspirenight.ppm");
+
 	gui->add_frame("Hello world!", 50,500, 300,200);
 
 	while (true) {

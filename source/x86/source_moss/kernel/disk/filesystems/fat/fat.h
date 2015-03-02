@@ -404,9 +404,13 @@ class ObjectFileFAT final : public ObjectFileBase {
 	private:
 		uint32_t const _cluster_number;
 
+		uint32_t const _file_size; //in bytes
+
 	public:
-		ObjectFileFAT(FileSystemFAT* filesystem, char const* name, uint32_t cluster_number);
+		ObjectFileFAT(FileSystemFAT* filesystem, char const* name, uint32_t cluster_number, uint32_t file_size);
 		inline ~ObjectFileFAT(void) {}
+
+		MOSST::Vector<uint8_t>* get_new_data(void) const override;
 };
 class ObjectDirectoryFAT final : public ObjectDirectoryBase {
 	private:
@@ -418,11 +422,12 @@ class ObjectDirectoryFAT final : public ObjectDirectoryBase {
 
 		void load_entries(void) override;
 
-		ObjectBase* get_new_child(MOSST::String const& child_name) const override;
+		ObjectBase* get_child(MOSST::String const& child_name) const override;
 };
 
 class FileSystemFAT final : public FileSystemBase {
 	friend class ObjectDirectoryFAT;
+	friend class ObjectFileFAT;
 	public:
 		//User can read all of these but should not change any of them directly.
 
@@ -454,6 +459,8 @@ class FileSystemFAT final : public FileSystemBase {
 	public:
 		explicit FileSystemFAT(Partition* partition);
 		inline virtual ~FileSystemFAT(void) {}
+
+		ObjectFileBase* open(char const* path) override;
 
 	private:
 		//Returns LBA of the first sector of the given cluster.

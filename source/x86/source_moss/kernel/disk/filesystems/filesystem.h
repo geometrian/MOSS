@@ -34,15 +34,7 @@ class ObjectFileBase : public ObjectBase {
 	public:
 		inline virtual ~ObjectFileBase(void) {}
 
-		#if 0
-		MOSST::Vector<uint8_t>* get_new_data(void) const {
-			assert_term(false,"Not implemented!");
-			return nullptr;
-		}
-		void save_data(MOSST::Vector<uint8_t> const& /*data*/) {
-			assert_term(false,"Not implemented!");
-		}
-		#endif
+		virtual MOSST::Vector<uint8_t>* get_new_data(void) const = 0;
 };
 class ObjectDirectoryBase : public ObjectBase {
 	public:
@@ -56,7 +48,7 @@ class ObjectDirectoryBase : public ObjectBase {
 
 		virtual void load_entries(void) = 0;
 
-		virtual ObjectBase* get_new_child(MOSST::String const& child_name) const = 0;
+		virtual ObjectBase* get_child(MOSST::String const& child_name) const = 0;
 };
 
 class FileSystemBase {
@@ -73,9 +65,7 @@ class FileSystemBase {
 			delete root;
 		}
 
-		//TODO:
-		//virtual File* read_new(char const* path) = 0;
-		//virtual void write(const File* file) = 0;
+		virtual ObjectFileBase* open(char const* path) = 0;
 
 	/*private:
 		void _helper_print(ObjectDirectoryBase* directory, int depth) const;
