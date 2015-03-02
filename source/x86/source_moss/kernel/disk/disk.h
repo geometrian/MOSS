@@ -87,7 +87,7 @@ class Partition final {
 		void  read_sectors(uint8_t*       data_buffer, RelativeLBA lba,int num_sectors) const;
 		void write_sectors(uint8_t const* data_buffer, RelativeLBA lba,int num_sectors);
 
-		void print(int indent) const;
+		void print(int level) const;
 };
 
 class HardDiskDrive final {
@@ -128,7 +128,7 @@ class HardDiskDrive final {
 		AbsoluteLBA chs_to_lba(uint64_t cylinder,uint64_t head,uint64_t sector) const;
 		void lba_to_chs(AbsoluteLBA lba, uint64_t*restrict cylinder,uint64_t*restrict head,uint64_t*restrict sector) const;
 
-		void print(int indent) const;
+		void print(int level) const;
 };
 
 

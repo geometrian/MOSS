@@ -70,12 +70,25 @@ void Kernel::handle_mouse_unclick(Input::Mouse::EventMouseUnclick const& event) 
 	gui->handle_mouse(event);
 }
 
-void Kernel::write(char const* format, ...) {
+void Kernel::write(char const* format,...) {
 	va_list args;
 	va_start(args,format);
+	terminal->write(format,args);
+	va_end(args);
+}
+void Kernel::write_sys(int level, char const* format,...) {
+	switch (level) {
+		case 0: terminal->set_color_text(Graphics::VGA::Terminal::COLOR_YELLOW); break;
+		case 1: terminal->set_color_text(Graphics::VGA::Terminal::  COLOR_CYAN); break;
+		default: //Fallthrough; any higher levels get this color too.
+		case 2: terminal->set_color_text(Graphics::VGA::Terminal:: COLOR_BROWN); break;
+	}
 
-	terminal->write(format, args);
+	while (level>0) { write("  "); --level; }
 
+	va_list args;
+	va_start(args,format);
+	terminal->write(format,args);
 	va_end(args);
 }
 

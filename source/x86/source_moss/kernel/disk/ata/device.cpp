@@ -78,19 +78,17 @@ void Device::fill_information(void) {
 	IO::send<uint8_t>(_bus->_io_base+0x0206,control);
 }*/
 
-void Device::print(int indent) const {
-	for (int i=0;i<indent;++i) kernel->write("  ");
-	kernel->write("Supports:");
+void Device::print(int level) const {
+	kernel->write_sys(level,"Supports:");
 	if (supports_dma) kernel->write(" <DMA>");
 	if (supports_lba) kernel->write(" <LBA>");
 	kernel->write("\n");
 
-	for (int i=0;i<indent;++i) kernel->write("  ");
-	kernel->write("Geometry (C,H,S, capacity): %d,%d,%d, %d\n", num_cylinders,num_heads,num_sectors, capacity);
+	kernel->write_sys(level,"Geometry (C,H,S, capacity): %d,%d,%d, %d\n", num_cylinders,num_heads,num_sectors, capacity);
 
-	for (int i=0;i<indent;++i) kernel->write("  "); kernel->write("Model:    \"%s\"\n",    model);
-	for (int i=0;i<indent;++i) kernel->write("  "); kernel->write("Serial:   \"%s\"\n",   serial);
-	for (int i=0;i<indent;++i) kernel->write("  "); kernel->write("Firmware: \"%s\"\n", firmware);
+	kernel->write_sys(level,"Model:    \"%s\"\n",    model);
+	kernel->write_sys(level,"Serial:   \"%s\"\n",   serial);
+	kernel->write_sys(level,"Firmware: \"%s\"\n", firmware);
 }
 
 

@@ -25,7 +25,7 @@ class Controller final {
 
 		void read_sectors(uint8_t* data_buffer, AbsoluteLBA lba,int num_sectors, int index_bus,int index_device) const;
 
-		void print(int indent) const;
+		void print(int level) const;
 };
 
 

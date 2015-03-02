@@ -12,7 +12,6 @@
 #include "graphics/gui/manager.h"
 #include "graphics/vesa/controller.h"
 #include "graphics/vga/terminal.h"
-#include "graphics/font.h" //TODO: remove
 
 #include "input/devices/controller_ps2.h"
 
@@ -40,7 +39,6 @@ extern "C" void kernel_entry(unsigned long magic, unsigned long addr) {
 	//The text mode terminal
 	Graphics::VGA::Terminal terminal;
 	kernel->terminal = &terminal;
-	terminal.set_color_text(Graphics::VGA::Terminal::COLOR_RED);
 
 	//Check boot went okay
 	Boot::multiboot_info_t* mbi = reinterpret_cast<Boot::multiboot_info_t*>(addr);
@@ -52,116 +50,78 @@ extern "C" void kernel_entry(unsigned long magic, unsigned long addr) {
 	Memory::MemoryManager memory(mbi);
 	kernel->memory = &memory;
 
-	/*int i = 0;
-	for (int y=0;y<4;++y) {
-		for (int x=0;x<8;++x) {
-			Graphics::Font::font8x8[i++].print(x*9,y*9);
-		}
-	}
-	while (1);*/
-
-	/*auto const& ref = terminal.interface.regs.crtc_vertical_retrace_end_reg;
-	kernel->write("0x%p 0x%p\n",&ref,ref.bits);
-	while (1);*/
-
-	/*terminal.interface.regs.read_all_registers();
-	terminal.interface.regs.crtc_offset_reg.print();
-	while (1);*/
-
-	//char const*  str80 = "<-|(((Hello_world; how_are_you?__My_name_is_Ian;_good_to_finally_meet_you!)))|->";
-	//char const*  str90 = "<-|((Hello_world; how_are_you?__My_name_is_Ian;_it's_good_to_finally_get_to_meet_you!))|->";
-	//char const* str132 = "<-|(((Hello_world; how_are_you?__My_name_is_Ian!__Wow this is exciting.__I'm_so_happy.__It_is_good_to_finally_get_to_meet_you!)))|->";
-	char const* str132 = "*1 5*  10*  15*  20*  25*  30*  35*  40*  45*  50*  55*  60*  65*  70*  75*  80*  85*  90*  95* 100* 105* 110* 115* 120* 125* 130* |";
-
-	for (int j=0;j<1;++j) {
-		#if 0
-			terminal.set_color_text(Graphics::VGA::Terminal::COLOR_RED);
-			//Cursor at 0
-			for (int i=0;i<26;++i) kernel->write("%c",'a'+i);
-			//Cursor at 26
-			for (int i=0;i<26;++i) kernel->write("%c",'A'+i);
-			//Cursor at 52
-			for (int i=0;i<0x10;++i) kernel->write("%X",i);
-			//Cursor at 68
-			terminal.set_color_text(Graphics::VGA::Terminal::COLOR_GREEN);
-			for (int i=0;i<26;++i) kernel->write("%c",'a'+i);
-			//Cursor at 94
-			for (int i=0;i<26;++i) kernel->write("%c",'A'+i);
-			//Cursor at 120
-			for (int i=0;i<0x10;++i) kernel->write("%X",i);
-			//Cursor at 136
-			terminal.set_color_text(Graphics::VGA::Terminal::COLOR_BLUE);
-			for (int i=0;i<26;++i) kernel->write("%c",'a'+i);
-			//Cursor at 1
-			for (int i=0;i<26;++i) kernel->write("%c",'A'+i);
-			//Cursor at 120
-			for (int i=0;i<0x10;++i) kernel->write("%X",i);
-			kernel->write("\n");
-		#else
-			terminal.set_color_text(Graphics::VGA::Terminal::COLOR_RED  ); kernel->write("%s",str132);
-			terminal.set_color_text(Graphics::VGA::Terminal::COLOR_GREEN); kernel->write("%s",str132);
-			terminal.set_color_text(Graphics::VGA::Terminal::COLOR_BLUE ); kernel->write("%s",str132);
-		#endif
-	}
-	/*for (int i=0;i<5;++i) terminal.write('A'+i, i,i);
-	//terminal.interface.dump_registers();
-	terminal.write('C', 79,0);
-	terminal.write('$', 87,0);*/
-	terminal.set_color_text(Graphics::VGA::Terminal::COLOR_RED  );
-	terminal.set_pos(0,0);
-	for (int i=0;i<80;++i) {
-		kernel->write("%d\n",i);
-	}
-	while (1);
-
 	//The GRUB documentation http://www.gnu.org/software/grub/manual/multiboot/multiboot.html implies
 	//	that interrupts are already disabled.  That's good, because the following allows us to deal with
 	//	them for the first time.
 	//terminal.write("Forcing disable hardware interrupts\n");
 	//MOSS::Interrupts::disable_hw_int();
 
+	terminal.set_color_text(Graphics::VGA::Terminal::COLOR_GREEN); kernel->write(
+		"         _    _ "  "  ____  "   "  ____ "   "  ____ "   "\n"
+		"       /| \\  / |" " /  _ \\ "  " /___/ "   " /___/ "   "\n"
+		"       ||  \\/  |" "|| / \\ |"  "|\\____ "  "|\\____ "  "\n"
+		"       || |\\/| |" "|| \\_/ |"  " \\____\\" " \\____\\" "\n"
+		"       ||_| ||_|"  "\\ \\___/ " " _____/"   " _____/"   "\n"
+		"       /_/  /_/ "  " \\___/  "  "/____/ "   "/____/ "   "\n"
+		"                "  "        "   "       "   "       "   "\n"
+	); terminal.set_color_text(Graphics::VGA::Terminal::COLOR_MAGENTA); kernel->write(
+		"  The Minimal Operating System that Sucks\n"
+	); terminal.set_color_text(Graphics::VGA::Terminal::COLOR_PURPLE); kernel->write(
+		"    by Ian Mallett\n\n"
+	);
+
+	#define MSG0(MESSAGE) kernel->write_sys(0,MESSAGE)
+	#define MSG1(MESSAGE) kernel->write_sys(1,MESSAGE)
+	#define MSG2(MESSAGE) kernel->write_sys(2,MESSAGE)
+
+	MSG0("Booting . . .\n");
 	#if 1 //Set up memory segments
-		kernel->write("Loading GDT\n");
+		MSG1("Setting up memory segments:\n");
+		MSG2("Loading GDT\n");
 		MOSS::Memory::load_gdt();
-		kernel->write("Reloading segments\n\n");
+		MSG2("Reloading segments\n\n");
 		MOSS::Memory::reload_segments();
 	#endif
 	#if 1 //Set up interrupts
-		kernel->write("Loading IDT\n");
+		MSG1("Setting up interrupts:\n");
+		MSG2("Loading IDT\n");
 		MOSS::Interrupts::load_idt();
-		kernel->write("Setting up IRQs\n");
+		MSG2("Setting up IRQs\n");
 		MOSS::Interrupts::init_irqs();
-		kernel->write("Remapping PIC\n\n");
+		MSG2("Remapping PIC\n\n");
 		MOSS::Interrupts::PIC::remap(32,40);
 	#endif
 	#if 0 //Set up PS/2 devices
-		kernel->write("Setting up PS/2 controller\n\n");
+		MSG1("Setting up PS/2 Devices:\n");
+		MSG2("Setting up PS/2 controller\n");
 		Input::Devices::ControllerPS2 controller_ps2;
 		kernel->controller_ps2 = &controller_ps2;
 	#endif
 	#if 1 //Set up ATA and hard disk
-		kernel->write("Setting up ATA controller\n");
+		MSG1("Setting up ATA controller:\n");
 		Disk::ATA::Controller controller_ata;
 		kernel->controller_ata = &controller_ata;
-		controller_ata.print(1);
+		controller_ata.print(2);
 	#endif
 	#if 1 //Set up FPU
 		//TODO: assumes it exists and is on-board the CPU
-		kernel->write("Setting up FPU\n\n");
+		MSG1("Setting up FPU:\n\n");
 		__asm__ __volatile__("fninit");
 	#endif
 	#if 1 //Enable hardware interrupts
-		kernel->write("Enabling hardware interrupts\n");
+		MSG1("Enabling hardware interrupts:\n");
 		MOSS::Interrupts::enable_hw_int();
+		MSG1("\n");
 	#endif
 	#if 1 //Set up HDD representation (note must come after ATA and enable interrupts)
-		kernel->write("Setting up hard disk drive\n");
+		MSG1("Setting up hard disk drive:\n");
 		Disk::HardDiskDrive disk(&controller_ata, 0,0);
 		kernel->disk = &disk;
-		disk.print(1);
+		disk.print(2);
+		MSG1("\n");
 	#endif
 	#if 1 //Set up file system representation (note must come after ATA, enable interrupts, and HDD representation)
-		kernel->write("Setting up file system\n");
+		MSG1("Setting up file system:\n");
 		Disk::FileSystem::FileSystemFAT filesystem(disk.partitions[0]);
 		kernel->filesystem = &filesystem;
 		//kernel->filesystem->print();

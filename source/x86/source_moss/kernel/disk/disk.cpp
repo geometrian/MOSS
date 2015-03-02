@@ -39,9 +39,8 @@ void Partition::write_sectors(uint8_t const* data_buffer, RelativeLBA lba,int nu
 	drive->write_sectors(data_buffer, entry->relative_sector+lba,num_sectors);
 }
 
-void Partition::print(int indent) const {
-	for (int i=0;i<indent;++i) kernel->write("  ");
-	kernel->write("%d: Partition (begin %u, sectors %u)",index,entry->relative_sector,entry->total_sectors);
+void Partition::print(int level) const {
+	kernel->write_sys(level,"%d: Partition (begin %u, sectors %u)",index,entry->relative_sector,entry->total_sectors);
 	if (entry->bootable==0x80) {
 		kernel->write(" (bootable)");
 	}
@@ -140,16 +139,14 @@ void HardDiskDrive::lba_to_chs(AbsoluteLBA lba, uint64_t*restrict cylinder,uint6
 	*sector   = (lba%_SPT) + 1ull;
 }
 
-void HardDiskDrive::print(int indent) const {
-	for (int i=0;i<indent;++i) kernel->write("  ");
-	kernel->write("Hard disk drive (on ATA bus %d, device %d); partitions:\n",index_bus,index_device);
+void HardDiskDrive::print(int level) const {
+	kernel->write_sys(level,"Hard disk drive (on ATA bus %d, device %d); partitions:\n",index_bus,index_device);
 
 	for (int i=0;i<4;++i) {
 		if (partitions[i]==nullptr) {
-			for (int i=0;i<indent+1;++i) kernel->write("  ");
-			kernel->write("%d: Invalid\n",i);
+			kernel->write_sys(level+1,"%d: Invalid\n",i);
 		} else {
-			partitions[i]->print(indent+1);
+			partitions[i]->print(level+1);
 		}
 	}
 }

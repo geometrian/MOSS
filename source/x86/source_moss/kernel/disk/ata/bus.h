@@ -89,7 +89,7 @@ class Bus final {
 		void     _write_uint16(Write::RegisterOffset offset, uint16_t data) const;
 
 	public:
-		void print(int indent) const;
+		void print(int level) const;
 };
 
 

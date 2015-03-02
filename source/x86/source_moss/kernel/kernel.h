@@ -85,7 +85,8 @@ class Kernel final {
 		void handle_mouse_click(Input::Mouse::EventMouseClick const& event);
 		void handle_mouse_unclick(Input::Mouse::EventMouseUnclick const& event);
 
-		void write(char const* format, ...);
+		void write(char const* format,...);
+		void write_sys(int level, char const* format,...);
 
 		void init(void);
 		void main(void);

@@ -308,27 +308,7 @@ void ObjectDirectoryFAT::load_entries(void) /*override*/ {
 	}
 	END:;
 
-	//Chunk* all = new Chunk(this, (*clusters.cbegin())->lba_start,clusters.size()*sectors_per_cluster);
-
 	while (clusters.size>0) delete clusters.remove_back();
-
-	/*kernel->write("Directory listing:\n");
-	for (int i=0;i<directory->paths_children.size;++i) {
-		kernel->write("  \"%s\"\n",directory->paths_children[i].c_str());
-
-		for (
-	}
-	kernel->write("Done!\n");*/
-
-	//while (1);
-
-	/*for (int i=0;i<512;++i) {
-		kernel->write("%X ",static_cast<int>(temp[i]));
-		if (i>0 && i%32==0) kernel->write("\n");
-	}*/
-
-	//MOSST::String path;
-	//root->paths_children.insert_back(path);
 
 	is_loaded = true;
 	#undef FATFS
@@ -549,9 +529,9 @@ FileSystemFAT::FileSystemFAT(Partition* partition) : FileSystemBase(partition), 
 	root = new ObjectDirectoryFAT(this,"/",_sector_to_cluster(first_root_sector));
 	root->load_entries();
 
-	kernel->write("Printing filesystem:\n");
+	kernel->write_sys(2,"Printing filesystem:\n");
 	_print_recursive(static_cast<ObjectDirectoryFAT*>(root),0);
-	kernel->write("Done!\n");
+	kernel->write_sys(2,"Done!\n");
 }
 
 //TODO: inline?
@@ -564,6 +544,10 @@ uint32_t FileSystemFAT::_sector_to_cluster(RelativeLBA sector) const {
 	return (sector - first_data_sector)/sectors_per_cluster + 2u;
 }
 
+//Note that a zero-length file—a file that has no data allocated to it—has a first cluster number of 0 placed in its
+//	directory entry.  This cluster location in the FAT (see earlier computation of ThisFATSecNum and ThisFATEntOffset)
+//	contains either an EOC mark (End Of Clusterchain) or the cluster number of the next cluster of the file.  The EOC
+//	value is FAT-type dependent.
 void FileSystemFAT::_fill_new_cluster_chain(MOSST::LinkedList<Chunk*>* clusters, uint32_t first_cluster_number) {
 	//Following cluster chains:
 	//	See: http://wiki.osdev.org/FAT#Following_Cluster_Chains
@@ -593,12 +577,12 @@ void FileSystemFAT::_print_recursive(ObjectDirectoryFAT* dir, int depth) const {
 		if (object->type==ObjectBase::TYPE_DIRECTORY) {
 			ObjectDirectoryFAT* dir2 = static_cast<ObjectDirectoryFAT*>(object);
 			if (!(dir2->name=="." || dir2->name=="..")) {
-				for (int i=0;i<depth;++i) kernel->write("  "); kernel->write("\"%s\" (directory)\n",dir2->name.c_str());
+				kernel->write_sys(depth+2,"\"%s\" (directory)\n",dir2->name.c_str());
 				_print_recursive(dir2,depth+1);
 			}
 		} else {
 			ObjectFileFAT* file = static_cast<ObjectFileFAT*>(object);
-			for (int i=0;i<depth;++i) kernel->write("  "); kernel->write("\"%s\" (file)\n",file->name.c_str());
+			kernel->write_sys(depth+2,"\"%s\" (file)\n",file->name.c_str());
 		}
 	}
 }

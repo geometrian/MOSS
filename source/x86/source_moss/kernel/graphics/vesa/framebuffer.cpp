@@ -185,7 +185,7 @@ void Framebuffer::draw_text(int x,int y, char character, Color const& color,Colo
 	int x_end = min(x+8,mode->info.XResolution-1);
 	int y_end = min(y+8,mode->info.YResolution-1);
 	for (int y2=y_start;y2<y_end;++y2) {
-		uint8_t const& row = chr.rows[y2-y_start];
+		uint8_t const& row = chr.rows[7-(y2-y_start)];
 		for (int x2=x_start;x2<x_end;++x2) {
 			int x3 = x2 - x_start;
 			if (row&(1<<(7-x3))) blend_pixel(x2,y2,      color);

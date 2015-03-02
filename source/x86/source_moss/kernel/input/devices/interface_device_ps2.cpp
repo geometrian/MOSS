@@ -20,7 +20,7 @@ InterfaceDevicePS2Base* InterfaceDevicePS2Base::get_new_device(ControllerPS2* co
 	//http://wiki.osdev.org/%228042%22_PS/2_Controller#Detecting_PS.2F2_Device_Types
 	//Following my idea from my post here: http://forum.osdev.org/viewtopic.php?f=1&t=26889
 
-	kernel->write("Checking PS/2 device (index %d):\n",device_index);
+	kernel->write_sys(2,"Checking PS/2 device (index %d):\n",device_index);
 
 	bool attempted_ps2_mouse_config1 = false;
 	bool attempted_ps2_mouse_config2 = false;
@@ -62,12 +62,12 @@ InterfaceDevicePS2Base* InterfaceDevicePS2Base::get_new_device(ControllerPS2* co
 					case 0x41:
 					case 0xC1:
 						//MF2 keyboard with translation enabled in the PS/Controller (not possible for the second PS/2 port)
-						kernel->write("  PS/2 device %d (id %u %u) recognized as MF2 keyboard (with translation)!\n",device_index,byte1,byte2);
+						kernel->write_sys(3,"PS/2 device %d (id %u %u) recognized as MF2 keyboard (with translation)!\n",device_index,byte1,byte2);
 						new_device = new InterfaceDevicePS2Keyboard(controller,device_index,DeviceType::DeviceKeyboardMF2Trans);
 						break;
 					case 0x83:
 						//MF2 keyboard
-						kernel->write("  PS/2 device %d (id %u %u) recognized as MF2 keyboard!\n",device_index,byte1,byte2);
+						kernel->write_sys(3,"PS/2 device %d (id %u %u) recognized as MF2 keyboard!\n",device_index,byte1,byte2);
 						new_device = new InterfaceDevicePS2Keyboard(controller,device_index,DeviceType::DeviceKeyboardMF2);
 						break;
 					default:
@@ -78,11 +78,11 @@ InterfaceDevicePS2Base* InterfaceDevicePS2Base::get_new_device(ControllerPS2* co
 				switch (byte1) {
 					case 0x00: //Standard PS/2 mouse
 						//Awww sadface.  Let's configure it and try again.
-						kernel->write("  PS/2 device %d (id %u) recognized as basic mouse!\n",device_index,byte1);
+						kernel->write_sys(3,"PS/2 device %d (id %u) recognized as basic mouse!\n",device_index,byte1);
 						new_device = new InterfaceDevicePS2Mouse(controller,device_index,DeviceType::DeviceMouseBasic);
 						if (!attempted_ps2_mouse_config1) { //but only if we haven't tried that before
 							//http://wiki.osdev.org/Mouse_Input#Init.2FDetection_Command_Sequences
-							kernel->write("  Checking to see if it's actually better . . .\n");
+							kernel->write_sys(3,"Checking to see if it is actually better . . .\n");
 							static_cast<InterfaceDevicePS2Mouse*>(new_device)->set_sample_rate(200);
 							static_cast<InterfaceDevicePS2Mouse*>(new_device)->set_sample_rate(100);
 							static_cast<InterfaceDevicePS2Mouse*>(new_device)->set_sample_rate( 80);
@@ -93,11 +93,11 @@ InterfaceDevicePS2Base* InterfaceDevicePS2Base::get_new_device(ControllerPS2* co
 						break;
 					case 0x03: //Mouse with scroll wheel
 						//Less of a sadface, but still.  Let's configure it and try again.
-						kernel->write("  PS/2 device %d (id %u) recognized as scrollwheel mouse!\n",device_index,byte1);
+						kernel->write_sys(3,"PS/2 device %d (id %u) recognized as scrollwheel mouse!\n",device_index,byte1);
 						new_device = new InterfaceDevicePS2Mouse(controller,device_index,DeviceType::DeviceMouseScroll);
 						if (!attempted_ps2_mouse_config2) { //but only if we haven't tried that before
 							//http://wiki.osdev.org/Mouse_Input#Init.2FDetection_Command_Sequences
-							kernel->write("  Checking to see if it's actually better . . .\n");
+							kernel->write_sys(3,"Checking to see if it is actually better . . .\n");
 							static_cast<InterfaceDevicePS2Mouse*>(new_device)->set_sample_rate(200);
 							static_cast<InterfaceDevicePS2Mouse*>(new_device)->set_sample_rate(200);
 							static_cast<InterfaceDevicePS2Mouse*>(new_device)->set_sample_rate( 80);
@@ -106,7 +106,7 @@ InterfaceDevicePS2Base* InterfaceDevicePS2Base::get_new_device(ControllerPS2* co
 						}
 						break;
 					case 0x04: //5-button mouse
-						kernel->write("  PS/2 device %d (id %u) recognized as five-button mouse!\n",device_index,byte1);
+						kernel->write_sys(3,"PS/2 device %d (id %u) recognized as five-button mouse!\n",device_index,byte1);
 						new_device = new InterfaceDevicePS2Mouse(controller,device_index,DeviceType::DeviceMouse5);
 						break;
 					default:

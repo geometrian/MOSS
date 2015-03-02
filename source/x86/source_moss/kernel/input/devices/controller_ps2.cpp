@@ -73,6 +73,7 @@ ControllerPS2::ControllerPS2(void) {
 	}
 
 	//Step 8: Perform interface tests (test the PS/2 ports)
+	#ifdef MOSS_DEBUG
 	{
 		#define CHECK_PORT(PORT)\
 			recv_data(&result);\
@@ -96,6 +97,7 @@ ControllerPS2::ControllerPS2(void) {
 
 		#undef CHECK_PORT
 	}
+	#endif
 
 	//Step 9: Enable devices
 	{
@@ -131,7 +133,7 @@ ControllerPS2::ControllerPS2(void) {
 	}
 
 	//kernel->write("Keyboard using scancode "); kernel->write((int)(keyboard->get_scancode())); kernel->write("!\n");
-	//ASSERT(keyboard->set_scancode(2)==2,"Could not set keyboard scancode to 2!");
+	//assert_term(keyboard->set_scancode(2)==2,"Could not set keyboard scancode to 2!");
 }
 ControllerPS2::~ControllerPS2(void) {
 	delete device0;

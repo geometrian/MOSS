@@ -380,16 +380,16 @@ void     Bus::_write_uint16(Write::RegisterOffset offset, uint16_t data) const {
 	IO::send<uint8_t>(_io_base+offset,data);
 }
 
-void Bus::print(int indent) const {
+void Bus::print(int level) const {
 	static char const* bus_names[4] = {"Primary","Secondary","Tertiary","Quaternary"};
-	for (int i=0;i<indent;++i) kernel->write("  "); kernel->write("%d: %s bus.  Valid devices:\n",index,bus_names[index]);
+	kernel->write_sys(level,"%d: %s bus.  Valid devices:\n",index,bus_names[index]);
 	for (int j=0;j<2;++j) {
 		Device* device = devices[j];
 		if (device==nullptr) {
-			for (int i=0;i<indent+1;++i) kernel->write("  "); kernel->write("%d: Invalid drive (or ATAPI)\n",j);
+			kernel->write_sys(level+1,"%d: Invalid drive (or ATAPI)\n",j);
 		} else {
-			for (int i=0;i<indent+1;++i) kernel->write("  "); kernel->write("%d: Valid drive:\n",j);
-			device->print(indent+2);
+			kernel->write_sys(level+1,"%d: Valid drive:\n",j);
+			device->print(level+2);
 		}
 	}
 }

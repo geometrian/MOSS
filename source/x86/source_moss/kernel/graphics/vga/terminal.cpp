@@ -1,6 +1,7 @@
 #include "terminal.h"
 
 #include "../../../mossc/cstdio"
+#include "../../../mossc/cstring"
 
 #include "../../io/io.h"
 
@@ -10,18 +11,14 @@
 namespace MOSS { namespace Graphics { namespace VGA {
 
 
-#define EMPTY_CH ' '
-#define EMPTY_FG COLOR_LIGHT_GREY
-#define EMPTY_BG COLOR_BLACK
-
-#define DEFAULT_FG COLOR_DARK_GREY
-#define DEFAULT_BG COLOR_BLACK
-
-
 Terminal::Terminal(void) {
 	_x = 0;
 	_y = 0;
 	_buffer = reinterpret_cast<uint16_t*>(0xB8000);
+
+	//This seems to be the default
+	color_text = COLOR_LIGHT_GREY;
+	color_bg   = COLOR_BLACK;
 
 	#if 1
 		interface.set_use_font(Graphics::Font::font8x8);
@@ -31,17 +28,27 @@ Terminal::Terminal(void) {
 		interface.crtc.set_mode(Graphics::VGA::CathodeRayTubeController::Mode::text128x48);
 	#endif
 
-	//interface.crtc.set_mode(CathodeRayTubeController::Mode::text80x25);
-	//while(1);
-
-	set_color(EMPTY_FG,EMPTY_BG);
 	for (int y=0; y<interface.crtc.rows; ++y) {
 		for (int x=0; x<interface.crtc.cols; ++x) {
-			write(EMPTY_CH, x,y);
+			write(' ', x,y);
 		}
 	}
 
-	set_color(DEFAULT_FG,DEFAULT_BG);
+	/*//char const*  str80 = "<-|(((Hello_world; how_are_you?__My_name_is_Ian;_good_to_finally_meet_you!)))|->";
+	//char const*  str90 = "<-|((Hello_world; how_are_you?__My_name_is_Ian;_it's_good_to_finally_get_to_meet_you!))|->";
+	//char const* str132 = "<-|(((Hello_world; how_are_you?__My_name_is_Ian!__Wow this is exciting.__I'm_so_happy.__It_is_good_to_finally_get_to_meet_you!)))|->";
+	char const* str132 = "*1 5*  10*  15*  20*  25*  30*  35*  40*  45*  50*  55*  60*  65*  70*  75*  80*  85*  90*  95* 100* 105* 110* 115* 120* 125* 130* |";
+	for (int j=0;j<1;++j) {
+		set_color_text(Graphics::VGA::Terminal::COLOR_RED  ); kernel->write("%s",str132);
+		set_color_text(Graphics::VGA::Terminal::COLOR_GREEN); kernel->write("%s",str132);
+		set_color_text(Graphics::VGA::Terminal::COLOR_BLUE ); kernel->write("%s",str132);
+	}
+	set_color_text(Graphics::VGA::Terminal::COLOR_RED  );
+	set_pos(0,0);
+	for (int i=0;i<80;++i) {
+		kernel->write("%d\n",i);
+	}
+	while (1);*/
 }
 Terminal::~Terminal(void) {}
 
@@ -76,16 +83,26 @@ void Terminal::next_line(void) {
 	}
 }
 
-void Terminal::set_color_text(enum COLORS color_text) {
-	_color &= 0x00F0u;
-	_color |= color_text;
+void Terminal::set_color_text(enum Color color_text) {
+	if (this->color_text!=color_text) {
+		_color &= 0x00F0u;
+		_color |= color_text;
+
+		this->color_text = color_text;
+	}
 }
-void Terminal::set_color_background(enum COLORS color_background) {
-	_color &= 0x000Fu;
-	_color |= color_background<<4;
+void Terminal::set_color_background(enum Color color_bg) {
+	if (this->color_bg!=color_bg) {
+		_color &= 0x000Fu;
+		_color |= color_bg<<4;
+
+		this->color_bg = color_bg;
+	}
 }
-void Terminal::set_color(enum COLORS color_text, enum COLORS color_background) {
-	_color = (color_background<<4) | color_text;
+void Terminal::set_color(enum Color color_text, enum Color color_bg) {
+	set_color_text(color_text);
+	set_color_background(color_bg);
+	//_color = (color_bg<<4) | color_text;
 }
 
 void Terminal::set_pos(int x, int y) {
@@ -130,7 +147,11 @@ void Terminal::write(char const* format) {
 		}
 }
 void Terminal::write(char const* format, va_list args) {
-	char buffer[256]; //TODO: use vsnprintf or something!
+	#ifdef MOSS_DEBUG
+	int len = MOSSC::strlen(format);
+	assert_term(len<1024,"Format string too long (%d)!  Not implemented!",len);
+	#endif
+	char buffer[1024]; //TODO: use vsnprintf or something!
 
 	MOSSC::vsprintf(buffer,format,args);
 	size_t i = 0;

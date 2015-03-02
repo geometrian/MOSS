@@ -39,7 +39,7 @@ class Device final {
 		//Updates the drive's control register.  Note: the drive must be current on the bus to accept changes!
 		//void update_control_register(void) const;
 
-		void print(int indent) const;
+		void print(int level) const;
 };
 
 

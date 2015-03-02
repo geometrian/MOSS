@@ -160,24 +160,6 @@ void Interface::_set_use_font(uint8_t const* font_buffer, int font_height) {
 		_gc.set_plane(2);
 
 		//Write font
-		/*uint8_t const blah[16] = {
-			0b11111111,
-			0b10000001,
-			0b11100001,
-			0b10000001,
-			0b10000001,
-			0b10000001,
-			0b10000001,
-			0b11100111,
-
-			0b11100111,
-			0b10000001,
-			0b10000001,
-			0b10000001,
-			0b10000111,
-			0b10000001,
-			0b11111111,
-		};*/
 		for (int i=0;i<256;++i) {
 			MOSSC::memcpy(
 				//Note: font slots other than 0 might not be respected on AMD cards

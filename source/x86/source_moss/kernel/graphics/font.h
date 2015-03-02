@@ -35,4 +35,8 @@ extern Character8x8 const* font8x8;
 extern Character8x16 const* font8x16;
 
 
+void print_font( Character8x8 const* font, int cols,int rows);
+void print_font(Character8x16 const* font, int cols,int rows);
+
+
 }}}

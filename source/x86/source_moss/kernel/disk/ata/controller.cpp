@@ -30,14 +30,14 @@ void Controller::read_sectors(uint8_t* data_buffer, AbsoluteLBA lba,int num_sect
 	buses[index_bus]->command_readsectors(index_device, data_buffer, lba,num_sectors);
 }
 
-void Controller::print(int indent) const {
-	for (int i=0;i<indent;++i) kernel->write("  "); kernel->write("Controller's buses:\n");
+void Controller::print(int level) const {
+	kernel->write_sys(level,"Controller's buses:\n");
 	for (int i=0;i<4;++i) {
 		Bus* bus = buses[i];
 		if (bus==nullptr) {
-			for (int i=0;i<indent+1;++i) kernel->write("  "); kernel->write("%d: Bus nonexistent (or contains no devices)\n",i);
+			kernel->write_sys(level+1,"%d: Bus nonexistent (or contains no devices)\n",i);
 		} else {
-			bus->print(indent+1);
+			bus->print(level+1);
 		}
 	}
 }

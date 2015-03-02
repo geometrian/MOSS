@@ -22,24 +22,34 @@ class Terminal final {
 	public:
 		Interface interface;
 
-		enum COLORS {
-			COLOR_BLACK         =  0,
-			COLOR_BLUE          =  1,
-			COLOR_GREEN         =  2,
-			COLOR_CYAN          =  3,
-			COLOR_RED           =  4,
-			COLOR_MAGENTA       =  5,
-			COLOR_BROWN         =  6,
-			COLOR_LIGHT_GREY    =  7,
-			COLOR_DARK_GREY     =  8,
-			COLOR_LIGHT_BLUE    =  9,
-			COLOR_LIGHT_GREEN   = 10,
-			COLOR_LIGHT_CYAN    = 11,
-			COLOR_LIGHT_RED     = 12,
-			COLOR_LIGHT_MAGENTA = 13,
-			COLOR_LIGHT_BROWN   = 14,
-			COLOR_WHITE         = 15,
+		enum Color {
+			//Each enum representing a color has a bitwise meaning:
+			//	0 b 0 0 0 0 <intense> <red> <green> <blue>
+
+			COLOR_BLACK       = 0x00,
+
+			COLOR_BLUE        = 0x01,
+			COLOR_GREEN       = 0x02,
+			COLOR_CYAN        = 0x03,
+			COLOR_RED         = 0x04,
+			COLOR_PURPLE      = 0x05,
+			COLOR_BROWN       = 0x06,
+
+			COLOR_LIGHT_GREY  = 0x07,
+			COLOR_DARK_GREY   = 0x08,
+
+			COLOR_LIGHT_BLUE  = 0x09,
+			COLOR_LIGHT_GREEN = 0x0A,
+			COLOR_LIGHT_CYAN  = 0x0B,
+			COLOR_LIGHT_RED   = 0x0C,
+			COLOR_MAGENTA     = 0x0D,
+			COLOR_YELLOW      = 0x0E,
+
+			COLOR_WHITE       = 0x0F
 		};
+
+		Color color_text;
+		Color color_bg;
 
 	public:
 		Terminal(void);
@@ -51,9 +61,9 @@ class Terminal final {
 
 		void next_line(void);
 
-		void set_color_text(enum COLORS color_text);
-		void set_color_background(enum COLORS color_background);
-		void set_color(enum COLORS color_text, enum COLORS color_background);
+		void set_color_text(enum Color color_text);
+		void set_color_background(enum Color color_bg);
+		void set_color(enum Color color_text, enum Color color_bg);
 
 		void set_pos(int x, int y);
 

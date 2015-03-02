@@ -37,4 +37,22 @@ Character8x8 const* font8x8 = reinterpret_cast<Character8x8 const*>(font8x8_back
 Character8x16 const* font8x16 = reinterpret_cast<Character8x16 const*>(font8x16_backing);
 
 
+void print_font( Character8x8 const* font, int cols,int rows) {
+	int i = 0;
+	for (int y=0;y<rows;++y) {
+		for (int x=0;x<cols;++x) {
+			font[i++].print(x*9,y*9);
+		}
+	}
+}
+void print_font(Character8x16 const* font, int cols,int rows) {
+	int i = 0;
+	for (int y=0;y<rows;++y) {
+		for (int x=0;x<cols;++x) {
+			font[i++].print(x*9,y*17);
+		}
+	}
+}
+
+
 }}}

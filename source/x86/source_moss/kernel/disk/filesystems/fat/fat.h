@@ -10,15 +10,6 @@
 namespace MOSS { namespace Disk { namespace FileSystem {
 
 
-
-class FileSystemFAT;
-
-/*class ObjectDirectoryFAT final {
-	public:
-		ObjectDirectoryFAT(void) {}
-		~ObjectDirectoryFAT(void) {}
-};*/
-
 //The comments and implementation (including names and comments) in this module mostly sourced/derived from the
 //	official Microsoft documentation:
 //		http://download.microsoft.com/download/1/6/1/161ba512-40e2-4cc9-843a-923143f3456c/fatgen103.doc
@@ -33,16 +24,7 @@ class FileSystemFAT;
 //	3: Root Directory Region (not on FAT32)
 //	4: File and Directory Data Region
 
-//In the directory entry, the cluster number of the first cluster of the file is recorded.  The first cluster
-//	(extent) of the file is the data associated with this first cluster number, and the location of that data on the
-//	volume is computed from the cluster number as described earlier (computation of FirstSectorofCluster).
-
-/*Note that a zero-length file—a file that has no data allocated to it—has a first cluster number of 0 placed in its
-directory entry. This cluster location in the FAT (see earlier computation of ThisFATSecNum and ThisFATEntOffset)
-contains either an EOC mark (End Of Clusterchain) or the cluster number of the next cluster of the file. The EOC value
-is FAT type dependant (assume FATContent is the contents of the cluster entry in the FAT being checked to see whether
-it is an EOC mark):*/
-
+class FileSystemFAT;
 
 class BS_BPB final { public:
 	//Jump instruction to boot code.
@@ -416,15 +398,6 @@ class Chunk final {
 	public:
 		Chunk(FileSystemFAT* filesystem, RelativeLBA lba_start,uint32_t num_sectors);
 		~Chunk(void);
-
-		/*inline uint8_t& operator[](uint32_t index)       {
-			assert_term(index<num_sectors*filesystem->bytes_per_sector,"Index %d out of bounds!",index);
-			return data[index];
-		}
-		inline uint8_t  operator[](uint32_t index) const {
-			assert_term(index<num_sectors*filesystem->bytes_per_sector,"Index %d out of bounds!",index);
-			return data[index];
-		}*/
 };
 
 class ObjectFileFAT final : public ObjectFileBase {
@@ -481,13 +454,6 @@ class FileSystemFAT final : public FileSystemBase {
 	public:
 		explicit FileSystemFAT(Partition* partition);
 		inline virtual ~FileSystemFAT(void) {}
-
-		#if 0
-		ObjectBase* get_new_child(ObjectDirectory const* /*directory*/, MOSST::String const& /*path_child*/) const override {
-			assert_term(false,"Not implemented!");
-			return nullptr;
-		}
-		#endif
 
 	private:
 		//Returns LBA of the first sector of the given cluster.
