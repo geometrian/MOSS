@@ -2,16 +2,22 @@
 
 #include "../../../includes.h"
 
-#include "vga.h"
+#include "fields.h" //includes "registers.h"
 
 
-namespace MOSS { namespace Graphics { namespace VGA {
+namespace MOSS { namespace Graphics {
+	namespace Font {
+		struct Character8x8;
+		struct Character8x16;
+	}
+namespace VGA {
 
 
 //Sources:
 //	https://en.wikipedia.org/wiki/VGA-compatible_text_mode
 //	http://www.osdever.net/FreeVGA/vga/vga.htm
 //	http://www.osdever.net/FreeVGA/vga/vgareg.htm
+//	http://compbio.cs.toronto.edu/repos/snowflock/xen-3.0.3/xen/drivers/video/vga.c
 //	http://files.osdev.org/mirrors/geezer/osd/graphics/index.htm
 //	http://files.osdev.org/mirrors/geezer/osd/graphics/modes.c
 
@@ -30,6 +36,8 @@ namespace MOSS { namespace Graphics { namespace VGA {
 //		Not compact (i.e. for the 16-color palette entry[i]!=i)
 
 
+class Interface;
+
 class Sequencer final {
 	public:
 		inline Sequencer(void) {}
@@ -37,8 +45,10 @@ class Sequencer final {
 };
 
 class CathodeRayTubeController final {
+	private:
+		Interface*const _interface;
 	public:
-		//VGA Text Modes:
+		//VGA Text Modes Available on IBM PC Compatible Computers:
 		//	+------------+-----------+------------+-------------+---------------------------+-------------+
 		//	| Resolution | Character |  Graphics  |    Colors   |       Adapters            |    Notes    |
 		//	|            |    Size   | Resolution |             |                           |             |
@@ -58,20 +68,28 @@ class CathodeRayTubeController final {
 		//	|   132 * 50 |           |            |   16 colors | VESA-compatible Super VGA |             |
 		//	|   132 * 60 |           |            |   16 colors | VESA-compatible Super VGA |             |
 		//	+------------+-----------+------------+-------------+---------------------------+-------------+
-		//MOSS treats all MDA, Hercules, and EGA modes as completely unsupported.
+		//MOSS treats all MDA, Hercules, and EGA modes as completely unsupported.  It turns out, though, that
+		//	if you ask for a text mode of an arbitrary (but reasonable) size, you'll probably get it.
 		enum Mode {
-			text80x25,
-			text80x50,
-			text80x60,
-			text132x25,
-			text132x43,
-			text132x50,
-			text132x60
+			//Note: in my experiments, on Bochs text modes are silently clamped down to what appears to be
+			//	a resolution of 1024*768.  This works out to be 128 8-bit or 114 9-bit characters wide and
+			//	80 8 scanline or 48 16 scanline characters tall.
+			text80x25,  //standard
+			text80x50,  //standard
+			text80x60,  //standard
+			text128x48, //defined by me; best on Bochs for 16 scanline high fonts
+			text128x80, //defined by me; best on Bochs for 8 scanline high fonts
+			text132x25, //standard
+			text132x43, //standard
+			text132x50, //standard
+			text132x60  //standard
 		} mode;
 		int cols, rows;
 
+		int font_height;
+
 	public:
-		CathodeRayTubeController(void);
+		explicit CathodeRayTubeController(Interface* interface);
 		inline ~CathodeRayTubeController(void) {}
 
 		void set_mode(Mode mode);
@@ -81,8 +99,10 @@ class CathodeRayTubeController final {
 };
 
 class GraphicsController final {
+	private:
+		Interface*const _interface;
 	public:
-		inline GraphicsController(void) {}
+		inline explicit GraphicsController(Interface* interface) : _interface(interface) {}
 		inline ~GraphicsController(void) {}
 
 		void set_plane(int plane_index);
@@ -111,8 +131,18 @@ class Interface final {
 		Palette _dac;
 
 	public:
-		inline Interface(void) {}
+		Registers regs;
+		Fields fields;
+
+	public:
+		inline Interface(void) : crtc(this),_gc(this), regs(),fields(&regs) {}
 		inline ~Interface(void) {}
+
+	private:
+		void _set_use_font(uint8_t const* font_buffer, int font_height);
+	public:
+		void set_use_font(struct Font:: Character8x8 const* font);
+		void set_use_font(struct Font::Character8x16 const* font);
 
 		void dump_registers(void) const;
 };

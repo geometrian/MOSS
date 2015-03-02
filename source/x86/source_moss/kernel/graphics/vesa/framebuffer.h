@@ -26,8 +26,8 @@ class Framebuffer final {
 		void draw_fill(Color const& color);
 		void draw_rect(int x,int y,int w,int h, Color const& color);
 
-		void draw_text(int x,int y, char text, Color const& color);
-		void draw_text(int x,int y, char text, Color const& color,Color const& background);
+		void draw_text(int x,int y, char character, Color const& color);
+		void draw_text(int x,int y, char character, Color const& color,Color const& background);
 		void draw_text(int x,int y, char const* text, Color const& color);
 		void draw_text(int x,int y, char const* text, Color const& color,Color const& background);
 

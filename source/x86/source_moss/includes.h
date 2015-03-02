@@ -15,9 +15,18 @@
 
 #ifdef MOSS_DEBUG
 	#define MOSS_DEBUG_BOCHSBREAK __asm__ __volatile__("xchg  %bx, %bx")
+	#define DEBUG_ONLY(CODE) CODE
+	#define RELEASE_ONLY(CODE)
+	#define DEB_REL_CODE(CODE_DEB,CODE_REL) CODE_DEB
 #else
 	#define MOSS_DEBUG_BOCHSBREAK
+	#define DEBUG_ONLY(CODE)
+	#define RELEASE_ONLY(CODE) CODE
+	#define DEB_REL_CODE(CODE_DEB,CODE_REL) CODE_REL
 #endif
+
+#define COMMA ,
+#define NOTHING
 
 #if !defined(__cplusplus)
 	#error "C++ should be used!"

@@ -12,11 +12,23 @@ root = ""
 root_build  = root+".build/"
 root_source = root+"source_moss/"
 
-skip = 1
+skip = 0
 if skip == 0:
     skip_recompile_directories = [root_source+"grub/"]
 else:
-    skip_recompile_directories = [root_source+"grub/",root_source+"kernel/boot",root_source+"mossc/",root_source+"mosst/"]
+    skip_recompile_directories = [
+        root_source+"grub/",
+        root_source+"kernel/boot/",
+        root_source+"kernel/disk/",
+        root_source+"kernel/graphics/gui/",
+        root_source+"kernel/graphics/vesa/",
+        root_source+"kernel/graphics/vga/",
+        root_source+"kernel/input/",
+        root_source+"kernel/interrupt/",
+        root_source+"kernel/memory/",
+        root_source+"mossc/",
+        root_source+"mosst/"
+    ]
 only = 0
 if only == 0:
     only_recompile = []
@@ -115,6 +127,11 @@ def compile_directory(directory):
                 
         elif os.path.isdir(filename):
             if "old" in filename: continue
+
+            for skip_recompile_directory in skip_recompile_directories:
+                if skip_recompile_directory in directory:
+                    print("    Skipping     \"%s*\"!" % (skip_recompile_directory))
+                    continue
 
             compile_directory(filename)
 

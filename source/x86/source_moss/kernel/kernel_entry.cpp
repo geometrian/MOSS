@@ -12,6 +12,7 @@
 #include "graphics/gui/manager.h"
 #include "graphics/vesa/controller.h"
 #include "graphics/vga/terminal.h"
+#include "graphics/font.h" //TODO: remove
 
 #include "input/devices/controller_ps2.h"
 
@@ -51,9 +52,67 @@ extern "C" void kernel_entry(unsigned long magic, unsigned long addr) {
 	Memory::MemoryManager memory(mbi);
 	kernel->memory = &memory;
 
-	terminal.interface.crtc.set_mode(Graphics::VGA::CathodeRayTubeController::Mode::text80x25);
+	/*int i = 0;
+	for (int y=0;y<4;++y) {
+		for (int x=0;x<8;++x) {
+			Graphics::Font::font8x8[i++].print(x*9,y*9);
+		}
+	}
+	while (1);*/
+
+	/*auto const& ref = terminal.interface.regs.crtc_vertical_retrace_end_reg;
+	kernel->write("0x%p 0x%p\n",&ref,ref.bits);
+	while (1);*/
+
+	/*terminal.interface.regs.read_all_registers();
+	terminal.interface.regs.crtc_offset_reg.print();
+	while (1);*/
+
+	//char const*  str80 = "<-|(((Hello_world; how_are_you?__My_name_is_Ian;_good_to_finally_meet_you!)))|->";
+	//char const*  str90 = "<-|((Hello_world; how_are_you?__My_name_is_Ian;_it's_good_to_finally_get_to_meet_you!))|->";
+	//char const* str132 = "<-|(((Hello_world; how_are_you?__My_name_is_Ian!__Wow this is exciting.__I'm_so_happy.__It_is_good_to_finally_get_to_meet_you!)))|->";
+	char const* str132 = "*1 5*  10*  15*  20*  25*  30*  35*  40*  45*  50*  55*  60*  65*  70*  75*  80*  85*  90*  95* 100* 105* 110* 115* 120* 125* 130* |";
+
+	for (int j=0;j<1;++j) {
+		#if 0
+			terminal.set_color_text(Graphics::VGA::Terminal::COLOR_RED);
+			//Cursor at 0
+			for (int i=0;i<26;++i) kernel->write("%c",'a'+i);
+			//Cursor at 26
+			for (int i=0;i<26;++i) kernel->write("%c",'A'+i);
+			//Cursor at 52
+			for (int i=0;i<0x10;++i) kernel->write("%X",i);
+			//Cursor at 68
+			terminal.set_color_text(Graphics::VGA::Terminal::COLOR_GREEN);
+			for (int i=0;i<26;++i) kernel->write("%c",'a'+i);
+			//Cursor at 94
+			for (int i=0;i<26;++i) kernel->write("%c",'A'+i);
+			//Cursor at 120
+			for (int i=0;i<0x10;++i) kernel->write("%X",i);
+			//Cursor at 136
+			terminal.set_color_text(Graphics::VGA::Terminal::COLOR_BLUE);
+			for (int i=0;i<26;++i) kernel->write("%c",'a'+i);
+			//Cursor at 1
+			for (int i=0;i<26;++i) kernel->write("%c",'A'+i);
+			//Cursor at 120
+			for (int i=0;i<0x10;++i) kernel->write("%X",i);
+			kernel->write("\n");
+		#else
+			terminal.set_color_text(Graphics::VGA::Terminal::COLOR_RED  ); kernel->write("%s",str132);
+			terminal.set_color_text(Graphics::VGA::Terminal::COLOR_GREEN); kernel->write("%s",str132);
+			terminal.set_color_text(Graphics::VGA::Terminal::COLOR_BLUE ); kernel->write("%s",str132);
+		#endif
+	}
+	/*for (int i=0;i<5;++i) terminal.write('A'+i, i,i);
 	//terminal.interface.dump_registers();
-	//while(1);
+	terminal.write('C', 79,0);
+	terminal.write('$', 87,0);*/
+	terminal.set_color_text(Graphics::VGA::Terminal::COLOR_RED  );
+	terminal.set_pos(0,0);
+	for (int i=0;i<80;++i) {
+		kernel->write("%d\n",i);
+	}
+	while (1);
 
 	//The GRUB documentation http://www.gnu.org/software/grub/manual/multiboot/multiboot.html implies
 	//	that interrupts are already disabled.  That's good, because the following allows us to deal with

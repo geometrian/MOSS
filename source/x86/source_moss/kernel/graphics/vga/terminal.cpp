@@ -4,6 +4,8 @@
 
 #include "../../io/io.h"
 
+#include "../font.h"
+
 
 namespace MOSS { namespace Graphics { namespace VGA {
 
@@ -21,8 +23,15 @@ Terminal::Terminal(void) {
 	_y = 0;
 	_buffer = reinterpret_cast<uint16_t*>(0xB8000);
 
-	//interface.crtc.set_mode(CathodeRayTubeController::Mode::text80x25);
+	#if 1
+		interface.set_use_font(Graphics::Font::font8x8);
+		interface.crtc.set_mode(Graphics::VGA::CathodeRayTubeController::Mode::text128x80);
+	#else
+		interface.set_use_font(Graphics::Font::font8x16);
+		interface.crtc.set_mode(Graphics::VGA::CathodeRayTubeController::Mode::text128x48);
+	#endif
 
+	//interface.crtc.set_mode(CathodeRayTubeController::Mode::text80x25);
 	//while(1);
 
 	set_color(EMPTY_FG,EMPTY_BG);
@@ -57,13 +66,13 @@ void Terminal::fill_line(int number, char with) {
 void Terminal::next_line(void) {
 	_x = 0;
 	if (++_y == interface.crtc.rows) {
-		scroll(1);
+		/*scroll(1);
 		--_y;
 
 		uint8_t temp_color = _color;
 		set_color(EMPTY_FG,EMPTY_BG);
 		fill_line(interface.crtc.rows-1,EMPTY_CH);
-		_color = temp_color;
+		_color = temp_color;*/
 	}
 }
 
@@ -77,6 +86,11 @@ void Terminal::set_color_background(enum COLORS color_background) {
 }
 void Terminal::set_color(enum COLORS color_text, enum COLORS color_background) {
 	_color = (color_background<<4) | color_text;
+}
+
+void Terminal::set_pos(int x, int y) {
+	_x = x;
+	_y = y;
 }
 
 void Terminal::write(char c, int x,int y) {
@@ -101,7 +115,7 @@ void Terminal::write(char c) {
 		write(c, _x,_y);
 
 		if (++_x == interface.crtc.cols) {
-			next_line();
+			//next_line();
 		}
 	}
 }

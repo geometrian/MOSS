@@ -55,6 +55,8 @@ class Terminal final {
 		void set_color_background(enum COLORS color_background);
 		void set_color(enum COLORS color_text, enum COLORS color_background);
 
+		void set_pos(int x, int y);
+
 		void write(char c, int x,int y);
 		void write(char c);
 		/*void write(  int data);

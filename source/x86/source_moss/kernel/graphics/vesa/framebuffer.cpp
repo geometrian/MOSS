@@ -174,24 +174,22 @@ void Framebuffer::draw_rect(int x,int y,int w,int h, Color const& color) {
 	}
 }
 
-void Framebuffer::draw_text(int x,int y, char text, Color const& color) {
-	draw_text(x,y, text, color,Color(255,0,255,0));
+void Framebuffer::draw_text(int x,int y, char character, Color const& color) {
+	draw_text(x,y, character, color,Color(255,0,255,0));
 }
-void Framebuffer::draw_text(int x,int y, char text, Color const& color,Color const& background) {
-	uint64_t chr = Font::font[(unsigned int)(text)];
-	uint64_t i = 0;
+void Framebuffer::draw_text(int x,int y, char character, Color const& color,Color const& background) {
+	Font::Character8x8 const& chr = Font::font8x8[static_cast<int>(character)];
 
-	//Note that x2 counts down rather than up, because that's how the pixels
-	//are arranged in the font.
-	int x_start = min(x+8-1,mode->info.XResolution-1);
+	int x_start = max(x,0);
 	int y_start = max(y,0);
-	int x_end = max(x,0);
+	int x_end = min(x+8,mode->info.XResolution-1);
 	int y_end = min(y+8,mode->info.YResolution-1);
 	for (int y2=y_start;y2<y_end;++y2) {
-		for (int x2=x_start;x2>=x_end;--x2) {
-			if (chr&(1ull<<i)) blend_pixel(x2,y2,      color);
-			else               blend_pixel(x2,y2, background);
-			++i;
+		uint8_t const& row = chr.rows[y2-y_start];
+		for (int x2=x_start;x2<x_end;++x2) {
+			int x3 = x2 - x_start;
+			if (row&(1<<(7-x3))) blend_pixel(x2,y2,      color);
+			else                 blend_pixel(x2,y2, background);
 		}
 	}
 }

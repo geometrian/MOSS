@@ -219,13 +219,16 @@
     <ClCompile Include="..\source_moss\kernel\disk\filesystems\lean\lean.cpp">
       <Filter>source_moss\kernel\disk\filesystems\lean</Filter>
     </ClCompile>
-    <ClCompile Include="..\source_moss\kernel\graphics\vga\vga.cpp">
-      <Filter>source_moss\kernel\graphics\vga</Filter>
-    </ClCompile>
     <ClCompile Include="..\source_moss\kernel\graphics\vga\components.cpp">
       <Filter>source_moss\kernel\graphics\vga</Filter>
     </ClCompile>
     <ClCompile Include="..\source_moss\kernel\graphics\vga\terminal.cpp">
+      <Filter>source_moss\kernel\graphics\vga</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source_moss\kernel\graphics\vga\registers.cpp">
+      <Filter>source_moss\kernel\graphics\vga</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source_moss\kernel\graphics\vga\fields.cpp">
       <Filter>source_moss\kernel\graphics\vga</Filter>
     </ClCompile>
   </ItemGroup>
@@ -422,13 +425,16 @@
     <ClInclude Include="..\source_moss\kernel\disk\filesystems\lean\lean.h">
       <Filter>source_moss\kernel\disk\filesystems\lean</Filter>
     </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\graphics\vga\vga.h">
-      <Filter>source_moss\kernel\graphics\vga</Filter>
-    </ClInclude>
     <ClInclude Include="..\source_moss\kernel\graphics\vga\components.h">
       <Filter>source_moss\kernel\graphics\vga</Filter>
     </ClInclude>
     <ClInclude Include="..\source_moss\kernel\graphics\vga\terminal.h">
+      <Filter>source_moss\kernel\graphics\vga</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\kernel\graphics\vga\registers.h">
+      <Filter>source_moss\kernel\graphics\vga</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\kernel\graphics\vga\fields.h">
       <Filter>source_moss\kernel\graphics\vga</Filter>
     </ClInclude>
   </ItemGroup>
