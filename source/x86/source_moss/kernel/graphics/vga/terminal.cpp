@@ -19,10 +19,12 @@ Terminal::Terminal(void) {
 	//This seems to be the default
 	color_text = COLOR_LIGHT_GREY;
 	color_bg   = COLOR_BLACK;
+	_color = (color_bg<<4) | color_text;
 
 	#if 1
-		interface.set_use_font(Graphics::Font::font8x8);
-		interface.crtc.set_mode(Graphics::VGA::CathodeRayTubeController::Mode::text128x80);
+		//interface.set_use_font(Graphics::Font::font8x8);
+		//interface.dump_registers();
+		//interface.crtc.set_mode(Graphics::VGA::CathodeRayTubeController::Mode::text128x80);
 	#else
 		interface.set_use_font(Graphics::Font::font8x16);
 		interface.crtc.set_mode(Graphics::VGA::CathodeRayTubeController::Mode::text128x48);

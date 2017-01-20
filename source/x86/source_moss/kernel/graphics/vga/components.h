@@ -7,8 +7,8 @@
 
 namespace MOSS { namespace Graphics {
 	namespace Font {
-		struct Character8x8;
-		struct Character8x16;
+		class Character8x8;
+		class Character8x16;
 	}
 namespace VGA {
 
@@ -141,10 +141,11 @@ class Interface final {
 	private:
 		void _set_use_font(uint8_t const* font_buffer, int font_height);
 	public:
-		void set_use_font(struct Font:: Character8x8 const* font);
-		void set_use_font(struct Font::Character8x16 const* font);
+		void set_use_font(Font:: Character8x8 const* font);
+		void set_use_font(Font::Character8x16 const* font);
 
-		void dump_registers(void) const;
+		void dump_registers(void);
+		void dump_fields(void);
 };
 
 

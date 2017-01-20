@@ -154,7 +154,11 @@ void Interface::_set_use_font(uint8_t const* font_buffer, int font_height) {
 		regs.read_all_registers();
 
 		//Turn off even/odd addressing
+		//fields.OEHostMem.print();
 		fields.OEHostMem=0b110; fields.OEHostMem.save_regs();
+		//fields.OEHostMem.load_regs();
+		//fields.OEHostMem.print();
+		//assert_term(fields.OEHostMem.get_as<uint8_t>()==0b110,"Fail %d",fields.OEHostMem.get_as<uint8_t>());
 
 		//Select font plane
 		_gc.set_plane(2);
@@ -174,10 +178,27 @@ void Interface::_set_use_font(uint8_t const* font_buffer, int font_height) {
 		_gc.set_plane(0);
 
 		//Turn even/odd adressing back on
-		fields.OEHostMem = 0b001;
+		fields.OEHostMem = 0b101;
+		/*assert_warn(fields.OEHostMem.get_as<uint8_t>()==0b101,"Fail %d",fields.OEHostMem.get_as<uint8_t>());
+
+		regs.gc_misc_reg.print();
+
+		regs.gc_misc_reg.write();
+		regs.gc_misc_reg.read();
+
+		regs.gc_misc_reg.print();
+
+		assert_term(fields.OEHostMem.get_as<uint8_t>()==0b101,"Fail %d",fields.OEHostMem.get_as<uint8_t>());*/
+
+
+		//fields.OEHostMem.save_regs();
+		//assert_warn(fields.OEHostMem.get_as<uint8_t>()==0b101,"Fail %d",fields.OEHostMem.get_as<uint8_t>());
+		//fields.OEHostMem.load_regs(); assert_warn(fields.OEHostMem.get_as<uint8_t>()==0b101,"Fail %d",fields.OEHostMem.get_as<uint8_t>());
 
 		regs.write_all_registers();
+		//fields.OEHostMem.load_regs(); assert_warn(fields.OEHostMem.get_as<uint8_t>()==0b101,"Fail %d",fields.OEHostMem.get_as<uint8_t>());
 		crtc.lock_registers();
+		//fields.OEHostMem.load_regs(); assert_warn(fields.OEHostMem.get_as<uint8_t>()==0b101,"Fail %d",fields.OEHostMem.get_as<uint8_t>());
 	#else
 		//http://wiki.osdev.org/VGA_Fonts#Get_from_VGA_RAM_directly
 		//	Clear even/odd mode
@@ -269,18 +290,60 @@ void Interface::_set_use_font(uint8_t const* font_buffer, int font_height) {
 	#endif
 	#endif
 
+	fields.OEHostMem.load_regs(); assert_warn(fields.OEHostMem.get_as<uint8_t>()==0b101,"Fail %d",fields.OEHostMem.get_as<uint8_t>());
+
 	//Note need to reset mode; the height will change based on a font height change
 	crtc.set_mode(crtc.mode);
+
+	fields.OEHostMem.load_regs(); assert_warn(fields.OEHostMem.get_as<uint8_t>()==0b101,"Fail %d",fields.OEHostMem.get_as<uint8_t>());
 }
-void Interface::set_use_font(struct Font:: Character8x8 const* font) {
+void Interface::set_use_font(Font:: Character8x8 const* font) {
 	_set_use_font(reinterpret_cast<uint8_t const*>(font),8);
 }
-void Interface::set_use_font(struct Font::Character8x16 const* font) {
+void Interface::set_use_font(Font::Character8x16 const* font) {
 	_set_use_font(reinterpret_cast<uint8_t const*>(font),16);
 }
 
-/*void Interface::dump_fields(void) const {
-	kernel->write("Miscellaneous Output Register:      %X\n\n",IO::recv<uint8_t>(MOSS_VGA_MISCOUTR));
+void Interface::dump_registers(void) {
+	regs.read_all_registers();
+	#define DUMP_REG(INDENT,REG) for (int i=0;i<INDENT;++i) kernel->write("  "); regs.REG##_reg.print();
+
+	kernel->write("External Registers:\n");
+	DUMP_REG(1,miscellaneous_output)
+	DUMP_REG(1,input_status0)
+	DUMP_REG(1,input_status1)
+
+	kernel->write("Internal Registers:\n");
+	kernel->write("  Sequencer:\n");
+	DUMP_REG(2,sequencer_clocking_mode)
+	DUMP_REG(2,sequencer_map_mask)
+	DUMP_REG(2,sequencer_memory_mode)
+	kernel->write("  Graphics Controller:\n");
+	DUMP_REG(2,gc_read_map_select)
+	DUMP_REG(2,gc_mode)
+	DUMP_REG(2,gc_misc)
+	kernel->write("  Cathode Ray Tube Controller:\n");
+	DUMP_REG(2,crtc_horizontal_total)
+	DUMP_REG(2,crtc_end_horizontal_display)
+	DUMP_REG(2,crtc_start_horizontal_blanking)
+	DUMP_REG(2,crtc_end_horizontal_blanking)
+	DUMP_REG(2,crtc_start_horizontal_retrace)
+	DUMP_REG(2,crtc_end_horizontal_retrace)
+	DUMP_REG(2,crtc_vertical_total)
+	DUMP_REG(2,crtc_overflow)
+	DUMP_REG(2,crtc_maximum_scan_line)
+	DUMP_REG(2,crtc_vertical_retrace_start)
+	DUMP_REG(2,crtc_vertical_retrace_end)
+	DUMP_REG(2,crtc_vertical_display_end)
+	DUMP_REG(2,crtc_offset)
+	DUMP_REG(2,crtc_start_vertical_blanking)
+	DUMP_REG(2,crtc_end_vertical_blanking)
+	DUMP_REG(2,crtc_line_compare)
+
+	#undef DUMP_REG
+}
+void Interface::dump_fields(void) {
+	/*kernel->write("Miscellaneous Output Register:      %X\n\n",IO::recv<uint8_t>(MOSS_VGA_MISCOUTR));
 
 	kernel->write("Clocking Mode Register:             %X\n\n",read_internal_register_type1(MOSS_VGA_ADDR_SEQ,MOSS_VGA_DATA_SEQ, 0x01));
 
@@ -300,8 +363,9 @@ void Interface::set_use_font(struct Font::Character8x16 const* font) {
 	kernel->write("Start Vertical Blanking Register:   %X\n",  read_internal_register_type1(MOSS_VGA_ADDR_CRTC,MOSS_VGA_DATA_CRTC, 0x15));
 	kernel->write("End Vertical Blanking:              %X\n\n",read_internal_register_type1(MOSS_VGA_ADDR_CRTC,MOSS_VGA_DATA_CRTC, 0x16));
 
-	kernel->write("Line Compare Register:              %X\n",  read_internal_register_type1(MOSS_VGA_ADDR_CRTC,MOSS_VGA_DATA_CRTC, 0x18));
-}*/
+	kernel->write("Line Compare Register:              %X\n",  read_internal_register_type1(MOSS_VGA_ADDR_CRTC,MOSS_VGA_DATA_CRTC, 0x18));*/
+	assert_term(false,"Not implemented!");
+}
 
 
 }}}

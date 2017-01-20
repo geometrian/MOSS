@@ -2,11 +2,14 @@
 *.depend
 *.layout
 
+*.db
+*.ipgset
+*.opendb
 *.opensdf
 *.psess
-*.vsp
 *.sdf
 *.suo
+*.vsp
 
 *.pyc
 
@@ -14,6 +17,7 @@
 
 resources/bochs-2.6.7/
 resources/bochs-2.6.7-msvc-src/
+resources/docs/
 resources/nircmd/
 
 cross/
@@ -21,3 +25,4 @@ VMs/
 
 **/.build/
 **/log/
+_log*

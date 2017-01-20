@@ -25,27 +25,28 @@ class Terminal final {
 		enum Color {
 			//Each enum representing a color has a bitwise meaning:
 			//	0 b 0 0 0 0 <intense> <red> <green> <blue>
+			//	                           I RGB
 
-			COLOR_BLACK       = 0x00,
+			COLOR_BLACK       = 0x00, //0b 0 000
 
-			COLOR_BLUE        = 0x01,
-			COLOR_GREEN       = 0x02,
-			COLOR_CYAN        = 0x03,
-			COLOR_RED         = 0x04,
-			COLOR_PURPLE      = 0x05,
-			COLOR_BROWN       = 0x06,
+			COLOR_BLUE        = 0x01, //0b 0 001
+			COLOR_GREEN       = 0x02, //0b 0 010
+			COLOR_CYAN        = 0x03, //0b 0 011
+			COLOR_RED         = 0x04, //0b 0 100
+			COLOR_PURPLE      = 0x05, //0b 0 101
+			COLOR_BROWN       = 0x06, //0b 0 110
 
-			COLOR_LIGHT_GREY  = 0x07,
-			COLOR_DARK_GREY   = 0x08,
+			COLOR_LIGHT_GREY  = 0x07, //0b 0 111
+			COLOR_DARK_GREY   = 0x08, //0b 1 000
 
-			COLOR_LIGHT_BLUE  = 0x09,
-			COLOR_LIGHT_GREEN = 0x0A,
-			COLOR_LIGHT_CYAN  = 0x0B,
-			COLOR_LIGHT_RED   = 0x0C,
-			COLOR_MAGENTA     = 0x0D,
-			COLOR_YELLOW      = 0x0E,
+			COLOR_LIGHT_BLUE  = 0x09, //0b 1 001
+			COLOR_LIGHT_GREEN = 0x0A, //0b 1 010
+			COLOR_LIGHT_CYAN  = 0x0B, //0b 1 011
+			COLOR_LIGHT_RED   = 0x0C, //0b 1 100
+			COLOR_MAGENTA     = 0x0D, //0b 1 101
+			COLOR_YELLOW      = 0x0E, //0b 1 110
 
-			COLOR_WHITE       = 0x0F
+			COLOR_WHITE       = 0x0F  //0b 1 111
 		};
 
 		Color color_text;

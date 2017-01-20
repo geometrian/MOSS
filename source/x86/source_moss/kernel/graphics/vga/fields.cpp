@@ -18,7 +18,7 @@ template <int width> void Fields::FieldBase<width>::save_regs(void) {
 }
 
 template <int width> void Fields::FieldBase<width>::print(void) const {
-	kernel->write("Field (length %d",width);
+	/*kernel->write("Field (length %d",width);
 	#ifdef MOSS_DEBUG
 	kernel->write(" \"%s\"",name);
 	#endif
@@ -30,7 +30,15 @@ template <int width> void Fields::FieldBase<width>::print(void) const {
 			bit_pointers[i]->reg
 		);
 		bit_pointers[i]->reg->print();
-	}
+	}*/
+
+	kernel->write("Field (length %d) [ ",width);
+	for (int i=0;i<width;++i) kernel->write("%c ",bit_pointers[width-i-1]->value?'#':'.');
+	kernel->write("] (0x%p",this);
+	#ifdef MOSS_DEBUG
+	kernel->write(" \"%s\"",name);
+	#endif
+	kernel->write(")\n");
 }
 
 template class Fields::FieldBase< 1>;

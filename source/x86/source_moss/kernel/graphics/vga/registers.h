@@ -30,10 +30,15 @@ class Registers final {
 		#if 1
 		class RegisterBase {
 			public:
-				class Bit final { public:
-					RegisterBase* reg;
-					bool value;
+				class Bit final {
+					public:
+						RegisterBase* reg;
+					private:
+						bool _value;
 				} bits[8];
+				//   least           most
+				//significant    significant
+				//[0, 1, 2, 3, 4, 5, 6, 7]
 
 				#ifdef MOSS_DEBUG
 				char const*const name;
@@ -153,12 +158,12 @@ class Registers final {
 		} gc_read_map_select_reg;
 		//		Graphics Mode Register
 		class RegisterGCMode final : public RegisterInternalType1Base { public:
-			inline RegisterGCMode(void) : RegisterInternalType1Base(DEBUG_ONLY("Mode" COMMA) 0x03CE,0x03CF,0x04) {}
+			inline RegisterGCMode(void) : RegisterInternalType1Base(DEBUG_ONLY("Mode" COMMA) 0x03CE,0x03CF,0x05) {}
 			inline virtual ~RegisterGCMode(void) {}
 		} gc_mode_reg;
 		//		Miscellaneous Graphics Register
 		class RegisterGCMiscellaneous final : public RegisterInternalType1Base { public:
-			inline RegisterGCMiscellaneous(void) : RegisterInternalType1Base(DEBUG_ONLY("Mode" COMMA) 0x03CE,0x03CF,0x04) {}
+			inline RegisterGCMiscellaneous(void) : RegisterInternalType1Base(DEBUG_ONLY("Miscellaneous" COMMA) 0x03CE,0x03CF,0x06) {}
 			inline virtual ~RegisterGCMiscellaneous(void) {}
 		} gc_misc_reg;
 		//		Color Don't Care Register

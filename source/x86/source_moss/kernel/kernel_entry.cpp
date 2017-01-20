@@ -12,6 +12,7 @@
 #include "graphics/gui/manager.h"
 #include "graphics/vesa/controller.h"
 #include "graphics/vga/terminal.h"
+#include "graphics/font.h" //TODO: remove?
 
 #include "input/devices/controller_ps2.h"
 
@@ -24,6 +25,7 @@
 #include "memory/simple.h"
 
 #include "kernel.h"
+#include "serial.h"
 
 
 namespace MOSS {
@@ -32,6 +34,11 @@ namespace MOSS {
 extern Kernel* kernel;
 
 extern "C" void kernel_entry(unsigned long magic, unsigned long addr) {
+	//Set up serial debug IO port ASAP
+	#ifdef MOSS_DEBUG
+		Serial::init();
+	#endif
+
 	//Allocate the kernel object on the stack
 	Kernel kernel2;
 	kernel = &kernel2;
@@ -69,6 +76,13 @@ extern "C" void kernel_entry(unsigned long magic, unsigned long addr) {
 	); terminal.set_color_text(Graphics::VGA::Terminal::COLOR_PURPLE); kernel->write(
 		"    by Ian Mallett\n\n"
 	);
+
+	terminal.interface.set_use_font(Graphics::Font::font8x8);
+	terminal.interface.dump_registers();
+	terminal.interface.set_use_font(Graphics::Font::font8x8);
+	//terminal.interface.crtc.set_mode(Graphics::VGA::CathodeRayTubeController::Mode::text128x80);
+	//terminal.interface.dump_registers();
+	while (1);
 
 	#define MSG0(MESSAGE) kernel->write_sys(0,MESSAGE)
 	#define MSG1(MESSAGE) kernel->write_sys(1,MESSAGE)
@@ -129,9 +143,12 @@ extern "C" void kernel_entry(unsigned long magic, unsigned long addr) {
 		/*Disk::FileSystem::ObjectFileBase* file = filesystem.open("/files/folder_a/folder_ab/file_aba.txt");
 		MOSST::Vector<uint8_t>* data = file->get_new_data();
 		delete data;*/
-
-		//while (true);
 	#endif
+
+	kernel->terminal->interface.dump_registers();
+
+	kernel->write("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789`~!@#$%%^&*()-_=+\\|");
+	while (true);
 
 	/*kernel->write("float a\n");
 	float a = 1.0f;
@@ -155,7 +172,7 @@ extern "C" void kernel_entry(unsigned long magic, unsigned long addr) {
 	kernel->gui = &gui;
 
 	//kernel->write("Loading BG\n");
-	gui.load_bg("/files/sunspirenight_sm.ppm");
+	gui.load_bg("/files/sunspirenight.ppm");
 	//kernel->write("Success!\n");
 	//while (1);
 

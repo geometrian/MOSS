@@ -42,19 +42,23 @@ namespace MOSS {
 
 	void _message(char const* filename,int line, char const* fmt_cstr,va_list args);
 
-	inline void _assert_warn(bool pass_condition, char const* filename,int line, char const* fmt_cstr,...) { if (!pass_condition) { va_list args; va_start(args,fmt_cstr);
-		_message(filename,line,fmt_cstr,args);
-	va_end(args);        }}
-	inline void _assert_term(bool pass_condition, char const* filename,int line, char const* fmt_cstr,...) { if (!pass_condition) { va_list args; va_start(args,fmt_cstr);
-		_message(filename,line,fmt_cstr,args);
-	va_end(args); die(); }}
+	void stack_trace(void);
 
-	inline void _assertw_warn(bool pass_condition, char const* filename,int line, char const* fmt_cstr,...) { if (!pass_condition) { va_list args; va_start(args,fmt_cstr);
-		_message(filename,line,fmt_cstr,args);
-	va_end(args);        }}
-	inline void _assertw_term(bool pass_condition, char const* filename,int line, char const* fmt_cstr,...) { if (!pass_condition) { va_list args; va_start(args,fmt_cstr);
-		_message(filename,line,fmt_cstr,args);
-	va_end(args); die(); }}
+	#ifdef MOSS_DEBUG
+		inline void _assert_warn(bool pass_condition, char const* filename,int line, char const* fmt_cstr,...) { if (!pass_condition) { va_list args; va_start(args,fmt_cstr);
+			_message(filename,line,fmt_cstr,args);
+		va_end(args);        }}
+		inline void _assert_term(bool pass_condition, char const* filename,int line, char const* fmt_cstr,...) { if (!pass_condition) { va_list args; va_start(args,fmt_cstr);
+			_message(filename,line,fmt_cstr,args);
+		va_end(args); die(); }}
+
+		inline void _assertw_warn(bool pass_condition, char const* filename,int line, char const* fmt_cstr,...) { if (!pass_condition) { va_list args; va_start(args,fmt_cstr);
+			_message(filename,line,fmt_cstr,args);
+		va_end(args);        }}
+		inline void _assertw_term(bool pass_condition, char const* filename,int line, char const* fmt_cstr,...) { if (!pass_condition) { va_list args; va_start(args,fmt_cstr);
+			_message(filename,line,fmt_cstr,args);
+		va_end(args); die(); }}
+	#endif
 
 	#define assertr_term(PASS_CONDITION, FMT_CSTR,...) MOSS::_assert_term(PASS_CONDITION, __FILE__,__LINE__, FMT_CSTR, ##__VA_ARGS__)
 	#define assertr_warn(PASS_CONDITION, FMT_CSTR,...) MOSS::_assert_warn(PASS_CONDITION, __FILE__,__LINE__, FMT_CSTR, ##__VA_ARGS__)

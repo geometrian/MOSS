@@ -5,7 +5,7 @@ namespace MOSS { namespace Interrupts {
 
 
 //IDT Entry or "gate".  Types can be interrupt gate, task gate, trap gate.
-//	The key difference between an interrupt gate an a trap gate is that interrupt gates disable interrupts before processing.
+//	The key difference between an interrupt gate and a trap gate is that interrupt gates disable interrupts before processing.
 //	When an interrupt fires, the entry is used to jump to the appropriate handler function.  For interrupt/trap gates, the offset
 //		and selector are the address of this function in the GDT or LDT.  Specifically, the selector should refer to the code
 //		segment where the handler function resides in the GDT, and the offset is where that function is within.  For task gates,

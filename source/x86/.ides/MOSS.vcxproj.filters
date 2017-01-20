@@ -231,6 +231,9 @@
     <ClCompile Include="..\source_moss\kernel\graphics\vga\fields.cpp">
       <Filter>source_moss\kernel\graphics\vga</Filter>
     </ClCompile>
+    <ClCompile Include="..\source_moss\kernel\serial.cpp">
+      <Filter>source_moss\kernel</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source_moss\kernel\boot\boot_memorymap.h">
@@ -436,6 +439,9 @@
     </ClInclude>
     <ClInclude Include="..\source_moss\kernel\graphics\vga\fields.h">
       <Filter>source_moss\kernel\graphics\vga</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\kernel\serial.h">
+      <Filter>source_moss\kernel</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

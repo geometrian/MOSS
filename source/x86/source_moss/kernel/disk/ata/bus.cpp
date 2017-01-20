@@ -64,11 +64,18 @@ Bus::~Bus(void) {
 
 void Bus::_transfer_block_into(uint8_t* data) const {
 	//Transfer 256 words, a word at a time, into buffer. (In assembler, REP INSW works well for this).
-	for (int j=0;j<512;j+=2) {
-		uint16_t word = _read_uint16(Read::RegisterOffset::DATA);
-		data[j  ] = static_cast<uint8_t>( word&0x00FF    );
-		data[j+1] = static_cast<uint8_t>((word&0xFF00)>>8);
-	}
+	#if 0
+		for (int j=0;j<512;j+=2) {
+			uint16_t word = _read_uint16(Read::RegisterOffset::DATA);
+			data[j  ] = static_cast<uint8_t>( word&0x00FF    );
+			data[j+1] = static_cast<uint8_t>((word&0xFF00)>>8);
+		}
+	#else
+		uint16_t* ptr = reinterpret_cast<uint16_t*>(data);
+		for (int i=0;i<256;++i) {
+			ptr[i] = _read_uint16(Read::RegisterOffset::DATA);
+		}
+	#endif
 }
 
 //Protocols (assuming nIEN is cleared and standard operation):
