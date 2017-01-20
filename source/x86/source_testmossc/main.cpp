@@ -5,7 +5,7 @@
 #include <string.h>
 #endif
 
-#include "../source/mossc/cstdio"
+#include "../source_moss/mossc/cstdio"
 
 
 int main(int argc, char* argv[]) {

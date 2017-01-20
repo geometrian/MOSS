@@ -76,6 +76,7 @@ extern "C" void kernel_entry(unsigned long magic, unsigned long addr) {
 	); terminal.set_color_text(Graphics::VGA::Terminal::COLOR_PURPLE); kernel->write(
 		"    by Ian Mallett\n\n"
 	);
+	while (1);
 
 	terminal.interface.set_use_font(Graphics::Font::font8x8);
 	terminal.interface.dump_registers();

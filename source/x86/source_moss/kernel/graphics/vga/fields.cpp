@@ -33,7 +33,7 @@ template <int width> void Fields::FieldBase<width>::print(void) const {
 	}*/
 
 	kernel->write("Field (length %d) [ ",width);
-	for (int i=0;i<width;++i) kernel->write("%c ",bit_pointers[width-i-1]->value?'#':'.');
+	for (int i=0;i<width;++i) kernel->write("%c ",bit_pointers[width-i-1]->_value?'#':'.');
 	kernel->write("] (0x%p",this);
 	#ifdef MOSS_DEBUG
 	kernel->write(" \"%s\"",name);

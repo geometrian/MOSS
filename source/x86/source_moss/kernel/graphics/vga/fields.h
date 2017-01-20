@@ -42,15 +42,15 @@ class Fields final {
 
 				template <typename type> type get_as(void) const {
 					type result = 0;
-					for (int i=0;i<width;++i) if (bit_pointers[i]->value) result|=1<<i;
+					for (int i=0;i<width;++i) if (bit_pointers[i]->_value) result|=1<<i;
 					return result;
 				}
 
-				template <typename type> inline void operator=(type other) { for (int i=0;i<width;++i) bit_pointers[i]->value=static_cast<bool>(other&(1<<i)); }
+				template <typename type> inline void operator=(type other) { for (int i=0;i<width;++i) bit_pointers[i]->_value=static_cast<bool>(other&(1<<i)); }
 				template <typename type> inline type operator|(type other) const { return get_as<type>()|other; }
 				template <typename type> inline type operator&(type other) const { return get_as<type>()&other; }
-				template <typename type> inline void operator|=(type other) { for (int i=0;i<width;++i) bit_pointers[i]->value|=static_cast<bool>(other&(1<<i)); }
-				template <typename type> inline void operator&=(type other) { for (int i=0;i<width;++i) bit_pointers[i]->value&=static_cast<bool>(other&(1<<i)); }
+				template <typename type> inline void operator|=(type other) { for (int i=0;i<width;++i) bit_pointers[i]->_value|=static_cast<bool>(other&(1<<i)); }
+				template <typename type> inline void operator&=(type other) { for (int i=0;i<width;++i) bit_pointers[i]->_value&=static_cast<bool>(other&(1<<i)); }
 
 				void print(void) const;
 		};
@@ -215,7 +215,7 @@ class Fields final {
 			#define MOSS_FIELD_CONSTRUCT(NAME,...) NAME(regs)
 			MOSS_FIELDS(MOSS_FIELD_CONSTRUCT,MOSS_FIELD_CONSTRUCT,MOSS_FIELD_CONSTRUCT,MOSS_FIELD_CONSTRUCT,MOSS_FIELD_CONSTRUCT,MOSS_FIELD_CONSTRUCT,MOSS_FIELD_CONSTRUCT,MOSS_FIELD_CONSTRUCT,MOSS_FIELD_CONSTRUCT,MOSS_FIELD_CONSTRUCT,COMMA)
 		{}
-		inline ~Fields(void) {}
+		inline ~Fields(void) = default;
 };
 
 

@@ -13,8 +13,8 @@ Registers::RegisterBase::RegisterBase(DEB_REL_CODE(char const* name,void)) DEBUG
 
 void Registers::RegisterBase::print(void) const {
 	kernel->write("Register [");
-	for (int i=0;i<4;++i) kernel->write("%c ",bits[7-i].value?'#':'.');
-	for (int i=4;i<8;++i) kernel->write(" %c",bits[7-i].value?'#':'.');
+	for (int i=0;i<4;++i) kernel->write("%c ",bits[7-i]._value?'#':'.');
+	for (int i=4;i<8;++i) kernel->write(" %c",bits[7-i]._value?'#':'.');
 	kernel->write("] (0x%p",this);
 	#ifdef MOSS_DEBUG
 	kernel->write(" \"%s Register\"",name);
@@ -28,7 +28,7 @@ void Registers::RegisterBase::print(void) const {
 
 void Registers::RegisterExternalBase:: read(void) /*override*/ {
 	uint8_t value = IO::recv<uint8_t>(_port_read);
-	for (int i=0;i<8;++i) bits[i].value=static_cast<bool>(value&(1<<i));
+	for (int i=0;i<8;++i) bits[i]._value=static_cast<bool>(value&(1<<i));
 }
 void Registers::RegisterExternalBase::write(void) /*override*/ {
 	#ifdef MOSS_DEBUG
@@ -37,7 +37,7 @@ void Registers::RegisterExternalBase::write(void) /*override*/ {
 		assert_term(false,"Implementation error!  Cannot write read-only register!");
 	}
 	#endif
-	uint8_t value=0; for (int i=0;i<8;++i) if (bits[i].value) value|=1<<i;
+	uint8_t value=0; for (int i=0;i<8;++i) if (bits[i]._value) value|=1<<i;
 	IO::send<uint8_t>(_port_write, value);
 }
 
@@ -52,7 +52,7 @@ void Registers::RegisterInternalType1Base:: read(void) /*override*/ {
 	IO::send<uint8_t>(_port_addr, _index);
 
 	uint8_t value = IO::recv<uint8_t>(_port_data);
-	for (int i=0;i<8;++i) bits[i].value=static_cast<bool>(value&(1<<i));
+	for (int i=0;i<8;++i) bits[i]._value=static_cast<bool>(value&(1<<i));
 
 	IO::send<uint8_t>(_port_addr,old_addr_reg_value);
 }
@@ -61,7 +61,7 @@ void Registers::RegisterInternalType1Base::write(void) /*override*/ {
 	IO::send<uint8_t>(_port_addr, _index);
 
 	//uint8_t old_data_reg_value = IO::recv<uint8_t>(_port_data);
-	uint8_t value=0; for (int i=0;i<8;++i) if (bits[i].value) value|=1<<i;
+	uint8_t value=0; for (int i=0;i<8;++i) if (bits[i]._value) value|=1<<i;
 	IO::send<uint8_t>(_port_data,value);
 
 	IO::send<uint8_t>(_port_addr,old_addr_reg_value);
@@ -82,7 +82,7 @@ void Registers::RegisterInternalType2Base:: read(void) /*override*/ {
 	IO::send<uint8_t>(MOSS_VGA_ADDR_AC, _index);
 
 	uint8_t value = IO::recv<uint8_t>(MOSS_VGA_DATAR_AC);
-	for (int i=0;i<8;++i) bits[i].value=static_cast<bool>(value&(1<<i));
+	for (int i=0;i<8;++i) bits[i]._value=static_cast<bool>(value&(1<<i));
 
 	IO::send<uint8_t>(MOSS_VGA_ADDR_AC,old_addr_reg_value);
 }
@@ -93,7 +93,7 @@ void Registers::RegisterInternalType2Base::write(void) /*override*/ {
 	IO::send<uint8_t>(MOSS_VGA_ADDR_AC, _index);
 
 	//uint8_t old_data_reg_value = IO::recv<uint8_t>(MOSS_VGA_DATAR_AC);
-	uint8_t value=0; for (int i=0;i<8;++i) if (bits[i].value) value|=1<<i;
+	uint8_t value=0; for (int i=0;i<8;++i) if (bits[i]._value) value|=1<<i;
 	IO::send<uint8_t>(MOSS_VGA_DATAW_AC,value);
 
 	IO::send<uint8_t>(MOSS_VGA_ADDR_AC,old_addr_reg_value);

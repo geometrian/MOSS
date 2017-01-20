@@ -8,7 +8,7 @@ namespace MOSS { namespace Graphics { namespace VGA {
 
 //The VGA has many registers.
 //	The external registers have their own IO ports.
-//	The other registers do not.  I don't know of an official name for them, so I'll call them internal registers.
+//	The other registers (I don't know of an official name for them, so I'll call them internal registers) do not.
 //		These must be indexed into groups: an address register for the group, and a data register for the group
 //		(an offset within the register group):
 //			Internal registers type 1: Sequencer, Graphics, and CRT Controller Registers
@@ -33,7 +33,7 @@ class Registers final {
 				class Bit final {
 					public:
 						RegisterBase* reg;
-					private:
+					//private: //TODO
 						bool _value;
 				} bits[8];
 				//   least           most

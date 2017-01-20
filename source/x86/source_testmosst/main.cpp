@@ -1,7 +1,7 @@
 #include <crtdbg.h>
 
-#include "../source/mosst/string.h"
-#include "../source/mosst/linked_list.h"
+#include "../source_moss/mosst/string.h"
+#include "../source_moss/mosst/linked_list.h"
 
 #include <stdio.h>
 

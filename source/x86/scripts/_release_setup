@@ -150,7 +150,7 @@ if [ $remake_grub -eq 1 ]
 then
 	echo "######## Setting up GrUB . . ."
 	grub --device-map=/dev/null <<-EOF
-	device (hd0) /home/ian/moss_disk_temp
+	device (hd0) /home/imallett/moss_disk_temp
 	geometry (hd0) $((CYLINDERS)) $((HEADS)) $((SECTORS_PER_TRACK))
 	root (hd0,0)
 	setup (hd0)
