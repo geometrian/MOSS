@@ -163,7 +163,11 @@ void Terminal::write_test_pattern_res(void) {
 	for (size_t i=0;i<_device->cols;++i) {
 		set_pos_x(i);
 		if (i>=9) {
-			set_pos_y( (i+1) % 3 );
+			if (i>=99) {
+				set_pos_y( (i+1) % 4 );
+			} else {
+				set_pos_y( (i+1) % 3 );
+			}
 		} else {
 			set_pos_y(0);
 		}

@@ -74,12 +74,12 @@ extern "C" void kernel_entry(unsigned long magic, unsigned long addr) {
 	kernel->memory = &memory;
 
 	//Set highest resolution
-	vga.set_mode(Graphics::VGA::Device::Mode::Text80x50);
 	vga.set_use_font(Graphics::Font::font8x8);
+	vga.set_mode(Graphics::VGA::Device::Mode::Text128x80);
 
-	//kernel->terminal->clear();
-	//kernel->terminal->write_test_pattern_res();
-	//kernel->vga->crtc.print_timing(4,6);
+	kernel->terminal->clear();
+	kernel->terminal->write_test_pattern_res();
+	kernel->vga->crtc.print_timing(4,6);
 
 	//The GRUB documentation http://www.gnu.org/software/grub/manual/multiboot/multiboot.html implies
 	//	that interrupts are already disabled.  That's good, because the following allows us to deal with
@@ -101,7 +101,7 @@ extern "C" void kernel_entry(unsigned long magic, unsigned long addr) {
 		"    by Ian Mallett\n\n"
 	);*/
 
-	test_mode(Graphics::VGA::Device::Mode::Text80x25);
+	//test_mode(Graphics::VGA::Device::Mode::Text80x25);
 	//test_mode(Graphics::VGA::Device::Mode::Text80x30);
 	//test_mode(Graphics::VGA::Device::Mode::Text80x50);
 	//test_mode(Graphics::VGA::Device::Mode::Text80x60);
