@@ -50,7 +50,7 @@ void _message(char const* filename,int line, char const* fmt_cstr,va_list args) 
 	Graphics::VGA::Terminal::Color temp;
 	if (kernel->terminal!=nullptr) {
 		temp = kernel->terminal->color_text;
-		kernel->terminal->set_color_text(Graphics::VGA::Terminal::COLOR_RED);
+		kernel->terminal->set_color_text(Graphics::VGA::Terminal::Color::RED);
 	}
 
 	char buffer[1024]; //TODO: vsnprintf

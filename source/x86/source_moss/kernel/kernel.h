@@ -23,6 +23,7 @@ namespace MOSSC {
 			class Manager;
 		}
 		namespace VGA {
+			class Device;
 			class Terminal;
 		}
 		namespace VESA {
@@ -62,6 +63,7 @@ class Kernel final {
 	public:
 		Graphics::VGA::Terminal* terminal;
 
+		Graphics::VGA::Device* vga;
 		Graphics::VESA::Controller* graphics;
 		Graphics::GUI::Manager* gui;
 
@@ -77,7 +79,7 @@ class Kernel final {
 	public:
 		//Allocated on the stack, so these can't do much real processing
 		Kernel(void);
-		~Kernel(void);
+		inline ~Kernel(void) = default;
 
 		void handle_key_down(Input::Keys::Event const& event);
 		void handle_key_up(Input::Keys::Event const& event);

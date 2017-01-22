@@ -33,10 +33,10 @@ class BlockGRUB final {
 		uint64_t size;
 		unsigned int type;
 
-		BlockGRUB(void);
+		inline BlockGRUB(void) = default;
 		explicit BlockGRUB(BlockGRUB const& block);
 		explicit BlockGRUB(Boot::multiboot_memory_map_t* mmap);
-		~BlockGRUB(void);
+		inline ~BlockGRUB(void) = default;
 
 		void print(void) const;
 };
@@ -48,7 +48,7 @@ class MemoryManager final {
 
 	public:
 		explicit MemoryManager(Boot::multiboot_info_t const* mbi);
-		~MemoryManager(void);
+		inline ~MemoryManager(void) = default;
 
 		void* malloc(size_t size);
 		void free(void* ptr);

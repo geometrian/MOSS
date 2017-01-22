@@ -2,7 +2,7 @@
 
 #include "../../../includes.h"
 
-#include "fields.h" //includes "registers.h"
+//#include "fields.h" //includes "registers.h"
 
 
 namespace MOSS { namespace Graphics {
@@ -13,14 +13,1770 @@ namespace MOSS { namespace Graphics {
 namespace VGA {
 
 
-//Sources:
-//	https://en.wikipedia.org/wiki/VGA-compatible_text_mode
-//	http://www.osdever.net/FreeVGA/vga/vga.htm
-//	http://www.osdever.net/FreeVGA/vga/vgareg.htm
-//	http://compbio.cs.toronto.edu/repos/snowflock/xen-3.0.3/xen/drivers/video/vga.c
-//	http://files.osdev.org/mirrors/geezer/osd/graphics/index.htm
-//	http://files.osdev.org/mirrors/geezer/osd/graphics/modes.c
+/*
+Sources:
+	https://en.wikipedia.org/wiki/VGA-compatible_text_mode
+	http://www.osdever.net/FreeVGA/vga/vga.htm
+	http://www.osdever.net/FreeVGA/vga/vgareg.htm
+	http://compbio.cs.toronto.edu/repos/snowflock/xen-3.0.3/xen/drivers/video/vga.c
+	http://files.osdev.org/mirrors/geezer/osd/graphics/index.htm
+	http://files.osdev.org/mirrors/geezer/osd/graphics/modes.c
 
+Overview:
+	Refer to diagram: http://wiki.osdev.org/VGA_Hardware#The_CRT_Controller
+
+	The system bus connects directly to the VGA unit, specifically its "Graphics Controller" unit,
+	which comprises the bus interface and the VGA's memory's R/W logic.  The VGA memory is 4
+	"plane"s of 64KiB each.  This memory is then read by the "Sequencer", which converts video
+	memory to color indexes, and from there into the "CRT Controller" ("CRTC"), which draws
+	pixels/characters on the actual screen.  The Sequencer and CRTC connect with the "Color Logic",
+	which encapsulates a "Palette" and a "DAC" ("Digital-Analog Converter").  I encapsulate the
+	whole thing as a VGA "Device".
+
+	"Graphics Controller" (GC):
+		Responsible for directing memory reads from/writes to video memory
+
+	The VGA has many registers, all terribly arranged:
+		External/General Registers
+			http://www.osdever.net/FreeVGA/vga/extreg.htm
+			Unique IO port locations, but sometimes different read/write
+			--Miscellaneous Output Register (Read 0x03CC / Write 0x03C2)
+			--Feature Control Register      (Read 0x03CA / Write 0x03BA (mono) or 0x03DA (color))
+			--Input Status Register #0      (Read 0x03C2)
+			--Input Status Register #1      (Read 0x03BAh (mono) or 0x03DA (color))
+				Note: reading resets attribute registers' flip-flop to expect index.
+		Sequencer, Graphics, and CRTC Registers
+			Each has a two read/write ports for an address and data.
+			Sequencer (Address 0x03C4, Data 0x03C5)
+				http://www.osdever.net/FreeVGA/vga/seqreg.htm
+				--Reset Register                 (Address +0x0000)
+				--Clocking Mode Register         (Address +0x0001)
+				--Map Mask Register              (Address +0x0002)
+				--Character Map Select Register  (Address +0x0003)
+				--Sequencer Memory Mode Register (Address +0x0004)
+			Graphics Controller (Address 0x03CE, Data 0x03CF)
+				http://www.osdever.net/FreeVGA/vga/graphreg.htm
+				--Set/Reset Register              (Address +0x0000)
+				--Enable Set/Reset Register       (Address +0x0001)
+				--Color Compare Register          (Address +0x0002)
+				--Data Rotate Register            (Address +0x0003)
+				--Read Map Select Register        (Address +0x0004)
+				--Graphics Mode Register          (Address +0x0005)
+				--Miscellaneous Graphics Register (Address +0x0006)
+				--Color Don't Care Register       (Address +0x0007)
+				--Bit Mask Register               (Address +0x0008)
+			CRTC (Address {0x03B4,0x03D4}[I/OAS], Data {0x03B5,0x03D5}[I/OAS], where bit I/OAS comes from external misc. register)
+				http://www.osdever.net/FreeVGA/vga/crtcreg.htm
+				--Horizontal Total Register          (Address +0x0000)
+				--End Horizontal Display Register    (Address +0x0001)
+				--Start Horizontal Blanking Register (Address +0x0002)
+				--End Horizontal Blanking Register   (Address +0x0003)
+				--Start Horizontal Retrace Register  (Address +0x0004)
+				--End Horizontal Retrace Register    (Address +0x0005)
+				--Vertical Total Register            (Address +0x0006)
+				--Overflow Register                  (Address +0x0007)
+				--Preset Row Scan Register           (Address +0x0008)
+				--Maximum Scan Line Register         (Address +0x0009)
+				--Cursor Start Register              (Address +0x000A)
+				--Cursor End Register                (Address +0x000B)
+				--Start Address High Register        (Address +0x000C)
+				--Start Address Low Register         (Address +0x000D)
+				--Cursor Location High Register      (Address +0x000E)
+				--Cursor Location Low Register       (Address +0x000F)
+				--Vertical Retrace Start Register    (Address +0x0010)
+				--Vertical Retrace End Register      (Address +0x0011)
+				--Vertical Display End Register      (Address +0x0012)
+				--Offset Register                    (Address +0x0013)
+				--Underline Location Register        (Address +0x0014)
+				--Start Vertical Blanking Register   (Address +0x0015)
+				--End Vertical Blanking              (Address +0x0016)
+				--CRTC Mode Control Register         (Address +0x0017)
+				--Line Compare Register              (Address +0x0018)
+		Attribute Registers (Address R/W 0x03C0, Index/Data R 0x03C1, W 0x03C0)
+			http://www.osdever.net/FreeVGA/vga/attrreg.htm
+
+		Color Registers
+			http://www.osdever.net/FreeVGA/vga/colorreg.htm
+*/
+
+
+class Device;
+
+class GraphicsController;
+class Memory;
+class Sequencer;
+//class ColorLogic;
+class CRTC;
+
+
+namespace Regs {
+
+
+class RegisterBase {
+	public:
+		Device*const device;
+
+		#ifdef MOSS_DEBUG
+		char const*const name;
+		#endif
+
+	protected:
+		#ifdef MOSS_DEBUG
+		inline RegisterBase(Device* device, char const* name) : device(device), name(name) {}
+		#else
+		explicit inline RegisterBase(Device* device) : device(device) {}
+		#endif
+
+	public:
+		virtual uint8_t read_raw(void) const = 0;
+		virtual void write_raw(uint8_t value) = 0;
+
+		inline bool is_set(int bit) const {
+			uint8_t value = read_raw();
+			return (value & (1<<bit)) > 0;
+		}
+
+		void print(void) const;
+};
+
+
+class ExternalRegisterBase : public RegisterBase {
+	public:
+		bool const writable;
+
+		struct Ports {
+			uint16_t read, write;
+		};
+		struct Ports const ports_mono, ports_col;
+
+	protected:
+		inline ExternalRegisterBase(Device* device, DEBUG_ONLY(char const* name COMMA) bool writable, struct Ports const& ports_mono,struct Ports const& ports_col) :
+			RegisterBase(device DEBUG_ONLY(COMMA name)),
+			writable(writable), ports_mono(ports_mono),ports_col(ports_col)
+		{}
+
+	public:
+		virtual uint8_t read_raw(void) const override;
+		virtual void write_raw(uint8_t value) override;
+};
+
+class MiscellaneousOutputRegister final : public ExternalRegisterBase {
+	public:
+		struct Fields final {
+			uint8_t InputOutputAddressSelect : 1;
+			uint8_t RAM_Enable               : 1;
+			uint8_t ClockSelect              : 2;
+			uint8_t                          : 1;
+			uint8_t OddEvenPageSelect        : 1;
+			uint8_t HorizontalSyncPolarity   : 1;
+			uint8_t VerticalSyncPolarity     : 1;
+		};
+		static_assert(sizeof(struct Fields)==1,"Implementation error!");
+	public:
+		explicit inline MiscellaneousOutputRegister(Device* device) : ExternalRegisterBase(device,DEBUG_ONLY("Miscellaneous Output Register" COMMA)true,{0x03CC,0x03C2},{0x03CC,0x03C2}) {}
+
+		inline struct Fields read(void) const { uint8_t temp=read_raw(); return reinterpret_cast<struct Fields&>(temp); }
+		inline void write(struct Fields value) { write_raw(reinterpret_cast<uint8_t&>(value)); }
+};
+class FeatureControlRegister final : public ExternalRegisterBase { public:
+	//All bits reserved
+	explicit inline FeatureControlRegister(Device* device) : ExternalRegisterBase(device,DEBUG_ONLY("Feature Control Register" COMMA)true,{0x03CA,0x03BA},{0x03CA,0x03DA}) {}
+};
+class InputStatus0Register final : public ExternalRegisterBase {
+	public:
+		struct Fields final {
+			uint8_t             : 4;
+			uint8_t SwitchSense : 1;
+			uint8_t             : 3;
+		};
+		static_assert(sizeof(struct Fields)==1,"Implementation error!");
+	public:
+		explicit inline InputStatus0Register(Device* device) : ExternalRegisterBase(device,DEBUG_ONLY("Input Status Register #0" COMMA)false,{0x03C2,0},{0x03C2,0}) {}
+
+		inline struct Fields read(void) const { uint8_t temp=read_raw(); return reinterpret_cast<struct Fields&>(temp); }
+		inline void write(struct Fields value) { write_raw(reinterpret_cast<uint8_t&>(value)); }
+};
+class InputStatus1Register final : public ExternalRegisterBase {
+	public:
+		struct Fields final {
+			uint8_t DisplayDisabled : 1;
+			uint8_t                 : 2;
+			uint8_t VerticalRetrace : 1;
+			uint8_t                 : 4;
+		};
+		static_assert(sizeof(struct Fields)==1,"Implementation error!");
+	public:
+		explicit inline InputStatus1Register(Device* device) : ExternalRegisterBase(device,DEBUG_ONLY("Input Status Register #1" COMMA)false,{0x03BA,0},{0x03DA,0}) {}
+
+		//Note: reading resets attribute registers' flip-flop to expect index.
+		inline struct Fields read(void) const { uint8_t temp=read_raw(); return reinterpret_cast<struct Fields&>(temp); }
+		inline void write(struct Fields value) { write_raw(reinterpret_cast<uint8_t&>(value)); }
+};
+
+
+class IndexedRegisterBase : public RegisterBase {
+	public:
+		struct PossiblePorts final {
+			uint16_t ports[2];
+		};
+		struct PossiblePorts const ports_addr;
+		struct PossiblePorts const ports_data;
+		uint16_t const index;
+
+	protected:
+		inline IndexedRegisterBase(Device* device, DEBUG_ONLY(char const* name COMMA) struct PossiblePorts const& ports_addr,struct PossiblePorts const& ports_data, uint16_t index) :
+			RegisterBase(device DEBUG_ONLY(COMMA name)),
+			ports_addr(ports_addr),ports_data(ports_data), index(index)
+		{}
+
+	public:
+		virtual uint8_t read_raw(void) const override;
+		virtual void write_raw(uint8_t value) override;
+};
+
+class SequencerRegisterBase : public IndexedRegisterBase {
+	public:
+		Sequencer*const sequencer;
+
+	protected:
+		SequencerRegisterBase(Sequencer* sequencer, DEBUG_ONLY(char const* name COMMA) uint16_t index);
+};
+class GraphicsRegisterBase : public IndexedRegisterBase {
+	public:
+		GraphicsController*const graphics_controller;
+
+	protected:
+		GraphicsRegisterBase(GraphicsController* graphics_controller, DEBUG_ONLY(char const* name COMMA) uint16_t index);
+};
+class CRTC_RegisterBase : public IndexedRegisterBase {
+	public:
+		CRTC*const crtc;
+
+	protected:
+		CRTC_RegisterBase(CRTC* crtc, DEBUG_ONLY(char const* name COMMA) uint16_t index);
+};
+
+class SequencerResetRegister final : public SequencerRegisterBase {
+	public:
+		struct Fields final {
+			uint8_t AsynchronousReset : 1;
+			uint8_t SynchronousReset  : 1;
+			uint8_t                   : 6;
+		};
+		static_assert(sizeof(struct Fields)==1,"Implementation error!");
+	public:
+		explicit inline SequencerResetRegister(Sequencer* sequencer) : SequencerRegisterBase(sequencer,DEBUG_ONLY("Reset Register (Seq)" COMMA)0x0000) {}
+
+		inline struct Fields read(void) const { uint8_t temp=read_raw(); return reinterpret_cast<struct Fields&>(temp); }
+		inline void write(struct Fields value) { write_raw(reinterpret_cast<uint8_t&>(value)); }
+};
+class SequencerClockingModeRegister final : public SequencerRegisterBase {
+	public:
+		struct Fields final {
+			uint8_t DotMode_9_8   : 1;
+			uint8_t               : 1;
+			uint8_t ShiftLoadRate : 1;
+			uint8_t DotClockRate  : 1;
+			uint8_t Shift4Enable  : 1;
+			uint8_t ScreenDisable : 1;
+			uint8_t               : 2;
+		};
+		static_assert(sizeof(struct Fields)==1,"Implementation error!");
+	public:
+		explicit inline SequencerClockingModeRegister(Sequencer* sequencer) : SequencerRegisterBase(sequencer,DEBUG_ONLY("Clocking Mode Register (Seq)" COMMA)0x0001) {}
+
+		inline struct Fields read(void) const { uint8_t temp=read_raw(); return reinterpret_cast<struct Fields&>(temp); }
+		inline void write(struct Fields value) { write_raw(reinterpret_cast<uint8_t&>(value)); }
+};
+class SequencerMapMaskRegister final : public SequencerRegisterBase {
+	public:
+		struct Fields final {
+			uint8_t MemoryPlaneWriteEnable : 4;
+			uint8_t                        : 4;
+		};
+		static_assert(sizeof(struct Fields)==1,"Implementation error!");
+	public:
+		explicit inline SequencerMapMaskRegister(Sequencer* sequencer) : SequencerRegisterBase(sequencer,DEBUG_ONLY("Map Mask Register (Seq)" COMMA)0x0002) {}
+
+		inline struct Fields read(void) const { uint8_t temp=read_raw(); return reinterpret_cast<struct Fields&>(temp); }
+		inline void write(struct Fields value) { write_raw(reinterpret_cast<uint8_t&>(value)); }
+};
+class SequencerCharacterMapSelectRegister final : public SequencerRegisterBase {
+	public:
+		struct Fields final {
+			//These fields are actually discontinuous, so the read/write does some extra work.
+			uint8_t SelectCharacterSetA : 3;
+			uint8_t SelectCharacterSetB : 3;
+			uint8_t _unknown            : 2;
+		};
+		static_assert(sizeof(struct Fields)==1,"Implementation error!");
+	public:
+		explicit inline SequencerCharacterMapSelectRegister(Sequencer* sequencer) : SequencerRegisterBase(sequencer,DEBUG_ONLY("Character Map Select Register (Seq)" COMMA)0x0003) {}
+
+		struct Fields read(void) const;
+		void write(struct Fields value);
+};
+class SequencerMemoryModeRegister final : public SequencerRegisterBase {
+	public:
+		struct Fields final {
+			uint8_t                                         : 1;
+			uint8_t ExtendedMemory                          : 1;
+			uint8_t OddEvenHostMemoryWriteAddressingDisable : 1;
+			uint8_t Chain4Enable                            : 1;
+			uint8_t                                         : 4;
+		};
+		static_assert(sizeof(struct Fields)==1,"Implementation error!");
+	public:
+		explicit inline SequencerMemoryModeRegister(Sequencer* sequencer) : SequencerRegisterBase(sequencer,DEBUG_ONLY("Memory Mode Register (Seq)" COMMA)0x0004) {}
+
+		inline struct Fields read(void) const { uint8_t temp=read_raw(); return reinterpret_cast<struct Fields&>(temp); }
+		inline void write(struct Fields value) { write_raw(reinterpret_cast<uint8_t&>(value)); }
+};
+
+class GraphicsSetResetRegister final : public GraphicsRegisterBase {
+	public:
+		struct Fields final {
+			uint8_t SetReset : 4;
+			uint8_t          : 4;
+		};
+		static_assert(sizeof(struct Fields)==1,"Implementation error!");
+	public:
+		explicit inline GraphicsSetResetRegister(GraphicsController* graphics_controller) : GraphicsRegisterBase(graphics_controller,DEBUG_ONLY("Set/Reset Register (GC)" COMMA)0x0000) {}
+
+		inline struct Fields read(void) const { uint8_t temp=read_raw(); return reinterpret_cast<struct Fields&>(temp); }
+		inline void write(struct Fields value) { write_raw(reinterpret_cast<uint8_t&>(value)); }
+};
+class GraphicsEnableSetResetRegister final : public GraphicsRegisterBase {
+	public:
+		struct Fields final {
+			uint8_t EnableSetReset : 4;
+			uint8_t                : 4;
+		};
+		static_assert(sizeof(struct Fields)==1,"Implementation error!");
+	public:
+		explicit inline GraphicsEnableSetResetRegister(GraphicsController* graphics_controller) : GraphicsRegisterBase(graphics_controller,DEBUG_ONLY("Enable Set/Reset Register (GC)" COMMA)0x0001) {}
+
+		inline struct Fields read(void) const { uint8_t temp=read_raw(); return reinterpret_cast<struct Fields&>(temp); }
+		inline void write(struct Fields value) { write_raw(reinterpret_cast<uint8_t&>(value)); }
+};
+class GraphicsColorCompareRegister final : public GraphicsRegisterBase {
+	public:
+		struct Fields final {
+			uint8_t ColorCompare : 4;
+			uint8_t              : 4;
+		};
+		static_assert(sizeof(struct Fields)==1,"Implementation error!");
+	public:
+		explicit inline GraphicsColorCompareRegister(GraphicsController* graphics_controller) : GraphicsRegisterBase(graphics_controller,DEBUG_ONLY("Color Compare Register (GC)" COMMA)0x0002) {}
+
+		inline struct Fields read(void) const { uint8_t temp=read_raw(); return reinterpret_cast<struct Fields&>(temp); }
+		inline void write(struct Fields value) { write_raw(reinterpret_cast<uint8_t&>(value)); }
+};
+class GraphicsDataRotateRegister final : public GraphicsRegisterBase {
+	public:
+		struct Fields final {
+			uint8_t RotateCount      : 3;
+			uint8_t LogicalOperation : 2;
+			uint8_t                  : 3;
+		};
+		static_assert(sizeof(struct Fields)==1,"Implementation error!");
+	public:
+		explicit inline GraphicsDataRotateRegister(GraphicsController* graphics_controller) : GraphicsRegisterBase(graphics_controller,DEBUG_ONLY("Data Rotate Register (GC)" COMMA)0x0003) {}
+
+		inline struct Fields read(void) const { uint8_t temp=read_raw(); return reinterpret_cast<struct Fields&>(temp); }
+		inline void write(struct Fields value) { write_raw(reinterpret_cast<uint8_t&>(value)); }
+};
+class GraphicsReadMapSelectRegister final : public GraphicsRegisterBase {
+	public:
+		struct Fields final {
+			uint8_t ReadMapSelect : 2;
+			uint8_t               : 6;
+		};
+		static_assert(sizeof(struct Fields)==1,"Implementation error!");
+	public:
+		explicit inline GraphicsReadMapSelectRegister(GraphicsController* graphics_controller) : GraphicsRegisterBase(graphics_controller,DEBUG_ONLY("Read Map Select Register (GC)" COMMA)0x0004) {}
+
+		inline struct Fields read(void) const { uint8_t temp=read_raw(); return reinterpret_cast<struct Fields&>(temp); }
+		inline void write(struct Fields value) { write_raw(reinterpret_cast<uint8_t&>(value)); }
+};
+class GraphicsModeRegister final : public GraphicsRegisterBase {
+	public:
+		struct Fields final {
+			uint8_t WriteMode                             : 2;
+			uint8_t                                       : 1;
+			uint8_t ReadMode                              : 1;
+			uint8_t HostOddEvenMemoryReadAddressingEnable : 1;
+			uint8_t ShiftRegisterInterleaveMode           : 1;
+			uint8_t ShiftModeColor256                     : 1;
+			uint8_t                                       : 1;
+		};
+		static_assert(sizeof(struct Fields)==1,"Implementation error!");
+	public:
+		explicit inline GraphicsModeRegister(GraphicsController* graphics_controller) : GraphicsRegisterBase(graphics_controller,DEBUG_ONLY("Graphics Mode Register (GC)" COMMA)0x0005) {}
+
+		inline struct Fields read(void) const { uint8_t temp=read_raw(); return reinterpret_cast<struct Fields&>(temp); }
+		inline void write(struct Fields value) { write_raw(reinterpret_cast<uint8_t&>(value)); }
+};
+class GraphicsMiscellaneousRegister final : public GraphicsRegisterBase {
+	public:
+		struct Fields final {
+			uint8_t AlphanumericModeDisable : 1;
+			uint8_t ChainOddEvenEnable      : 1;
+			uint8_t MemoryMapSelect         : 2;
+			uint8_t                         : 4;
+		};
+		static_assert(sizeof(struct Fields)==1,"Implementation error!");
+	public:
+		explicit inline GraphicsMiscellaneousRegister(GraphicsController* graphics_controller) : GraphicsRegisterBase(graphics_controller,DEBUG_ONLY("Miscellaneous Graphics Register (GC)" COMMA)0x0006) {}
+
+		inline struct Fields read(void) const { uint8_t temp=read_raw(); return reinterpret_cast<struct Fields&>(temp); }
+		inline void write(struct Fields value) { write_raw(reinterpret_cast<uint8_t&>(value)); }
+};
+class GraphicsColorDontCareRegister final : public GraphicsRegisterBase {
+	public:
+		struct Fields final {
+			uint8_t ColorDontCare : 4;
+			uint8_t               : 4;
+		};
+		static_assert(sizeof(struct Fields)==1,"Implementation error!");
+	public:
+		explicit inline GraphicsColorDontCareRegister(GraphicsController* graphics_controller) : GraphicsRegisterBase(graphics_controller,DEBUG_ONLY("Color Don't-Care Register (GC)" COMMA)0x0007) {}
+
+		inline struct Fields read(void) const { uint8_t temp=read_raw(); return reinterpret_cast<struct Fields&>(temp); }
+		inline void write(struct Fields value) { write_raw(reinterpret_cast<uint8_t&>(value)); }
+};
+class GraphicsBitmaskRegister final : public GraphicsRegisterBase {
+	public:
+		explicit inline GraphicsBitmaskRegister(GraphicsController* graphics_controller) : GraphicsRegisterBase(graphics_controller,DEBUG_ONLY("Bitmask Register (GC)" COMMA)0x0008) {}
+
+		inline uint8_t read(void) const { return read_raw(); }
+		inline void write(uint8_t value) { write_raw(value); }
+};
+
+class CRTC_HorizontalTotalRegister final : public CRTC_RegisterBase {
+	public:
+		explicit inline CRTC_HorizontalTotalRegister(CRTC* crtc) : CRTC_RegisterBase(crtc,DEBUG_ONLY("Horizontal Total Register (CRTC)" COMMA)0x0000) {}
+
+		inline uint8_t read(void) const { return read_raw(); }
+		inline void write(uint8_t value) { write_raw(value); }
+};
+class CRTC_EndHorizontalDisplayRegister final : public CRTC_RegisterBase {
+	public:
+		explicit inline CRTC_EndHorizontalDisplayRegister(CRTC* crtc) : CRTC_RegisterBase(crtc,DEBUG_ONLY("End Horizontal Display Register (CRTC)" COMMA)0x0001) {}
+
+		inline uint8_t read(void) const { return read_raw(); }
+		inline void write(uint8_t value) { write_raw(value); }
+};
+class CRTC_StartHorizontalBlankingRegister final : public CRTC_RegisterBase {
+	public:
+		explicit inline CRTC_StartHorizontalBlankingRegister(CRTC* crtc) : CRTC_RegisterBase(crtc,DEBUG_ONLY("Start Horizontal Blanking Register (CRTC)" COMMA)0x0002) {}
+
+		inline uint8_t read(void) const { return read_raw(); }
+		inline void write(uint8_t value) { write_raw(value); }
+};
+class CRTC_EndHorizontalBlankingRegister final : public CRTC_RegisterBase {
+	public:
+		struct Fields final {
+			uint8_t EndHorizontalBlanking_Bits04 : 5;
+			uint8_t DisplayEnableSkew            : 2;
+			uint8_t EnableVerticalRetraceAccess  : 1;
+		};
+		static_assert(sizeof(struct Fields)==1,"Implementation error!");
+	public:
+		explicit inline CRTC_EndHorizontalBlankingRegister(CRTC* crtc) : CRTC_RegisterBase(crtc,DEBUG_ONLY("End Horizontal Blanking Register (CRTC)" COMMA)0x0003) {}
+
+		inline struct Fields read(void) const { uint8_t temp=read_raw(); return reinterpret_cast<struct Fields&>(temp); }
+		inline void write(struct Fields value) { write_raw(reinterpret_cast<uint8_t&>(value)); }
+};
+class CRTC_StartHorizontalRetraceRegister final : public CRTC_RegisterBase {
+	public:
+		explicit inline CRTC_StartHorizontalRetraceRegister(CRTC* crtc) : CRTC_RegisterBase(crtc,DEBUG_ONLY("Start Horizontal Retrace Register (CRTC)" COMMA)0x0004) {}
+
+		inline uint8_t read(void) const { return read_raw(); }
+		inline void write(uint8_t value) { write_raw(value); }
+};
+class CRTC_EndHorizontalRetraceRegister final : public CRTC_RegisterBase {
+	public:
+		struct Fields final {
+			uint8_t EndHorizontalRetrace       : 5;
+			uint8_t HorizontalRetraceSkew      : 2;
+			uint8_t EndHorizontalBlanking_Bit5 : 1;
+		};
+		static_assert(sizeof(struct Fields)==1,"Implementation error!");
+	public:
+		explicit inline CRTC_EndHorizontalRetraceRegister(CRTC* crtc) : CRTC_RegisterBase(crtc,DEBUG_ONLY("End Horizontal Retrace Register (CRTC)" COMMA)0x0005) {}
+
+		inline struct Fields read(void) const { uint8_t temp=read_raw(); return reinterpret_cast<struct Fields&>(temp); }
+		inline void write(struct Fields value) { write_raw(reinterpret_cast<uint8_t&>(value)); }
+};
+class CRTC_VerticalTotalRegister final : public CRTC_RegisterBase {
+	public:
+		struct Fields final {
+			uint8_t VerticalTotal_Bits07 : 8;
+		};
+		static_assert(sizeof(struct Fields)==1,"Implementation error!");
+	public:
+		explicit inline CRTC_VerticalTotalRegister(CRTC* crtc) : CRTC_RegisterBase(crtc,DEBUG_ONLY("Vertical Total Register (CRTC)" COMMA)0x0006) {}
+
+		inline struct Fields read(void) const { uint8_t temp=read_raw(); return reinterpret_cast<struct Fields&>(temp); }
+		inline void write(struct Fields value) { write_raw(reinterpret_cast<uint8_t&>(value)); }
+};
+class CRTC_OverflowRegister final : public CRTC_RegisterBase {
+	public:
+		struct Fields final {
+			uint8_t VerticalTotal_Bit8         : 1;
+			uint8_t VerticalDisplayEnd_Bit8    : 1;
+			uint8_t VerticalRetraceStart_Bit8  : 1;
+			uint8_t StartVerticalBlanking_Bit8 : 1;
+			uint8_t LineCompare_Bit8           : 1;
+			uint8_t VerticalTotal_Bit9         : 1;
+			uint8_t VerticalDisplayEnd_Bit9    : 1;
+			uint8_t VerticalRetraceStart_Bit9  : 1;
+		};
+		static_assert(sizeof(struct Fields)==1,"Implementation error!");
+	public:
+		explicit inline CRTC_OverflowRegister(CRTC* crtc) : CRTC_RegisterBase(crtc,DEBUG_ONLY("Overflow Register (CRTC)" COMMA)0x0007) {}
+
+		inline struct Fields read(void) const { uint8_t temp=read_raw(); return reinterpret_cast<struct Fields&>(temp); }
+		inline void write(struct Fields value) { write_raw(reinterpret_cast<uint8_t&>(value)); }
+};
+class CRTC_PresetRowScanRegister final : public CRTC_RegisterBase {
+	public:
+		struct Fields final {
+			uint8_t PresetRowScan : 5;
+			uint8_t BytePanning   : 2;
+			uint8_t               : 1;
+		};
+		static_assert(sizeof(struct Fields)==1,"Implementation error!");
+	public:
+		explicit inline CRTC_PresetRowScanRegister(CRTC* crtc) : CRTC_RegisterBase(crtc,DEBUG_ONLY("Preset Row Scan Register (CRTC)" COMMA)0x0008) {}
+
+		inline struct Fields read(void) const { uint8_t temp=read_raw(); return reinterpret_cast<struct Fields&>(temp); }
+		inline void write(struct Fields value) { write_raw(reinterpret_cast<uint8_t&>(value)); }
+};
+class CRTC_MaximumScanlineRegister final : public CRTC_RegisterBase {
+	public:
+		struct Fields final {
+			uint8_t MaximumScanline            : 5;
+			uint8_t StartVerticalBlanking_Bit9 : 1;
+			uint8_t LineCompare_Bit9           : 1;
+			uint8_t ScanDoubling               : 1;
+		};
+		static_assert(sizeof(struct Fields)==1,"Implementation error!");
+	public:
+		explicit inline CRTC_MaximumScanlineRegister(CRTC* crtc) : CRTC_RegisterBase(crtc,DEBUG_ONLY("Maximum Scanline Register (CRTC)" COMMA)0x0009) {}
+
+		inline struct Fields read(void) const { uint8_t temp=read_raw(); return reinterpret_cast<struct Fields&>(temp); }
+		inline void write(struct Fields value) { write_raw(reinterpret_cast<uint8_t&>(value)); }
+};
+class CRTC_CursorStartRegister final : public CRTC_RegisterBase {
+	public:
+		struct Fields final {
+			uint8_t CursorScanlineStart : 5;
+			uint8_t CursorDisable       : 1;
+			uint8_t                     : 2;
+		};
+		static_assert(sizeof(struct Fields)==1,"Implementation error!");
+	public:
+		explicit inline CRTC_CursorStartRegister(CRTC* crtc) : CRTC_RegisterBase(crtc,DEBUG_ONLY("Cursor Start Register (CRTC)" COMMA)0x000A) {}
+
+		inline struct Fields read(void) const { uint8_t temp=read_raw(); return reinterpret_cast<struct Fields&>(temp); }
+		inline void write(struct Fields value) { write_raw(reinterpret_cast<uint8_t&>(value)); }
+};
+class CRTC_CursorEndRegister final : public CRTC_RegisterBase {
+	public:
+		struct Fields final {
+			uint8_t CursorScanlineEnd : 5;
+			uint8_t CursorSkew        : 2;
+			uint8_t                   : 1;
+		};
+		static_assert(sizeof(struct Fields)==1,"Implementation error!");
+	public:
+		explicit inline CRTC_CursorEndRegister(CRTC* crtc) : CRTC_RegisterBase(crtc,DEBUG_ONLY("Cursor End Register (CRTC)" COMMA)0x000B) {}
+
+		inline struct Fields read(void) const { uint8_t temp=read_raw(); return reinterpret_cast<struct Fields&>(temp); }
+		inline void write(struct Fields value) { write_raw(reinterpret_cast<uint8_t&>(value)); }
+};
+class CRTC_StartAddressHighRegister final : public CRTC_RegisterBase {
+	public:
+		struct Fields final {
+			uint8_t StartAddress_Bits0815 : 8;
+		};
+		static_assert(sizeof(struct Fields)==1,"Implementation error!");
+	public:
+		explicit inline CRTC_StartAddressHighRegister(CRTC* crtc) : CRTC_RegisterBase(crtc,DEBUG_ONLY("Start Address High Register (CRTC)" COMMA)0x000C) {}
+
+		inline struct Fields read(void) const { uint8_t temp=read_raw(); return reinterpret_cast<struct Fields&>(temp); }
+		inline void write(struct Fields value) { write_raw(reinterpret_cast<uint8_t&>(value)); }
+};
+class CRTC_StartAddressLowRegister final : public CRTC_RegisterBase {
+	public:
+		struct Fields final {
+			uint8_t StartAddress_Bits07 : 8;
+		};
+		static_assert(sizeof(struct Fields)==1,"Implementation error!");
+	public:
+		explicit inline CRTC_StartAddressLowRegister(CRTC* crtc) : CRTC_RegisterBase(crtc,DEBUG_ONLY("Start Address Low Register (CRTC)" COMMA)0x000D) {}
+
+		inline struct Fields read(void) const { uint8_t temp=read_raw(); return reinterpret_cast<struct Fields&>(temp); }
+		inline void write(struct Fields value) { write_raw(reinterpret_cast<uint8_t&>(value)); }
+};
+class CRTC_CursorLocationHighRegister final : public CRTC_RegisterBase {
+	public:
+		struct Fields final {
+			uint8_t CursorLocation_Bits0815 : 8;
+		};
+		static_assert(sizeof(struct Fields)==1,"Implementation error!");
+	public:
+		explicit inline CRTC_CursorLocationHighRegister(CRTC* crtc) : CRTC_RegisterBase(crtc,DEBUG_ONLY("Cursor Location High Register (CRTC)" COMMA)0x000E) {}
+
+		inline struct Fields read(void) const { uint8_t temp=read_raw(); return reinterpret_cast<struct Fields&>(temp); }
+		inline void write(struct Fields value) { write_raw(reinterpret_cast<uint8_t&>(value)); }
+};
+class CRTC_CursorLocationLowRegister final : public CRTC_RegisterBase {
+	public:
+		struct Fields final {
+			uint8_t CursorLocation_Bits07 : 8;
+		};
+		static_assert(sizeof(struct Fields)==1,"Implementation error!");
+	public:
+		explicit inline CRTC_CursorLocationLowRegister(CRTC* crtc) : CRTC_RegisterBase(crtc,DEBUG_ONLY("Cursor Location Low Register (CRTC)" COMMA)0x000F) {}
+
+		inline struct Fields read(void) const { uint8_t temp=read_raw(); return reinterpret_cast<struct Fields&>(temp); }
+		inline void write(struct Fields value) { write_raw(reinterpret_cast<uint8_t&>(value)); }
+};
+class CRTC_VerticalRetraceStartRegister final : public CRTC_RegisterBase {
+	public:
+		struct Fields final {
+			uint8_t VerticalRetraceStart_Bits07 : 8;
+		};
+		static_assert(sizeof(struct Fields)==1,"Implementation error!");
+	public:
+		explicit inline CRTC_VerticalRetraceStartRegister(CRTC* crtc) : CRTC_RegisterBase(crtc,DEBUG_ONLY("Vertical Retrace Start Register (CRTC)" COMMA)0x0010) {}
+
+		inline struct Fields read(void) const { uint8_t temp=read_raw(); return reinterpret_cast<struct Fields&>(temp); }
+		inline void write(struct Fields value) { write_raw(reinterpret_cast<uint8_t&>(value)); }
+};
+class CRTC_VerticalRetraceEndRegister final : public CRTC_RegisterBase {
+	public:
+		struct Fields final {
+			uint8_t VerticalRetraceEnd          : 4;
+			uint8_t                             : 2;
+			uint8_t MemoryRefreshBandwidth      : 1;
+			uint8_t CRTC_RegistersProtectEnable : 1;
+		};
+		static_assert(sizeof(struct Fields)==1,"Implementation error!");
+	public:
+		explicit inline CRTC_VerticalRetraceEndRegister(CRTC* crtc) : CRTC_RegisterBase(crtc,DEBUG_ONLY("Vertical Retrace End Register (CRTC)" COMMA)0x0011) {}
+
+		inline struct Fields read(void) const { uint8_t temp=read_raw(); return reinterpret_cast<struct Fields&>(temp); }
+		inline void write(struct Fields value) { write_raw(reinterpret_cast<uint8_t&>(value)); }
+};
+class CRTC_VerticalDisplayEndRegister final : public CRTC_RegisterBase {
+	public:
+		struct Fields final {
+			uint8_t VerticalDisplayEnd_Bits07 : 8;
+		};
+		static_assert(sizeof(struct Fields)==1,"Implementation error!");
+	public:
+		explicit inline CRTC_VerticalDisplayEndRegister(CRTC* crtc) : CRTC_RegisterBase(crtc,DEBUG_ONLY("Vertical Display End Register (CRTC)" COMMA)0x0012) {}
+
+		inline struct Fields read(void) const { uint8_t temp=read_raw(); return reinterpret_cast<struct Fields&>(temp); }
+		inline void write(struct Fields value) { write_raw(reinterpret_cast<uint8_t&>(value)); }
+};
+class CRTC_OffsetRegister final : public CRTC_RegisterBase {
+	public:
+		explicit inline CRTC_OffsetRegister(CRTC* crtc) : CRTC_RegisterBase(crtc,DEBUG_ONLY("Offset Register (CRTC)" COMMA)0x0013) {}
+
+		inline uint8_t read(void) const { return read_raw(); }
+		inline void write(uint8_t value) { write_raw(value); }
+};
+class CRTC_UnderlineLocationRegister final : public CRTC_RegisterBase {
+	public:
+		struct Fields final {
+			uint8_t UnderlineLocation           : 5;
+			uint8_t DivideMemoryAddressClockBy4 : 1;
+			uint8_t DoublewordAddressing        : 1;
+			uint8_t                             : 1;
+		};
+		static_assert(sizeof(struct Fields)==1,"Implementation error!");
+	public:
+		explicit inline CRTC_UnderlineLocationRegister(CRTC* crtc) : CRTC_RegisterBase(crtc,DEBUG_ONLY("Underline Location Register (CRTC)" COMMA)0x0014) {}
+
+		inline struct Fields read(void) const { uint8_t temp=read_raw(); return reinterpret_cast<struct Fields&>(temp); }
+		inline void write(struct Fields value) { write_raw(reinterpret_cast<uint8_t&>(value)); }
+};
+class CRTC_StartVerticalBlankingRegister final : public CRTC_RegisterBase {
+	public:
+		struct Fields final {
+			uint8_t StartVerticalBlanking_Bits07 : 8;
+		};
+		static_assert(sizeof(struct Fields)==1,"Implementation error!");
+	public:
+		explicit inline CRTC_StartVerticalBlankingRegister(CRTC* crtc) : CRTC_RegisterBase(crtc,DEBUG_ONLY("Start Vertical Blanking Register (CRTC)" COMMA)0x0015) {}
+
+		inline struct Fields read(void) const { uint8_t temp=read_raw(); return reinterpret_cast<struct Fields&>(temp); }
+		inline void write(struct Fields value) { write_raw(reinterpret_cast<uint8_t&>(value)); }
+};
+class CRTC_EndVerticalBlankingRegister final : public CRTC_RegisterBase {
+	public:
+		struct Fields final {
+			uint8_t EndVerticalBlanking : 7;
+			uint8_t                     : 1;
+		};
+		static_assert(sizeof(struct Fields)==1,"Implementation error!");
+	public:
+		explicit inline CRTC_EndVerticalBlankingRegister(CRTC* crtc) : CRTC_RegisterBase(crtc,DEBUG_ONLY("End Vertical Blanking Register (CRTC)" COMMA)0x0016) {}
+
+		inline struct Fields read(void) const { uint8_t temp=read_raw(); return reinterpret_cast<struct Fields&>(temp); }
+		inline void write(struct Fields value) { write_raw(reinterpret_cast<uint8_t&>(value)); }
+};
+class CRTC_ModeControlRegister final : public CRTC_RegisterBase {
+	public:
+		struct Fields final {
+			uint8_t MapDisplayAddress13         : 1;
+			uint8_t MapDisplayAddress14         : 1;
+			uint8_t DivideScanlineClockBy2      : 1;
+			uint8_t DivideMemoryAddressClockBy2 : 1;
+			uint8_t                             : 1;
+			uint8_t AddressWrapSelect           : 1;
+			uint8_t WordByteModeSelect          : 1;
+			uint8_t SyncEnable                  : 1;
+		};
+		static_assert(sizeof(struct Fields)==1,"Implementation error!");
+	public:
+		explicit inline CRTC_ModeControlRegister(CRTC* crtc) : CRTC_RegisterBase(crtc,DEBUG_ONLY("CRTC Mode Control Register (CRTC)" COMMA)0x0017) {}
+
+		inline struct Fields read(void) const { uint8_t temp=read_raw(); return reinterpret_cast<struct Fields&>(temp); }
+		inline void write(struct Fields value) { write_raw(reinterpret_cast<uint8_t&>(value)); }
+};
+class CRTC_LineCompareRegister final : public CRTC_RegisterBase {
+	public:
+		struct Fields final {
+			uint8_t LineCompare_Bits07 : 8;
+		};
+		static_assert(sizeof(struct Fields)==1,"Implementation error!");
+	public:
+		explicit inline CRTC_LineCompareRegister(CRTC* crtc) : CRTC_RegisterBase(crtc,DEBUG_ONLY("Line Compare Register (CRTC)" COMMA)0x0018) {}
+
+		inline struct Fields read(void) const { uint8_t temp=read_raw(); return reinterpret_cast<struct Fields&>(temp); }
+		inline void write(struct Fields value) { write_raw(reinterpret_cast<uint8_t&>(value)); }
+};
+
+
+}
+
+
+class GraphicsController final {
+	public:
+		Device*const device;
+
+	private:
+		class RegsGC final { public:
+			Regs::GraphicsSetResetRegister       set_reset;
+			Regs::GraphicsEnableSetResetRegister set_reset_enable;
+			Regs::GraphicsColorCompareRegister   color_compare;
+			Regs::GraphicsDataRotateRegister     data_rotate;
+			Regs::GraphicsReadMapSelectRegister  read_map_select;
+			Regs::GraphicsModeRegister           graphics_mode;
+			Regs::GraphicsMiscellaneousRegister  misc;
+			Regs::GraphicsColorDontCareRegister  color_dont_care;
+			Regs::GraphicsBitmaskRegister        bitmask;
+
+			explicit RegsGC(GraphicsController* graphics_controller);
+		} _regs;
+
+	private:
+		#if 1
+
+		inline uint8_t _get_SetReset(           void) const { return _regs.set_reset.read().SetReset; }
+		void           _set_SetReset(uint8_t bitmask)       {
+			assert_term(bitmask<=0b00001111,"Invalid bitmask!");
+			auto temp = _regs.set_reset.read();
+			temp.SetReset = bitmask;
+			return _regs.set_reset.write(temp);
+		}
+
+		inline uint8_t _get_SetResetEnable(           void) const { return _regs.set_reset_enable.read().EnableSetReset; }
+		void           _set_SetResetEnable(uint8_t bitmask)       {
+			assert_term(bitmask<=0b00001111,"Invalid bitmask!");
+			auto temp = _regs.set_reset_enable.read();
+			temp.EnableSetReset = bitmask;
+			return _regs.set_reset_enable.write(temp);
+		}
+
+		inline uint8_t _get_ColorCompare(         void) const { return _regs.color_compare.read().ColorCompare; }
+		void           _set_ColorCompare(uint8_t color)       {
+			assert_term(color<=0b00001111,"Invalid color!");
+			auto temp = _regs.color_compare.read();
+			temp.ColorCompare = color;
+			return _regs.color_compare.write(temp);
+		}
+
+		//0b00: Result is input from previous stage unmodified.
+		//0b01: Result is input from previous stage logical ANDed with latch register.
+		//0b10: Result is input from previous stage logical ORed with latch register.
+		//0b11: Result is input from previous stage logical XORed with latch register.
+		inline uint8_t _get_LogicalOperation(      void) const { return _regs.data_rotate.read().LogicalOperation; }
+		void           _set_LogicalOperation(uint8_t op)       {
+			assert_term(op<=0b00000011,"Invalid op!");
+			auto temp = _regs.data_rotate.read();
+			temp.LogicalOperation = op;
+			return _regs.data_rotate.write(temp);
+		}
+
+		inline uint8_t _get_RotateCount(         void) const { return _regs.data_rotate.read().RotateCount; }
+		void           _set_RotateCount(uint8_t count)       {
+			assert_term(count<=0b00000111,"Invalid count!");
+			auto temp = _regs.data_rotate.read();
+			temp.RotateCount = count;
+			return _regs.data_rotate.write(temp);
+		}
+
+		inline uint8_t _get_ReadMapSelect(               void) const { return _regs.read_map_select.read().ReadMapSelect; }
+		void           _set_ReadMapSelect(uint8_t plane_index)       {
+			assert_term(plane_index<=0b00000011,"Invalid op!");
+			auto temp = _regs.read_map_select.read();
+			temp.ReadMapSelect = plane_index;
+			return _regs.read_map_select.write(temp);
+		}
+
+		inline bool _get_ShiftModeColor256(        void) const { return _regs.graphics_mode.read().ShiftModeColor256; }
+		void        _set_ShiftModeColor256(bool enabled)       {
+			auto temp = _regs.graphics_mode.read();
+			temp.ShiftModeColor256 = enabled;
+			return _regs.graphics_mode.write(temp);
+		}
+
+		inline uint8_t _get_ShiftRegisterInterleaveMode(        void) const { return _regs.graphics_mode.read().ShiftRegisterInterleaveMode; }
+		void           _set_ShiftRegisterInterleaveMode(uint8_t mode)       {
+			assert_term(mode<=0b00000001,"Invalid mode!");
+			auto temp = _regs.graphics_mode.read();
+			temp.ShiftRegisterInterleaveMode = mode;
+			return _regs.graphics_mode.write(temp);
+		}
+
+		inline bool _get_HostOddEvenMemoryReadAddressingEnable(        void) const { return _regs.graphics_mode.read().HostOddEvenMemoryReadAddressingEnable; }
+		void        _set_HostOddEvenMemoryReadAddressingEnable(bool enabled)       {
+			auto temp = _regs.graphics_mode.read();
+			temp.HostOddEvenMemoryReadAddressingEnable = enabled;
+			return _regs.graphics_mode.write(temp);
+		}
+
+		inline uint8_t _get_ReadMode(        void) const { return _regs.graphics_mode.read().ReadMode; }
+		void           _set_ReadMode(uint8_t mode)       {
+			assert_term(mode<=0b00000001,"Invalid mode!");
+			auto temp = _regs.graphics_mode.read();
+			temp.ReadMode = mode;
+			return _regs.graphics_mode.write(temp);
+		}
+
+		inline uint8_t _get_WriteMode(        void) const { return _regs.graphics_mode.read().WriteMode; }
+		void           _set_WriteMode(uint8_t mode)       {
+			assert_term(mode<=0b00000011,"Invalid mode!");
+			auto temp = _regs.graphics_mode.read();
+			temp.WriteMode = mode;
+			return _regs.graphics_mode.write(temp);
+		}
+
+		inline uint8_t _get_MemoryMapSelect(        void) const { return _regs.misc.read().MemoryMapSelect; }
+		void           _set_MemoryMapSelect(uint8_t mode)       {
+			assert_term(mode<=0b00000011,"Invalid mode!");
+			auto temp = _regs.misc.read();
+			temp.MemoryMapSelect = mode;
+			return _regs.misc.write(temp);
+		}
+
+		inline uint8_t _get_ChainOddEvenEnable(        void) const { return _regs.misc.read().ChainOddEvenEnable; }
+		void           _set_ChainOddEvenEnable(uint8_t mode)       {
+			assert_term(mode<=0b00000001,"Invalid mode!");
+			auto temp = _regs.misc.read();
+			temp.ChainOddEvenEnable = mode;
+			return _regs.misc.write(temp);
+		}
+
+		inline bool _get_AlphanumericModeDisable(         void) const { return _regs.misc.read().AlphanumericModeDisable; }
+		void        _set_AlphanumericModeDisable(bool disabled)       {
+			auto temp = _regs.misc.read();
+			temp.AlphanumericModeDisable = disabled;
+			return _regs.misc.write(temp);
+		}
+
+		inline uint8_t _get_ColorDontCare(           void) const { return _regs.color_dont_care.read().ColorDontCare; }
+		void           _set_ColorDontCare(uint8_t bitmask)       {
+			assert_term(bitmask<=0b00001111,"Invalid bitmask!");
+			auto temp = _regs.color_dont_care.read();
+			temp.ColorDontCare = bitmask;
+			return _regs.color_dont_care.write(temp);
+		}
+
+		inline uint8_t _get_Bitmask(           void) const { return _regs.bitmask.read(); }
+		inline    void _set_Bitmask(uint8_t bitmask)       { _regs.bitmask.write(bitmask); }
+
+		#endif
+
+	public:
+		inline explicit GraphicsController(Device* device) : device(device), _regs(this) {}
+		inline ~GraphicsController(void) = default;
+
+		void set_planes_read(uint8_t bitmask);
+
+		inline void set_host_oddeven_read_memory(bool enabled) { _set_HostOddEvenMemoryReadAddressingEnable(enabled); }
+};
+
+
+class Memory final {
+	public:
+		Device*const device;
+
+		class Plane final {
+			public:
+				//uint8_t data[64*1024];
+		};
+		Plane planes[4];
+
+	public:
+		inline explicit Memory(Device* device) : device(device) {}
+		inline ~Memory(void) = default;
+};
+
+
+class Sequencer final {
+	public:
+		Device*const device;
+
+	private:
+		//Encapsulations of internal hardware registers
+		class RegsSeq final { public:
+			Regs::SequencerResetRegister              reset;
+			Regs::SequencerClockingModeRegister       clocking_mode;
+			Regs::SequencerMapMaskRegister            map_mask;
+			Regs::SequencerCharacterMapSelectRegister char_map_select;
+			Regs::SequencerMemoryModeRegister         memory_mode;
+
+			explicit RegsSeq(Sequencer* sequencer);
+		} _regs;
+
+	public:
+		enum class DotMode {
+			DOTS_8,
+			DOTS_9
+		} dot_mode;
+
+	private:
+		#if 1
+
+		inline uint8_t _get_SynchronousReset(         void) const { return _regs.reset.read().SynchronousReset; }
+		void           _set_SynchronousReset(uint8_t value)       {
+			assert_term(value<=0b00000001,"Invalid value!");
+			auto temp = _regs.reset.read();
+			temp.SynchronousReset = value;
+			return _regs.reset.write(temp);
+		}
+
+		inline uint8_t _get_AsynchronousReset(         void) const { return _regs.reset.read().AsynchronousReset; }
+		void           _set_AsynchronousReset(uint8_t value)       {
+			assert_term(value<=0b00000001,"Invalid value!");
+			auto temp = _regs.reset.read();
+			temp.AsynchronousReset = value;
+			return _regs.reset.write(temp);
+		}
+
+		inline bool _get_ScreenDisable(         void) const { return _regs.clocking_mode.read().ScreenDisable; }
+		void        _set_ScreenDisable(bool disabled)       {
+			auto temp = _regs.clocking_mode.read();
+			temp.ScreenDisable = disabled;
+			return _regs.clocking_mode.write(temp);
+		}
+
+		inline bool _get_Shift4Enable(        void) const { return _regs.clocking_mode.read().Shift4Enable; }
+		void        _set_Shift4Enable(bool enabled)       {
+			auto temp = _regs.clocking_mode.read();
+			temp.Shift4Enable = enabled;
+			return _regs.clocking_mode.write(temp);
+		}
+
+		inline uint8_t _get_DotClockRate(        void) const { return _regs.clocking_mode.read().DotClockRate; }
+		void           _set_DotClockRate(uint8_t mode)       {
+			assert_term(mode<=0b00000001,"Invalid mode!");
+			auto temp = _regs.clocking_mode.read();
+			temp.DotClockRate = mode;
+			return _regs.clocking_mode.write(temp);
+		}
+
+		inline uint8_t _get_ShiftLoadRate(        void) const { return _regs.clocking_mode.read().ShiftLoadRate; }
+		void           _set_ShiftLoadRate(uint8_t mode)       {
+			assert_term(mode<=0b00000001,"Invalid mode!");
+			auto temp = _regs.clocking_mode.read();
+			temp.ShiftLoadRate = mode;
+			return _regs.clocking_mode.write(temp);
+		}
+
+		inline uint8_t _get_DotMode_9_8(        void) const { return _regs.clocking_mode.read().DotMode_9_8; }
+		void           _set_DotMode_9_8(uint8_t mode)       {
+			assert_term(mode<=0b00000001,"Invalid mode!");
+			auto temp = _regs.clocking_mode.read();
+			temp.DotMode_9_8 = mode;
+			return _regs.clocking_mode.write(temp);
+		}
+
+		inline uint8_t _get_MemoryPlaneWriteEnable(           void) const { return _regs.map_mask.read().MemoryPlaneWriteEnable; }
+		void           _set_MemoryPlaneWriteEnable(uint8_t bitmask)       {
+			assert_term(bitmask<=0b00001111,"Invalid bitmask!");
+			auto temp = _regs.map_mask.read();
+			temp.MemoryPlaneWriteEnable = bitmask;
+			return _regs.map_mask.write(temp);
+		}
+
+		inline uint8_t _get_SelectCharacterSetA(             void) const { return _regs.char_map_select.read().SelectCharacterSetA; }
+		void           _set_SelectCharacterSetA(uint8_t addr_flag)       {
+			assert_term(addr_flag<=0b00000111,"Invalid address flag!");
+			auto temp = _regs.char_map_select.read();
+			temp.SelectCharacterSetA = addr_flag;
+			return _regs.char_map_select.write(temp);
+		}
+
+		inline uint8_t _get_SelectCharacterSetB(             void) const { return _regs.char_map_select.read().SelectCharacterSetB; }
+		void           _set_SelectCharacterSetB(uint8_t addr_flag)       {
+			assert_term(addr_flag<=0b00000111,"Invalid address flag!");
+			auto temp = _regs.char_map_select.read();
+			temp.SelectCharacterSetB = addr_flag;
+			return _regs.char_map_select.write(temp);
+		}
+
+		inline bool _get_Chain4Enable(        void) const { return _regs.memory_mode.read().Chain4Enable; }
+		void        _set_Chain4Enable(bool enabled)       {
+			auto temp = _regs.memory_mode.read();
+			temp.Chain4Enable = enabled;
+			return _regs.memory_mode.write(temp);
+		}
+
+		inline bool _get_OddEvenHostMemoryWriteAddressingDisable(         void) const { return _regs.memory_mode.read().OddEvenHostMemoryWriteAddressingDisable; }
+		void        _set_OddEvenHostMemoryWriteAddressingDisable(bool disabled)       {
+			auto temp = _regs.memory_mode.read();
+			temp.OddEvenHostMemoryWriteAddressingDisable = disabled;
+			return _regs.memory_mode.write(temp);
+		}
+
+		inline bool _get_ExtendedMemory(        void) const { return _regs.memory_mode.read().ExtendedMemory; }
+		void        _set_ExtendedMemory(bool enabled)       {
+			auto temp = _regs.memory_mode.read();
+			temp.ExtendedMemory = enabled;
+			return _regs.memory_mode.write(temp);
+		}
+
+		#endif
+
+	public:
+		explicit inline Sequencer(Device* device) : device(device), _regs(this), dot_mode(DotMode::DOTS_9) {}
+		inline ~Sequencer(void) = default;
+
+		inline void set_display_enabled(bool enabled) { _set_ScreenDisable(!enabled); }
+
+		void set_planes_write(uint8_t bitmask);
+
+		inline void set_host_oddeven_write_memory(bool enabled) { _set_OddEvenHostMemoryWriteAddressingDisable(!enabled); }
+
+		void set_dot_mode(DotMode dot_mode);
+
+	private:
+		static size_t _translate_font_offset(size_t offset) {
+			static size_t table[8] = {0,4,1,5,2,6,3,7};
+			assert_term(offset<8,"Index out of range!");
+			return table[offset];
+		}
+	public:
+		/*
+			0: [0x0000,0x1FFF]
+			1: [0x2000,0x3FFF]
+			2: [0x4000,0x5FFF]
+			3: [0x6000,0x7FFF]
+			4: [0x8000,0x9FFF]
+			5: [0xA000,0xBFFF]
+			6: [0xC000,0xDFFF]
+			7: [0xE000,0xFFFF]
+		*/
+		void set_fonts_data_region_offsets(size_t offset_A, size_t offset_B) {
+			Sequencer::_set_SelectCharacterSetA(_translate_font_offset(offset_A));
+			Sequencer::_set_SelectCharacterSetB(_translate_font_offset(offset_B));
+		}
+
+		inline void set_chain4(bool enabled) { _set_Chain4Enable(enabled); }
+};
+
+
+class CRTC final {
+	public:
+		Device*const device;
+
+		struct Timing final {
+			size_t clock_index;
+			struct Horizontal final {
+				size_t skew_display;
+				size_t width;
+				size_t start_blank;
+				size_t skew_retrace;
+				size_t start_retrace;
+				size_t end_retrace;
+				size_t end_blank;
+			} horiz;
+			struct Vertical final {
+				size_t height;
+				size_t start_blank;
+				size_t start_retrace;
+				size_t end_retrace; //First scanline after retrace completes
+				size_t end_blank;
+			} vert;
+		};
+
+	private:
+		//Encapsulations of internal hardware registers
+		class RegsCRTC final { public:
+			Regs::CRTC_HorizontalTotalRegister         htotal;
+			Regs::CRTC_EndHorizontalDisplayRegister    end_hdisplay;
+			Regs::CRTC_StartHorizontalBlankingRegister start_hblanking;
+			Regs::CRTC_EndHorizontalBlankingRegister   end_hblanking;
+			Regs::CRTC_StartHorizontalRetraceRegister  start_hretrace;
+			Regs::CRTC_EndHorizontalRetraceRegister    end_hretrace;
+			Regs::CRTC_VerticalTotalRegister           vtotal;
+			Regs::CRTC_OverflowRegister                overflow;
+			Regs::CRTC_PresetRowScanRegister           preset_row_scan;
+			Regs::CRTC_MaximumScanlineRegister         max_scanline;
+			Regs::CRTC_CursorStartRegister             start_cursor;
+			Regs::CRTC_CursorEndRegister               end_cursor;
+			Regs::CRTC_StartAddressHighRegister        start_addr_high;
+			Regs::CRTC_StartAddressLowRegister         start_addr_low;
+			Regs::CRTC_CursorLocationHighRegister      cursor_location_high;
+			Regs::CRTC_CursorLocationLowRegister       cursor_location_low;
+			Regs::CRTC_VerticalRetraceStartRegister    start_vretrace;
+			Regs::CRTC_VerticalRetraceEndRegister      end_vretrace;
+			Regs::CRTC_VerticalDisplayEndRegister      end_vdisplay;
+			Regs::CRTC_OffsetRegister                  offset;
+			Regs::CRTC_UnderlineLocationRegister       underline_location;
+			Regs::CRTC_StartVerticalBlankingRegister   start_vblanking;
+			Regs::CRTC_EndVerticalBlankingRegister     end_vblanking;
+			Regs::CRTC_ModeControlRegister             mode_control;
+			Regs::CRTC_LineCompareRegister             line_compare;
+
+			explicit RegsCRTC(CRTC* crtc);
+		} _regs;
+
+	private:
+		//Reading / writing values to device (handles non-contiguous bits crap).
+		#if 1
+
+		//Character clocks per scanline minus 5.
+		inline uint8_t _get_HorizontalTotal(                       void) const { return _regs.htotal.read(); }
+		inline    void _set_HorizontalTotal(uint8_t char_clocks_minus_5) { _regs.htotal.write(char_clocks_minus_5); }
+
+		//Last point that sequencer outputs pixel values from display memory.  Afterward, Sequencer outputs Overscan Palette Index field for remainder of scanline.
+		inline uint8_t _get_EndHorizontalDisplay(              void) const { return _regs.end_hdisplay.read(); }
+		inline    void _set_EndHorizontalDisplay(uint8_t char_clock) { _regs.end_hdisplay.write(char_clock); }
+
+		//Character clock at which the horizontal blanking period begins.
+		inline uint8_t _get_StartHorizontalBlanking(              void) const { return _regs.start_hblanking.read(); }
+		inline    void _set_StartHorizontalBlanking(uint8_t char_clock) { _regs.start_hblanking.write(char_clock); }
+
+		//End of horizontal blanking period
+		uint8_t _get_EndHorizontalBlanking(              void) const {
+			uint8_t result = _regs.end_hblanking.read().EndHorizontalBlanking_Bits04;
+			result |= _regs.end_hretrace.read().EndHorizontalBlanking_Bit5 << 5;
+			return result;
+		}
+		void    _set_EndHorizontalBlanking(uint8_t char_clock) {
+			assert_term(char_clock<=0b00111111,"Char clock too large!");
+
+			auto temp1 = _regs.end_hblanking.read();
+			auto temp2 = _regs.end_hretrace.read();
+			temp1.EndHorizontalBlanking_Bits04 = char_clock & 0b00011111;
+			temp2.EndHorizontalBlanking_Bit5 = (char_clock&0b00100000)>0 ? 1 : 0;
+
+			_regs.end_hblanking.write(temp1);
+			_regs.end_hretrace.write(temp2);
+		}
+
+		inline uint8_t _get_DisplayEnableSkew(        void) const { return _regs.end_hblanking.read().DisplayEnableSkew; }
+		void           _set_DisplayEnableSkew(uint8_t skew) {
+			assert_term(skew<=0b00000011,"Skew too large!");
+
+			auto temp = _regs.end_hblanking.read();
+			temp.DisplayEnableSkew = skew;
+
+			_regs.end_hblanking.write(temp);
+		}
+
+		inline bool _get_EnableVerticalRetraceAccess(       void) const { return _regs.end_hblanking.read().EnableVerticalRetraceAccess>0; }
+		void        _set_EnableVerticalRetraceAccess(bool enable) {
+			auto temp = _regs.end_hblanking.read();
+			temp.EnableVerticalRetraceAccess = enable ? 1 : 0;
+
+			_regs.end_hblanking.write(temp);
+		}
+
+		//Character clock at which the VGA begins sending the horizontal synchronization pulse to the display, signaling the monitor to retrace back to the left side of the screen.
+		inline uint8_t _get_StartHorizontalRetrace(              void) const { return _regs.start_hretrace.read(); }
+		inline    void _set_StartHorizontalRetrace(uint8_t char_clock) { _regs.start_hretrace.write(char_clock); }
+
+		//End of horizontal retrace period.
+		inline uint8_t _get_EndHorizontalRetrace(              void) const { return _regs.end_hretrace.read().EndHorizontalRetrace; }
+		void           _set_EndHorizontalRetrace(uint8_t char_clock) {
+			assert_term(char_clock<=0b00011111,"Char clock too large!");
+
+			auto temp = _regs.end_hretrace.read();
+			temp.EndHorizontalRetrace = char_clock;
+
+			_regs.end_hretrace.write(temp);
+		}
+
+		inline uint8_t _get_HorizontalRetraceSkew(        void) const { return _regs.end_hretrace.read().HorizontalRetraceSkew; }
+		void           _set_HorizontalRetraceSkew(uint8_t skew) {
+			assert_term(skew<=0b00000011,"Skew too large!");
+
+			auto temp = _regs.end_hretrace.read();
+			temp.HorizontalRetraceSkew = skew;
+
+			_regs.end_hretrace.write(temp);
+		}
+
+		//Scanline at beginning of last scanline in vertical period.
+		uint16_t _get_VerticalTotal(              void) const {
+			uint16_t result = _regs.vtotal.read().VerticalTotal_Bits07;
+			auto temp = _regs.overflow.read();
+			result |= static_cast<uint16_t>(temp.VerticalTotal_Bit8) << 8;
+			result |= static_cast<uint16_t>(temp.VerticalTotal_Bit9) << 9;
+			return result;
+		}
+		void     _set_VerticalTotal(uint16_t scanlines) {
+			assert_term(scanlines<=0x03FF,"Scanlines count too large!");
+
+			struct Regs::CRTC_VerticalTotalRegister::Fields temp1; //auto temp1 = _regs.vtotal.read();
+			auto temp2 = _regs.overflow.read();
+			temp1.VerticalTotal_Bits07 = scanlines & 0x00FF;
+			temp2.VerticalTotal_Bit8 = (scanlines&0x0100)>0 ? 1 : 0;
+			temp2.VerticalTotal_Bit9 = (scanlines&0x0200)>0 ? 1 : 0;
+
+			_regs.vtotal.write(temp1);
+			_regs.overflow.write(temp2);
+		}
+
+		//Scanline where the vertical retrace signal is asserted, signals the monitor to retrace back to the top of the screen.
+		uint16_t _get_StartVerticalRetrace(             void) const {
+			uint16_t result = _regs.start_vretrace.read().VerticalRetraceStart_Bits07;
+			auto temp = _regs.overflow.read();
+			result |= static_cast<uint16_t>(temp.VerticalRetraceStart_Bit8) << 8;
+			result |= static_cast<uint16_t>(temp.VerticalRetraceStart_Bit9) << 9;
+			return result;
+		}
+		void     _set_StartVerticalRetrace(uint16_t scanline) {
+			assert_term(scanline<=0x03FF,"Scanline too large!");
+
+			struct Regs::CRTC_VerticalRetraceStartRegister::Fields temp1; //auto temp1 = _regs.start_vretrace.read();
+			auto temp2 = _regs.overflow.read();
+			temp1.VerticalRetraceStart_Bits07 = scanline & 0x00FF;
+			temp2.VerticalRetraceStart_Bit8 = (scanline&0x0100)>0 ? 1 : 0;
+			temp2.VerticalRetraceStart_Bit9 = (scanline&0x0200)>0 ? 1 : 0;
+
+			_regs.start_vretrace.write(temp1);
+			_regs.overflow.write(temp2);
+		}
+
+		//Scanline immediately after the last scanline of active display.
+		uint16_t _get_EndVerticalDisplay(             void) const {
+			uint16_t result = _regs.end_vdisplay.read().VerticalDisplayEnd_Bits07;
+			auto temp = _regs.overflow.read();
+			result |= static_cast<uint16_t>(temp.VerticalDisplayEnd_Bit8) << 8;
+			result |= static_cast<uint16_t>(temp.VerticalDisplayEnd_Bit9) << 9;
+			return result;
+		}
+		void     _set_EndVerticalDisplay(uint16_t scanline) {
+			assert_term(scanline<=0x03FF,"Scanline too large!");
+
+			struct Regs::CRTC_VerticalDisplayEndRegister::Fields temp1; //auto temp1 = _regs.end_vdisplay.read();
+			auto temp2 = _regs.overflow.read();
+			temp1.VerticalDisplayEnd_Bits07 = scanline & 0x00FF;
+			temp2.VerticalDisplayEnd_Bit8 = (scanline&0x0100)>0 ? 1 : 0;
+			temp2.VerticalDisplayEnd_Bit9 = (scanline&0x0200)>0 ? 1 : 0;
+
+			_regs.end_vdisplay.write(temp1);
+			_regs.overflow.write(temp2);
+		}
+
+		uint16_t _get_LineCompare(             void) const {
+			uint16_t result = _regs.line_compare.read().LineCompare_Bits07;
+			auto temp2 = _regs.overflow.read();
+			auto temp3 = _regs.max_scanline.read();
+			result |= static_cast<uint16_t>(temp2.LineCompare_Bit8) << 8;
+			result |= static_cast<uint16_t>(temp3.LineCompare_Bit9) << 9;
+			return result;
+		}
+		void     _set_LineCompare(uint16_t scanline) {
+			assert_term(scanline<=0x03FF,"Scanline too large!");
+
+			struct Regs::CRTC_LineCompareRegister::Fields temp1; //auto temp1 = _regs.line_compare.read();
+			auto temp2 = _regs.overflow.read();
+			auto temp3 = _regs.max_scanline.read();
+			temp1.LineCompare_Bits07 = scanline & 0x00FF;
+			temp2.LineCompare_Bit8 = (scanline&0x0100)>0 ? 1 : 0;
+			temp3.LineCompare_Bit9 = (scanline&0x0200)>0 ? 1 : 0;
+
+			_regs.line_compare.write(temp1);
+			_regs.overflow.write(temp2);
+			_regs.max_scanline.write(temp3);
+		}
+
+		//Scanline at beginning of first scanline of blanking.
+		uint16_t _get_StartVerticalBlanking(             void) const {
+			uint16_t result = _regs.start_vblanking.read().StartVerticalBlanking_Bits07;
+			result |= static_cast<uint16_t>(_regs.overflow.read().StartVerticalBlanking_Bit8) << 8;
+			result |= static_cast<uint16_t>(_regs.max_scanline.read().StartVerticalBlanking_Bit9) << 9;
+			return result;
+		}
+		void     _set_StartVerticalBlanking(uint16_t scanline) {
+			assert_term(scanline<=0x03FF,"Scanline too large!");
+
+			struct Regs::CRTC_StartVerticalBlankingRegister::Fields temp1; //auto temp1 = _regs.start_vblanking.read();
+			auto temp2 = _regs.overflow.read();
+			auto temp3 = _regs.max_scanline.read();
+			temp1.StartVerticalBlanking_Bits07 = scanline & 0x00FF;
+			temp2.StartVerticalBlanking_Bit8 = (scanline&0x0100)>0 ? 1 : 0;
+			temp3.StartVerticalBlanking_Bit9 = (scanline&0x0200)>0 ? 1 : 0;
+
+			_regs.start_vblanking.write(temp1);
+			_regs.overflow.write(temp2);
+			_regs.max_scanline.write(temp3);
+		}
+
+		inline uint8_t _get_BytePanning(         void) const { return _regs.preset_row_scan.read().BytePanning; }
+		void           _set_BytePanning(uint8_t shift) {
+			assert_term(shift<=0b00000011,"Byte panning shift too large!");
+
+			auto temp = _regs.preset_row_scan.read();
+			temp.BytePanning = shift;
+
+			_regs.preset_row_scan.write(temp);
+		}
+
+		inline uint8_t _get_PresetRowScan(             void) const { return _regs.preset_row_scan.read().PresetRowScan; }
+		void           _set_PresetRowScan(uint8_t scanlines) {
+			assert_term(scanlines<=_get_MaximumScanlines()&&scanlines<=0b00011111,"Row scan too large!");
+
+			auto temp = _regs.preset_row_scan.read();
+			temp.PresetRowScan = scanlines;
+
+			_regs.preset_row_scan.write(temp);
+		}
+
+		inline bool _get_ScanDoubling(        void) const { return _regs.max_scanline.read().ScanDoubling>0; }
+		void        _set_ScanDoubling(bool enabled) {
+			auto temp = _regs.max_scanline.read();
+			temp.ScanDoubling = enabled ? 1 : 0;
+
+			_regs.max_scanline.write(temp);
+		}
+
+		inline bool _get_MaximumScanlines(             void) const { return _regs.max_scanline.read().MaximumScanline; }
+		void        _set_MaximumScanlines(uint8_t scanlines) {
+			assert_term(scanlines<=0b00011111,"Scanlines count too large!");
+
+			auto temp = _regs.max_scanline.read();
+			temp.MaximumScanline = scanlines;
+
+			_regs.max_scanline.write(temp);
+		}
+
+		inline bool _get_CursorDisable(         void) const { return _regs.start_cursor.read().CursorDisable>0; }
+		void        _set_CursorDisable(bool disabled) {
+			auto temp = _regs.start_cursor.read();
+			temp.CursorDisable = disabled ? 1 : 0;
+
+			_regs.start_cursor.write(temp);
+		}
+
+		inline uint8_t _get_CursorScanlineStart(            void) const { return _regs.start_cursor.read().CursorScanlineStart; }
+		void           _set_CursorScanlineStart(uint8_t scanline) {
+			assert_term(scanline<=0b00011111,"Scanline too large!");
+
+			auto temp = _regs.start_cursor.read();
+			temp.CursorScanlineStart = scanline;
+
+			_regs.start_cursor.write(temp);
+		}
+
+		inline uint8_t _get_CursorSkew(        void) const { return _regs.end_cursor.read().CursorSkew; }
+		void           _set_CursorSkew(uint8_t skew) {
+			assert_term(skew<=0b00000011,"Skew too large!");
+
+			auto temp = _regs.end_cursor.read();
+			temp.CursorSkew = skew;
+
+			_regs.end_cursor.write(temp);
+		}
+
+		inline uint8_t _get_CursorScanlineEnd(            void) const { return _regs.end_cursor.read().CursorScanlineEnd; }
+		void           _set_CursorScanlineEnd(uint8_t scanline) {
+			assert_term(scanline<=0b00011111,"Scanline too large!");
+
+			auto temp = _regs.end_cursor.read();
+			temp.CursorScanlineEnd = scanline;
+
+			_regs.end_cursor.write(temp);
+		}
+
+		uint16_t _get_StartAddress(         void) const {
+			return
+				(static_cast<uint16_t>(_regs.start_addr_high.read().StartAddress_Bits0815)<<8) |
+				 static_cast<uint16_t>(_regs.start_addr_low. read().StartAddress_Bits07  )
+			;
+		}
+		void     _set_StartAddress(uint16_t addr) {
+			struct Regs::CRTC_StartAddressHighRegister::Fields high;
+			struct Regs::CRTC_StartAddressLowRegister:: Fields  low;
+			high.StartAddress_Bits0815 = addr>>8;
+			low. StartAddress_Bits07   = addr & 0xFF;
+
+			_regs.start_addr_high.write(high);
+			_regs.start_addr_low. write( low);
+		}
+
+		uint16_t _get_CursorLocation(         void) const {
+			return
+				(static_cast<uint16_t>(_regs.cursor_location_high.read().CursorLocation_Bits0815)<<8) |
+				 static_cast<uint16_t>(_regs.cursor_location_low. read().CursorLocation_Bits07  )
+			;
+		}
+		void     _set_CursorLocation(uint16_t addr) {
+			struct Regs::CRTC_CursorLocationHighRegister::Fields high;
+			struct Regs::CRTC_CursorLocationLowRegister:: Fields  low;
+			high.CursorLocation_Bits0815 = addr>>8;
+			low. CursorLocation_Bits07   = addr & 0xFF;
+
+			_regs.cursor_location_high.write(high);
+			_regs.cursor_location_low. write( low);
+		}
+
+		inline bool _get_CRTC_RegistersProtectEnable(        void) const { return _regs.end_vretrace.read().CRTC_RegistersProtectEnable>0; }
+		void        _set_CRTC_RegistersProtectEnable(bool enabled) {
+			auto temp = _regs.end_vretrace.read();
+			temp.CRTC_RegistersProtectEnable = enabled ? 1 : 0;
+
+			_regs.end_vretrace.write(temp);
+		}
+
+		inline uint8_t _get_MemoryRefreshBandwidth(         void) const { return _regs.end_vretrace.read().MemoryRefreshBandwidth; }
+		void           _set_MemoryRefreshBandwidth(uint8_t value) {
+			assert_term(value<=0b00000001,"Value too large!");
+
+			auto temp = _regs.end_vretrace.read();
+			temp.MemoryRefreshBandwidth = value;
+
+			_regs.end_vretrace.write(temp);
+		}
+
+		//End of vertical retrace period.
+		inline uint8_t _get_EndVerticalRetrace(            void) const { return _regs.end_vretrace.read().VerticalRetraceEnd; }
+		void           _set_EndVerticalRetrace(uint8_t scanline) {
+			assert_term(scanline<=0b00001111,"Scanline too large!");
+
+			auto temp = _regs.end_vretrace.read();
+			temp.VerticalRetraceEnd = scanline;
+
+			_regs.end_vretrace.write(temp);
+		}
+
+		inline uint8_t _get_Offset(             void) const { return _regs.offset.read(); }
+		void           _set_Offset(uint8_t addr_diff) { _regs.offset.write(addr_diff); }
+
+		inline bool _get_DoublewordAddressing(        void) const { return _regs.underline_location.read().DoublewordAddressing>0; }
+		void        _set_DoublewordAddressing(bool enabled) {
+			auto temp = _regs.underline_location.read();
+			temp.DoublewordAddressing = enabled ? 1 : 0;
+
+			_regs.underline_location.write(temp);
+		}
+
+		inline bool _get_DivideMemoryAddressClockBy4(        void) const { return _regs.underline_location.read().DivideMemoryAddressClockBy4>0; }
+		void        _set_DivideMemoryAddressClockBy4(bool enabled) {
+			auto temp = _regs.underline_location.read();
+			temp.DivideMemoryAddressClockBy4 = enabled ? 1 : 0;
+
+			_regs.underline_location.write(temp);
+		}
+
+		inline uint8_t _get_UnderlineLocation(            void) const { return _regs.underline_location.read().UnderlineLocation; }
+		void           _set_UnderlineLocation(uint8_t scanline) {
+			assert_term(scanline<=0b00011111,"Scanline too large!");
+
+			auto temp = _regs.underline_location.read();
+			temp.UnderlineLocation = scanline;
+
+			_regs.underline_location.write(temp);
+		}
+
+		//Scanline immediately after the last scanline of blanking.
+		inline uint8_t _get_EndVerticalBlanking(            void) const { return _regs.end_vblanking.read().EndVerticalBlanking; }
+		void           _set_EndVerticalBlanking(uint8_t scanline) {
+			assert_term(scanline<=0b01111111,"Scanline too large!");
+			auto temp = _regs.end_vblanking.read();
+			temp.EndVerticalBlanking = scanline;
+
+			_regs.end_vblanking.write(temp);
+		}
+
+		inline bool _get_SyncEnable(        void) const { return _regs.mode_control.read().SyncEnable>0; }
+		void        _set_SyncEnable(bool enabled) {
+			auto temp = _regs.mode_control.read();
+			temp.SyncEnable = enabled ? 1 : 0;
+
+			_regs.mode_control.write(temp);
+		}
+
+		inline uint8_t _get_WordByteMode(         void) const { return _regs.mode_control.read().WordByteModeSelect; }
+		void           _set_WordByteMode(uint8_t value) {
+			assert_term(value<=0b00000001,"Value too large!");
+
+			auto temp = _regs.mode_control.read();
+			temp.WordByteModeSelect = value;
+
+			_regs.mode_control.write(temp);
+		}
+
+		inline uint8_t _get_AddressWrapSelect(         void) const { return _regs.mode_control.read().AddressWrapSelect; }
+		void           _set_AddressWrapSelect(uint8_t value) {
+			assert_term(value<=0b00000001,"Value too large!");
+
+			auto temp = _regs.mode_control.read();
+			temp.AddressWrapSelect = value;
+
+			_regs.mode_control.write(temp);
+		}
+
+		inline bool _get_DivideMemoryAddressClockBy2(        void) const { return _regs.mode_control.read().DivideMemoryAddressClockBy2>0; }
+		void        _set_DivideMemoryAddressClockBy2(bool enabled) {
+			auto temp = _regs.mode_control.read();
+			temp.DivideMemoryAddressClockBy2 = enabled ? 1 : 0;
+
+			_regs.mode_control.write(temp);
+		}
+
+		inline bool _get_DivideScanlineClockBy2(        void) const { return _regs.mode_control.read().DivideScanlineClockBy2>0; }
+		void        _set_DivideScanlineClockBy2(bool enabled) {
+			auto temp = _regs.mode_control.read();
+			temp.DivideScanlineClockBy2 = enabled ? 1 : 0;
+
+			_regs.mode_control.write(temp);
+		}
+
+		inline uint8_t _get_MapDisplayAddress14(         void) const { return _regs.mode_control.read().MapDisplayAddress14; }
+		void           _set_MapDisplayAddress14(uint8_t value) {
+			assert_term(value<=0b00000001,"Value too large!");
+
+			auto temp = _regs.mode_control.read();
+			temp.MapDisplayAddress14 = value;
+
+			_regs.mode_control.write(temp);
+		}
+
+		inline uint8_t _get_MapDisplayAddress13(         void) const { return _regs.mode_control.read().MapDisplayAddress13; }
+		void           _set_MapDisplayAddress13(uint8_t value) {
+			assert_term(value<=0b00000001,"Value too large!");
+
+			auto temp = _regs.mode_control.read();
+			temp.MapDisplayAddress13 = value;
+
+			_regs.mode_control.write(temp);
+		}
+
+		#endif
+
+	public:
+		explicit inline CRTC(Device* device) : device(device), _regs(this) {}
+		inline ~CRTC(void) = default;
+
+		inline void set_registers_locked(bool locked) { _set_CRTC_RegistersProtectEnable(locked); }
+
+		inline void set_character_height(size_t height) { _set_MaximumScanlines(height-1); }
+
+		/*inline void set_scanlines_count(size_t count) {
+			assert_term(count+1<=0xFFFF,"Too many scanlines!");
+			_set_VerticalTotal(count+1);
+		}*/
+
+		inline void set_sync_signals_enabled(bool enabled) { _set_SyncEnable(enabled); }
+
+		void set_timing(struct Timing const& timing);
+
+		void print_timing(size_t x, size_t y) const;
+
+		#if 0
+		assert_term(count-5<=255,"Count too large!");
+
+
+		uint16_t get_clocks_per_scanline(          void) const {
+			return static_cast<uint16_t>(_regs.htotal.read()) + 5;
+		}
+		void     set_clocks_per_scanline(uint16_t count) {
+			assert_term(count-5<=255,"Count too large!");
+			_regs.htotal.write(count-5);
+		}
+
+		uint16_t get_scanlines_count(          void) const {
+			uint16_t result = _regs.vtotal.read().VerticalTotal_Bits07;
+			struct Regs::CRTC_OverflowRegister::Fields bits89 = _regs.overflow.read();
+			result |= static_cast<uint16_t>(bits89.VerticalTotal_Bit8) << 8;
+			result |= static_cast<uint16_t>(bits89.VerticalTotal_Bit9) << 9;
+			return result;
+		}
+		void     set_scanlines_count(uint16_t count) {
+			assert_term((count&0x0003FFFF)==count,"Count too large!");
+
+			struct Regs::CRTC_VerticalTotalRegister::Fields bits07;
+			bits07.VerticalTotal_Bits07 = count&0x0000FFFF;
+			struct Regs::CRTC_OverflowRegister::Fields bits89 = _regs.overflow.read();
+			bits89.VerticalTotal_Bit8 = (count&0x00010000) > 0;
+			bits89.VerticalTotal_Bit9 = (count&0x00020000) > 0;
+
+			_regs.vtotal.write(bits07);
+			_regs.overflow.write(bits89);
+		}
+		#endif
+};
+
+
+class Device final {
+	friend class Regs::IndexedRegisterBase;
+	private:
+		class RegsExternal final { public:
+			Regs::MiscellaneousOutputRegister misc_output;
+			Regs::FeatureControlRegister      feature_control;
+			Regs::InputStatus0Register        input_status_0;
+			Regs::InputStatus1Register        input_status_1;
+
+			explicit RegsExternal(Device* device) :
+				misc_output(device),
+				feature_control(device),
+				input_status_0(device),
+				input_status_1(device)
+			{}
+		} _regs;
+
+	public:
+		GraphicsController graphics_controller;
+
+		Memory memory;
+
+		Sequencer sequencer;
+
+		//ColorLogic color_logic;
+
+		CRTC crtc;
+
+		enum class Mode {
+			//Note: in my experiments, on Bochs text modes are silently clamped down to what appears to be
+			//	a resolution of 1024*768.  This works out to be 128 8-bit or 114 9-bit characters wide and
+			//	80 8-scanline or 48 16-scanline characters tall.
+			Text80x25,  //standard
+			Text80x30,  //defined by me
+			Text80x50,  //standard
+			Text80x60,  //standard
+			Text128x48, //defined by me; best on Bochs for 16-scanline-high fonts
+			Text128x80, //defined by me; best on Bochs for 8-scanline-high fonts
+			Text132x25, //standard
+			Text132x43, //standard
+			Text132x50, //standard
+			Text132x60  //standard
+		} mode;
+		size_t cols, rows;
+
+		size_t font_height;
+
+	private:
+		#if 1
+
+		inline uint8_t _get_VerticalSyncPolarity(        void) const { return _regs.misc_output.read().VerticalSyncPolarity; }
+		void           _set_VerticalSyncPolarity(uint8_t mode)       {
+			assert_term(mode<=0b00000001,"Invalid mode!");
+			auto temp = _regs.misc_output.read();
+			temp.VerticalSyncPolarity = mode;
+			return _regs.misc_output.write(temp);
+		}
+
+		inline uint8_t _get_HorizontalSyncPolarity(        void) const { return _regs.misc_output.read().HorizontalSyncPolarity; }
+		void           _set_HorizontalSyncPolarity(uint8_t mode)       {
+			assert_term(mode<=0b00000001,"Invalid mode!");
+			auto temp = _regs.misc_output.read();
+			temp.HorizontalSyncPolarity = mode;
+			return _regs.misc_output.write(temp);
+		}
+
+		inline uint8_t _get_OddEvenPageSelect(        void) const { return _regs.misc_output.read().OddEvenPageSelect; }
+		void           _set_OddEvenPageSelect(uint8_t page)       {
+			assert_term(page<=0b00000001,"Invalid page!");
+			auto temp = _regs.misc_output.read();
+			temp.OddEvenPageSelect = page;
+			return _regs.misc_output.write(temp);
+		}
+
+		inline uint8_t _get_ClockSelect(         void) const { return _regs.misc_output.read().ClockSelect; }
+		void           _set_ClockSelect(uint8_t index)       {
+			assert_term(index<=0b00000011,"Invalid clock index!");
+			auto temp = _regs.misc_output.read();
+			temp.ClockSelect = index;
+			return _regs.misc_output.write(temp);
+		}
+
+		inline bool _get_RAM_Enable(        void) const { return _regs.misc_output.read().RAM_Enable; }
+		void        _set_RAM_Enable(bool enabled)       {
+			auto temp = _regs.misc_output.read();
+			temp.RAM_Enable = enabled;
+			return _regs.misc_output.write(temp);
+		}
+
+		inline uint8_t _get_InputOutputAddressSelect(        void) const { return _regs.misc_output.read().InputOutputAddressSelect; }
+		void           _set_InputOutputAddressSelect(uint8_t mode)       {
+			assert_term(mode<=0b00000001,"Invalid mode!");
+			auto temp = _regs.misc_output.read();
+			temp.InputOutputAddressSelect = mode;
+			return _regs.misc_output.write(temp);
+		}
+
+		inline bool _get_SwitchSenseStatus(void) const { return _regs.input_status_0.read().SwitchSense; }
+
+		inline bool _get_IsVerticalRetracing_and_reset_latch(void) const { return _regs.input_status_1.read().VerticalRetrace; }
+
+		inline bool _get_IsDisplayDisabled_and_reset_latch(void) const { return _regs.input_status_1.read().DisplayDisabled; }
+
+		inline void _reset_latch(void) const { _regs.input_status_1.read(); }
+
+		#endif
+
+	public:
+		Device(void);
+
+	private:
+		void _prepare_change(void);
+		void _finish_change(void);
+
+	public:
+		inline bool is_monochrome(void) const {
+			return false; //TODO: more generally!
+		}
+
+		inline size_t get_clock(void) { return _get_ClockSelect(); }
+		inline void set_clock(size_t clock_index) { _set_ClockSelect(clock_index); }
+
+		//Note: this can fail if you request a mode that's too big (e.g. larger than 1024 pixels tall), since VGA can't handle this.
+		//TODO: this probably won't work correctly on actual VGA hardware; the blanking/retrace isn't accurate for higher modes.
+		void set_mode(Mode mode);
+
+	private:
+		void _set_use_font(uint8_t const* font_buffer, size_t font_height);
+	public:
+		void set_use_font(Font:: Character8x8 const* font);
+		void set_use_font(Font::Character8x16 const* font);
+};
+
+
+#if 0
 //The VGA functional units are:
 //	Miscellaneous register
 //	Sequencer (SEQ)
@@ -36,13 +1792,7 @@ namespace VGA {
 //		Not compact (i.e. for the 16-color palette entry[i]!=i)
 
 
-class Interface;
 
-class Sequencer final {
-	public:
-		inline Sequencer(void) {}
-		inline ~Sequencer(void) {}
-};
 
 class CathodeRayTubeController final {
 	private:
@@ -70,15 +1820,15 @@ class CathodeRayTubeController final {
 		//	+------------+-----------+------------+-------------+---------------------------+-------------+
 		//MOSS treats all MDA, Hercules, and EGA modes as completely unsupported.  It turns out, though, that
 		//	if you ask for a text mode of an arbitrary (but reasonable) size, you'll probably get it.
-		enum Mode {
+		enum class Mode {
 			//Note: in my experiments, on Bochs text modes are silently clamped down to what appears to be
 			//	a resolution of 1024*768.  This works out to be 128 8-bit or 114 9-bit characters wide and
-			//	80 8 scanline or 48 16 scanline characters tall.
+			//	80 8-scanline or 48 16-scanline characters tall.
 			text80x25,  //standard
 			text80x50,  //standard
 			text80x60,  //standard
-			text128x48, //defined by me; best on Bochs for 16 scanline high fonts
-			text128x80, //defined by me; best on Bochs for 8 scanline high fonts
+			text128x48, //defined by me; best on Bochs for 16-scanline-high fonts
+			text128x80, //defined by me; best on Bochs for 8-scanline-high fonts
 			text132x25, //standard
 			text132x43, //standard
 			text132x50, //standard
@@ -90,34 +1840,23 @@ class CathodeRayTubeController final {
 
 	public:
 		explicit CathodeRayTubeController(Interface* interface);
-		inline ~CathodeRayTubeController(void) {}
+		inline ~CathodeRayTubeController(void) = default;
 
 		void set_mode(Mode mode);
-
-		void unlock_registers(void);
-		void lock_registers(void);
 };
 
-class GraphicsController final {
-	private:
-		Interface*const _interface;
-	public:
-		inline explicit GraphicsController(Interface* interface) : _interface(interface) {}
-		inline ~GraphicsController(void) {}
 
-		void set_plane(int plane_index);
-};
 
 class AttributeController final {
 	public:
-		inline AttributeController(void) {}
-		inline ~AttributeController(void) {}
+		inline AttributeController(void) = default;
+		inline ~AttributeController(void) = default;
 };
 
 class Palette final {
 	public:
-		inline Palette(void) {}
-		inline ~Palette(void) {}
+		inline Palette(void) = default;
+		inline ~Palette(void) = default;
 };
 
 class Interface final {
@@ -136,17 +1875,12 @@ class Interface final {
 
 	public:
 		inline Interface(void) : crtc(this),_gc(this), regs(),fields(&regs) {}
-		inline ~Interface(void) {}
-
-	private:
-		void _set_use_font(uint8_t const* font_buffer, int font_height);
-	public:
-		void set_use_font(Font:: Character8x8 const* font);
-		void set_use_font(Font::Character8x16 const* font);
+		inline ~Interface(void) = default;
 
 		void dump_registers(void);
 		void dump_fields(void);
 };
+#endif
 
 
 #if 0

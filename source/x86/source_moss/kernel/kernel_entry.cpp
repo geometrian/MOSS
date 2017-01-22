@@ -33,6 +33,18 @@ namespace MOSS {
 
 extern Kernel* kernel;
 
+static void test_mode(Graphics::VGA::Device::Mode mode) {
+	kernel->vga->set_mode(mode);
+
+	kernel->terminal->clear();
+	kernel->terminal->write_test_pattern_res();
+	kernel->vga->crtc.print_timing(4,6);
+
+	//Bochs
+	for (size_t i=0;i<1000;++i) for (size_t j=0;j<1000;++j) for (size_t k=0;k<50;++k);
+	//VirtualBox
+	//for (size_t i=0;i<1000;++i) for (size_t j=0;j<1000;++j) for (size_t k=0;k<5000;++k);
+}
 extern "C" void kernel_entry(unsigned long magic, unsigned long addr) {
 	//Set up serial debug IO port ASAP
 	#ifdef MOSS_DEBUG
@@ -43,8 +55,12 @@ extern "C" void kernel_entry(unsigned long magic, unsigned long addr) {
 	Kernel kernel2;
 	kernel = &kernel2;
 
+	//The VGA Adapter
+	Graphics::VGA::Device vga;
+	kernel->vga = &vga;
+
 	//The text mode terminal
-	Graphics::VGA::Terminal terminal;
+	Graphics::VGA::Terminal terminal(&vga);
 	kernel->terminal = &terminal;
 
 	//Check boot went okay
@@ -57,13 +73,21 @@ extern "C" void kernel_entry(unsigned long magic, unsigned long addr) {
 	Memory::MemoryManager memory(mbi);
 	kernel->memory = &memory;
 
+	//Set highest resolution
+	vga.set_mode(Graphics::VGA::Device::Mode::Text80x50);
+	vga.set_use_font(Graphics::Font::font8x8);
+
+	//kernel->terminal->clear();
+	//kernel->terminal->write_test_pattern_res();
+	//kernel->vga->crtc.print_timing(4,6);
+
 	//The GRUB documentation http://www.gnu.org/software/grub/manual/multiboot/multiboot.html implies
 	//	that interrupts are already disabled.  That's good, because the following allows us to deal with
 	//	them for the first time.
 	//terminal.write("Forcing disable hardware interrupts\n");
 	//MOSS::Interrupts::disable_hw_int();
 
-	terminal.set_color_text(Graphics::VGA::Terminal::COLOR_GREEN); kernel->write(
+	/*terminal.set_color_text(Graphics::VGA::Terminal::Color::GREEN); kernel->write(
 		"         _    _ "  "  ____  "   "  ____ "   "  ____ "   "\n"
 		"       /| \\  / |" " /  _ \\ "  " /___/ "   " /___/ "   "\n"
 		"       ||  \\/  |" "|| / \\ |"  "|\\____ "  "|\\____ "  "\n"
@@ -71,16 +95,29 @@ extern "C" void kernel_entry(unsigned long magic, unsigned long addr) {
 		"       ||_| ||_|"  "\\ \\___/ " " _____/"   " _____/"   "\n"
 		"       /_/  /_/ "  " \\___/  "  "/____/ "   "/____/ "   "\n"
 		"                "  "        "   "       "   "       "   "\n"
-	); terminal.set_color_text(Graphics::VGA::Terminal::COLOR_MAGENTA); kernel->write(
+	); terminal.set_color_text(Graphics::VGA::Terminal::Color::MAGENTA); kernel->write(
 		"  The Minimal Operating System that Sucks\n"
-	); terminal.set_color_text(Graphics::VGA::Terminal::COLOR_PURPLE); kernel->write(
+	); terminal.set_color_text(Graphics::VGA::Terminal::Color::PURPLE); kernel->write(
 		"    by Ian Mallett\n\n"
-	);
-	while (1);
+	);*/
 
-	terminal.interface.set_use_font(Graphics::Font::font8x8);
-	terminal.interface.dump_registers();
-	terminal.interface.set_use_font(Graphics::Font::font8x8);
+	test_mode(Graphics::VGA::Device::Mode::Text80x25);
+	//test_mode(Graphics::VGA::Device::Mode::Text80x30);
+	//test_mode(Graphics::VGA::Device::Mode::Text80x50);
+	//test_mode(Graphics::VGA::Device::Mode::Text80x60);
+	//test_mode(Graphics::VGA::Device::Mode::Text128x48);
+
+	//test_mode(Graphics::VGA::Device::Mode::Text128x80);
+	//test_mode(Graphics::VGA::Device::Mode::Text132x25);
+	//test_mode(Graphics::VGA::Device::Mode::Text132x43);
+	//test_mode(Graphics::VGA::Device::Mode::Text132x50);
+	//test_mode(Graphics::VGA::Device::Mode::Text132x60);
+
+	//terminal.interface.crtc.set_mode(Graphics::VGA::CathodeRayTubeController::Mode::text132x60);
+
+	//terminal.interface.set_use_font(Graphics::Font::font8x8);
+	//terminal.interface.dump_registers();
+	//terminal.interface.set_use_font(Graphics::Font::font8x8);
 	//terminal.interface.crtc.set_mode(Graphics::VGA::CathodeRayTubeController::Mode::text128x80);
 	//terminal.interface.dump_registers();
 	while (1);
@@ -146,7 +183,7 @@ extern "C" void kernel_entry(unsigned long magic, unsigned long addr) {
 		delete data;*/
 	#endif
 
-	kernel->terminal->interface.dump_registers();
+	//kernel->terminal->interface.dump_registers();
 
 	kernel->write("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789`~!@#$%%^&*()-_=+\\|");
 	while (true);

@@ -17,7 +17,6 @@ void Block::print(void) const {
 }
 
 
-BlockGRUB::BlockGRUB(void) {}
 BlockGRUB::BlockGRUB(BlockGRUB const& block) {
 	record_size = block.record_size;
 	start = block.start;
@@ -30,8 +29,6 @@ BlockGRUB::BlockGRUB(Boot::multiboot_memory_map_t* mmap) {
 	size = mmap->length;
 	type = mmap->type;
 }
-BlockGRUB::~BlockGRUB(void) {
-}
 
 void BlockGRUB::print(void) const {
 	kernel->write("  size=%d, base_addr=%p %p, len=%p %p, type=%d\n", record_size, start>>32,start&0xffffffff, size>>32,size&0xffffffff, type);
@@ -39,13 +36,13 @@ void BlockGRUB::print(void) const {
 
 
 MemoryManager::MemoryManager(Boot::multiboot_info_t const* mbi) {
-	//GRUB reports some addresses (in particular 0x00000000 to 0x0009FC00) below 1MiB as free for use.
-	//However, they aren't for us since we need to retain the ability to set VESA modes.  Therefore,
-	//all memory allocation will take place at least at the 1MiB mark.
+	//GRUB reports some addresses (in particular 0x00000000 to 0x0009FC00) below 1MiB (0x00100000) as free
+	//	for use.  However, they aren't for us since we need to retain the ability to set VESA modes.
+	//	Therefore, all memory allocation will take place at least at the 1MiB mark.
 
 	//In any case, the linker script loads the kernel to 1MiB, setting up 1MiB of stuff on top of that.
-	//Therefore, all the static, global, etc. data are in [1Mib,2MiB).  Therefore, this heap will look
-	//for a block of data beginning at 1MiB, and then make the heap's start be at 2MiB within.
+	//	Therefore, all the static, global, etc. data are in [1Mib,2MiB).  Therefore, this heap will look
+	//	for a block of data beginning at 1MiB, and then make the heap's start be at 2MiB within.
 
 	//TODO: capture more than one block, if available
 
@@ -84,7 +81,6 @@ MemoryManager::MemoryManager(Boot::multiboot_info_t const* mbi) {
 
 	assert_term(found,"MemoryManager expected kernel to be loaded at 1MiB and contain a valid memory segment starting there!");
 }
-MemoryManager::~MemoryManager(void) {}
 
 void* MemoryManager::malloc(size_t size) {
 	Block* block = (Block*)(start);

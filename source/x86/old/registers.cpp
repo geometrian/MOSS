@@ -11,61 +11,11 @@ Registers::RegisterBase::RegisterBase(DEB_REL_CODE(char const* name,void)) DEBUG
 	for (int i=0;i<8;++i) bits[i].reg=this;//reinterpret_cast<RegisterBase*>(0x12345678);
 }
 
-void Registers::RegisterBase::print(void) const {
-	kernel->write("Register [");
-	for (int i=0;i<4;++i) kernel->write("%c ",bits[7-i]._value?'#':'.');
-	for (int i=4;i<8;++i) kernel->write(" %c",bits[7-i]._value?'#':'.');
-	kernel->write("] (0x%p",this);
-	#ifdef MOSS_DEBUG
-	kernel->write(" \"%s Register\"",name);
-	#endif
-	kernel->write(")\n");
-	/*for (int i=0;i<8;++i) {
-		kernel->write("  bit %d (0x%p) parent reg 0x%p\n",i,bits+i,bits[i].reg);
-	}*/
-}
 
 
-void Registers::RegisterExternalBase:: read(void) /*override*/ {
-	uint8_t value = IO::recv<uint8_t>(_port_read);
-	for (int i=0;i<8;++i) bits[i]._value=static_cast<bool>(value&(1<<i));
-}
-void Registers::RegisterExternalBase::write(void) /*override*/ {
-	#ifdef MOSS_DEBUG
-	if (_port_write==0x0000) {
-		print();
-		assert_term(false,"Implementation error!  Cannot write read-only register!");
-	}
-	#endif
-	uint8_t value=0; for (int i=0;i<8;++i) if (bits[i]._value) value|=1<<i;
-	IO::send<uint8_t>(_port_write, value);
-}
 
-//1. Input the value of the Address Register and save it for step 6
-//2. Output the index of the desired Data Register to the Address Register.
-//3. Read the value of the Data Register and save it for later restoration upon termination, if needed.
-//4. If writing, modify the value read in step 3, making sure to mask off bits not being modified.
-//5. If writing, write the new value from step 4 to the Data register.
-//6. Write the value of Address register saved in step 1 to the Address Register.
-void Registers::RegisterInternalType1Base:: read(void) /*override*/ {
-	uint8_t old_addr_reg_value = IO::recv<uint8_t>(_port_addr);
-	IO::send<uint8_t>(_port_addr, _index);
 
-	uint8_t value = IO::recv<uint8_t>(_port_data);
-	for (int i=0;i<8;++i) bits[i]._value=static_cast<bool>(value&(1<<i));
 
-	IO::send<uint8_t>(_port_addr,old_addr_reg_value);
-}
-void Registers::RegisterInternalType1Base::write(void) /*override*/ {
-	uint8_t old_addr_reg_value = IO::recv<uint8_t>(_port_addr);
-	IO::send<uint8_t>(_port_addr, _index);
-
-	//uint8_t old_data_reg_value = IO::recv<uint8_t>(_port_data);
-	uint8_t value=0; for (int i=0;i<8;++i) if (bits[i]._value) value|=1<<i;
-	IO::send<uint8_t>(_port_data,value);
-
-	IO::send<uint8_t>(_port_addr,old_addr_reg_value);
-}
 
 //1. Input a value from the Input Status #1 Register (normally port 0x03DA) and discard it.
 //2. Read the value of the Address/Data Register and save it for step 7.

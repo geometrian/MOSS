@@ -27,6 +27,7 @@ Kernel::Kernel(void) {
 	#ifdef MOSS_DEBUG
 		terminal = nullptr;
 
+		vga = nullptr;
 		graphics = nullptr;
 		gui = nullptr;
 
@@ -39,7 +40,6 @@ Kernel::Kernel(void) {
 		memory = nullptr;
 	#endif
 }
-Kernel::~Kernel(void) {}
 
 void Kernel::handle_key_down(Input::Keys::Event const&/* event*/) {
 	/*//terminal->write('A');
@@ -78,10 +78,10 @@ void Kernel::write(char const* format,...) {
 }
 void Kernel::write_sys(int level, char const* format,...) {
 	switch (level) {
-		case 0: terminal->set_color_text(Graphics::VGA::Terminal::COLOR_YELLOW); break;
-		case 1: terminal->set_color_text(Graphics::VGA::Terminal::  COLOR_CYAN); break;
+		case 0: terminal->set_color_text(Graphics::VGA::Terminal::Color::YELLOW); break;
+		case 1: terminal->set_color_text(Graphics::VGA::Terminal::Color::  CYAN); break;
 		default: //Fallthrough; any higher levels get this color too.
-		case 2: terminal->set_color_text(Graphics::VGA::Terminal:: COLOR_BROWN); break;
+		case 2: terminal->set_color_text(Graphics::VGA::Terminal::Color:: BROWN); break;
 	}
 
 	while (level>0) { write("  "); --level; }

@@ -42,8 +42,6 @@
     <ClCompile Include="..\source_moss\kernel\graphics\vesa\framebuffer.cpp" />
     <ClCompile Include="..\source_moss\kernel\graphics\vesa\mode.cpp" />
     <ClCompile Include="..\source_moss\kernel\graphics\vga\components.cpp" />
-    <ClCompile Include="..\source_moss\kernel\graphics\vga\fields.cpp" />
-    <ClCompile Include="..\source_moss\kernel\graphics\vga\registers.cpp" />
     <ClCompile Include="..\source_moss\kernel\graphics\vga\terminal.cpp" />
     <ClCompile Include="..\source_moss\kernel\input\devices\controller_ps2.cpp" />
     <ClCompile Include="..\source_moss\kernel\input\devices\interface_device_ps2.cpp" />
@@ -103,8 +101,6 @@
     <ClInclude Include="..\source_moss\kernel\graphics\vesa\framebuffer.h" />
     <ClInclude Include="..\source_moss\kernel\graphics\vesa\mode.h" />
     <ClInclude Include="..\source_moss\kernel\graphics\vga\components.h" />
-    <ClInclude Include="..\source_moss\kernel\graphics\vga\fields.h" />
-    <ClInclude Include="..\source_moss\kernel\graphics\vga\registers.h" />
     <ClInclude Include="..\source_moss\kernel\graphics\vga\terminal.h" />
     <ClInclude Include="..\source_moss\kernel\input\devices\controller_ps2.h" />
     <ClInclude Include="..\source_moss\kernel\input\devices\interface_device_ps2.h" />

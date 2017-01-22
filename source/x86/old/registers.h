@@ -47,7 +47,7 @@ class Registers final {
 			protected:
 				DEBUG_ONLY(explicit) RegisterBase(DEB_REL_CODE(char const* name,void));
 			public:
-				inline virtual ~RegisterBase(void) {}
+				inline virtual ~RegisterBase(void) = default;
 
 				virtual void  read(void) = 0;
 				virtual void write(void) = 0;
@@ -64,7 +64,7 @@ class Registers final {
 					RegisterBase(DEBUG_ONLY(name)), _port_read(port_read),_port_write(port_write)
 				{}
 			public:
-				inline virtual ~RegisterExternalBase(void) {}
+				inline virtual ~RegisterExternalBase(void) = default;
 
 				void  read(void) override;
 				void write(void) override;
@@ -79,7 +79,7 @@ class Registers final {
 					RegisterBase(DEBUG_ONLY(name)), _port_addr(port_addr),_port_data(port_data),_index(index)
 				{}
 			public:
-				inline virtual ~RegisterInternalBase(void) {}
+				inline virtual ~RegisterInternalBase(void) = default;
 		};
 
 		class RegisterInternalType1Base : public RegisterInternalBase {
@@ -88,7 +88,7 @@ class Registers final {
 					RegisterInternalBase(DEBUG_ONLY(name COMMA) port_addr,port_data,index)
 				{}
 			public:
-				inline virtual ~RegisterInternalType1Base(void) {}
+				inline virtual ~RegisterInternalType1Base(void) = default;
 
 				void  read(void) override;
 				void write(void) override;
@@ -99,7 +99,7 @@ class Registers final {
 					RegisterInternalBase(DEBUG_ONLY(name COMMA) port_addr,port_data,index)
 				{}
 			public:
-				inline virtual ~RegisterInternalType2Base(void) {}
+				inline virtual ~RegisterInternalType2Base(void) = default;
 
 				void  read(void) override;
 				void write(void) override;
@@ -111,18 +111,18 @@ class Registers final {
 		//	Miscellaneous Output Register
 		class RegisterMiscellaneousOutput final : public RegisterExternalBase { public:
 			inline RegisterMiscellaneousOutput(void) : RegisterExternalBase(DEBUG_ONLY("MiscellaneousOutput" COMMA) 0x03CC,0x03C2) {}
-			inline virtual ~RegisterMiscellaneousOutput(void) {}
+			inline virtual ~RegisterMiscellaneousOutput(void) = default;
 		} miscellaneous_output_reg;
 		//	Feature Control Register
 		//	Input Status #0 Register
 		class RegisterInputStatus0 final : public RegisterExternalBase { public: //Note: read-only
 			inline RegisterInputStatus0(void) : RegisterExternalBase(DEBUG_ONLY("InputStatus0" COMMA) 0x03C2,0x0000) {}
-			inline virtual ~RegisterInputStatus0(void) {}
+			inline virtual ~RegisterInputStatus0(void) = default;
 		} input_status0_reg;
 		//	Input Status #1 Register
 		class RegisterInputStatus1 final : public RegisterExternalBase { public: //Note: read-only
 			inline RegisterInputStatus1(void) : RegisterExternalBase(DEBUG_ONLY("InputStatus1" COMMA) 0x03DA,0x0000) {} //0x03BA for mono
-			inline virtual ~RegisterInputStatus1(void) {}
+			inline virtual ~RegisterInputStatus1(void) = default;
 		} input_status1_reg;
 		#endif
 
@@ -133,18 +133,18 @@ class Registers final {
 		//		Clocking Mode Register
 		class RegisterSequencerClockingMode final : public RegisterInternalType1Base { public:
 			inline RegisterSequencerClockingMode(void) : RegisterInternalType1Base(DEBUG_ONLY("ClockingMode" COMMA) 0x03C4,0x03C5,0x01) {}
-			inline virtual ~RegisterSequencerClockingMode(void) {}
+			inline virtual ~RegisterSequencerClockingMode(void) = default;
 		} sequencer_clocking_mode_reg;
 		//		Map Mask Register
 		class RegisterSequencerMapMask final : public RegisterInternalType1Base { public:
 			inline RegisterSequencerMapMask(void) : RegisterInternalType1Base(DEBUG_ONLY("MapMask" COMMA) 0x03C4,0x03C5,0x02) {}
-			inline virtual ~RegisterSequencerMapMask(void) {}
+			inline virtual ~RegisterSequencerMapMask(void) = default;
 		} sequencer_map_mask_reg;
 		//		Character Map Select Register
 		//		Sequencer Memory Mode Register
 		class RegisterSequencerMemoryMode final : public RegisterInternalType1Base { public:
 			inline RegisterSequencerMemoryMode(void) : RegisterInternalType1Base(DEBUG_ONLY("MemoryMode" COMMA) 0x03C4,0x03C5,0x04) {}
-			inline virtual ~RegisterSequencerMemoryMode(void) {}
+			inline virtual ~RegisterSequencerMemoryMode(void) = default;
 		} sequencer_memory_mode_reg;
 		//	Graphics Controller
 		//		Set/Reset Register
@@ -154,17 +154,17 @@ class Registers final {
 		//		Read Map Select Register
 		class RegisterGCReadMapSelect final : public RegisterInternalType1Base { public:
 			inline RegisterGCReadMapSelect(void) : RegisterInternalType1Base(DEBUG_ONLY("ReadMapSelect" COMMA) 0x03CE,0x03CF,0x04) {}
-			inline virtual ~RegisterGCReadMapSelect(void) {}
+			inline virtual ~RegisterGCReadMapSelect(void) = default;
 		} gc_read_map_select_reg;
 		//		Graphics Mode Register
 		class RegisterGCMode final : public RegisterInternalType1Base { public:
 			inline RegisterGCMode(void) : RegisterInternalType1Base(DEBUG_ONLY("Mode" COMMA) 0x03CE,0x03CF,0x05) {}
-			inline virtual ~RegisterGCMode(void) {}
+			inline virtual ~RegisterGCMode(void) = default;
 		} gc_mode_reg;
 		//		Miscellaneous Graphics Register
 		class RegisterGCMiscellaneous final : public RegisterInternalType1Base { public:
 			inline RegisterGCMiscellaneous(void) : RegisterInternalType1Base(DEBUG_ONLY("Miscellaneous" COMMA) 0x03CE,0x03CF,0x06) {}
-			inline virtual ~RegisterGCMiscellaneous(void) {}
+			inline virtual ~RegisterGCMiscellaneous(void) = default;
 		} gc_misc_reg;
 		//		Color Don't Care Register
 		//		Bit Mask Register
@@ -172,7 +172,7 @@ class Registers final {
 		#define MOSS_CRTC_REG_DEC(NAME,name,OFFSET)\
 			class RegisterCRTC##NAME final : public RegisterInternalType1Base { public:\
 				inline RegisterCRTC##NAME(void) : RegisterInternalType1Base(DEBUG_ONLY(#NAME COMMA) 0x03D4,0x03D5,OFFSET) {} /*0x03B4,0x03B5 for mono*/\
-				inline virtual ~RegisterCRTC##NAME(void) {}\
+				inline virtual ~RegisterCRTC##NAME(void) = default;\
 			} crtc_##name##_reg;
 		#define MOSS_CRTC_REG_MACRO(MACRO)\
 			/*Horizontal Total Register*/\

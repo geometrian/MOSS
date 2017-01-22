@@ -11,15 +11,17 @@
 namespace MOSS { namespace Graphics { namespace VGA {
 
 
-Terminal::Terminal(void) {
+Terminal::Terminal(Device* device) :
+	_device(device),
+	_buffer(reinterpret_cast<uint16_t*>(0xB8000))
+{
 	_x = 0;
 	_y = 0;
-	_buffer = reinterpret_cast<uint16_t*>(0xB8000);
 
 	//This seems to be the default
-	color_text = COLOR_LIGHT_GREY;
-	color_bg   = COLOR_BLACK;
-	_color = (color_bg<<4) | color_text;
+	color_text = Color::LIGHT_GREY;
+	color_bg   = Color::BLACK;
+	_color = (static_cast<int>(color_bg)<<4) | static_cast<int>(color_text);
 
 	#if 1
 		//interface.set_use_font(Graphics::Font::font8x8);
@@ -30,11 +32,7 @@ Terminal::Terminal(void) {
 		interface.crtc.set_mode(Graphics::VGA::CathodeRayTubeController::Mode::text128x48);
 	#endif
 
-	for (int y=0; y<interface.crtc.rows; ++y) {
-		for (int x=0; x<interface.crtc.cols; ++x) {
-			write(' ', x,y);
-		}
-	}
+	clear();
 
 	/*//char const*  str80 = "<-|(((Hello_world; how_are_you?__My_name_is_Ian;_good_to_finally_meet_you!)))|->";
 	//char const*  str90 = "<-|((Hello_world; how_are_you?__My_name_is_Ian;_it's_good_to_finally_get_to_meet_you!))|->";
@@ -52,71 +50,73 @@ Terminal::Terminal(void) {
 	}
 	while (1);*/
 }
-Terminal::~Terminal(void) {}
 
-void Terminal::scroll(int lines) {
-	for (int i=0;i<lines;++i) {
-		for (int y=0; y<interface.crtc.rows-1; ++y) {
-			for (int x=0; x<interface.crtc.cols; ++x) {
-				int index0 =  y   *interface.crtc.cols + x;
-				int index1 = (y+1)*interface.crtc.cols + x;
+void Terminal::clear(void) {
+	for (size_t y=0; y<_device->rows; ++y) {
+		for (size_t x=0; x<_device->cols; ++x) {
+			write(' ', x,y);
+		}
+	}
+}
+
+void Terminal::scroll(size_t lines) {
+	for (size_t i=0;i<lines;++i) {
+		for (size_t y=0; y<_device->rows-1; ++y) {
+			for (size_t x=0; x<_device->cols; ++x) {
+				size_t index0 =  y   *_device->cols + x;
+				size_t index1 = (y+1)*_device->cols + x;
 				_buffer[index0] = _buffer[index1];
 			}
 		}
 	}
 }
 
-void Terminal::fill_line(int line_index, char with) {
-	for (int x=0; x<interface.crtc.cols; ++x) {
+void Terminal::fill_line(size_t line_index, char with) {
+	for (size_t x=0; x<_device->cols; ++x) {
 		write(with, x,line_index);
 	}
 }
 
 void Terminal::next_line(void) {
 	_x = 0;
-	if (++_y == interface.crtc.rows) {
+	if (++_y == _device->rows) {
 		scroll(1);
 		--_y;
 
 		Color temp_color_text = color_text;
 		Color temp_color_bg   = color_bg;
-		set_color(COLOR_LIGHT_GREY,COLOR_BLACK);
+		set_color(Color::LIGHT_GREY,Color::BLACK);
 
-		fill_line(interface.crtc.rows-1,' ');
+		fill_line(_device->rows-1,' ');
 
 		set_color(temp_color_text,temp_color_bg);
 	}
 }
 
-void Terminal::set_color_text(enum Color color_text) {
+void Terminal::set_color_text(Color color_text) {
 	if (this->color_text!=color_text) {
 		_color &= 0x00F0u;
-		_color |= color_text;
+		_color |= static_cast<uint8_t>(color_text);
 
 		this->color_text = color_text;
 	}
 }
-void Terminal::set_color_background(enum Color color_bg) {
+void Terminal::set_color_background(Color color_bg) {
 	if (this->color_bg!=color_bg) {
 		_color &= 0x000Fu;
-		_color |= color_bg<<4;
+		_color |= static_cast<uint8_t>(color_bg)<<4;
 
 		this->color_bg = color_bg;
 	}
 }
-void Terminal::set_color(enum Color color_text, enum Color color_bg) {
+void Terminal::set_color(Color color_text, Color color_bg) {
 	set_color_text(color_text);
 	set_color_background(color_bg);
 	//_color = (color_bg<<4) | color_text;
 }
 
-void Terminal::set_pos(int x, int y) {
-	_x = x;
-	_y = y;
-}
-
-void Terminal::write(char c, int x,int y) {
-	int index = y*interface.crtc.cols + x;
+void Terminal::write(char c, size_t x,size_t y) {
+	size_t index = y*_device->cols + x;
 
 	uint16_t c16 = c;
 	uint16_t color16 = _color;
@@ -136,20 +136,10 @@ void Terminal::write(char c) {
 	} else {
 		write(c, _x,_y);
 
-		if (++_x == interface.crtc.cols) {
+		if (++_x == _device->cols) {
 			//next_line();
 		}
 	}
-}
-void Terminal::write(char const* format) {
-	size_t i = 0;
-	LOOP:
-		char c = format[i];
-		if (c!='\0') {
-			write(c);
-			++i;
-			goto LOOP;
-		}
 }
 void Terminal::write(char const* format, va_list args) {
 	#ifdef MOSS_DEBUG
@@ -167,6 +157,45 @@ void Terminal::write(char const* format, va_list args) {
 			++i;
 			goto LOOP;
 		}
+}
+
+void Terminal::write_test_pattern_res(void) {
+	for (size_t i=0;i<_device->cols;++i) {
+		set_pos_x(i);
+		if (i>=9) {
+			set_pos_y( (i+1) % 3 );
+		} else {
+			set_pos_y(0);
+		}
+		write("%d",i+1);
+	}
+	for (size_t j=1;j<_device->rows;++j) {
+		set_pos(0,j);
+		write("%d",j+1);
+	}
+	set_pos(3,4); write("This window is %d*%d",static_cast<int>(_device->cols),static_cast<int>(_device->rows));
+	//set_pos(3,5); write("The backing store is %d*%d",static_cast<int>(console.real.w),static_cast<int>(console.real.h));
+	//set_pos(3,6); write("Hit ENTER to continue . . .");
+}
+void Terminal::write_test_pattern_lin(void) {
+	Color colors[12] = {
+		Color::RED, Color::LIGHT_RED,
+		Color::BROWN, Color::YELLOW,
+		Color::GREEN, Color::LIGHT_GREEN,
+		Color::CYAN, Color::LIGHT_CYAN,
+		Color::BLUE, Color::LIGHT_BLUE,
+		Color::PURPLE, Color::MAGENTA
+	};
+	char const* chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+
+	size_t index = 0;
+	for (size_t i=0;i<12;++i) {
+		char const* temp = chars;
+		while (*temp!='\0') {
+			uint16_t color16 = static_cast<uint16_t>(colors[i]);
+			_buffer[index++] = *(temp++) | (color16 << 8);
+		}
+	}
 }
 
 

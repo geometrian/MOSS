@@ -67,8 +67,8 @@ template <>     void send(uint16_t port, uint32_t value) {
 	);
 }*/
 void wait(void) {
-	//port 0x80 is used for "checkpoints" during POST.
-	//The Linux kernel seems to think it is free for use :-/
+	//Port 0x80 is used for "checkpoints" during POST.  The Linux kernel
+	//	seems to think it is free for use :-/
 	__asm__ __volatile__(
 		"outb %%al, $0x80"
 		:

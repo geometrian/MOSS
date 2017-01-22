@@ -24,7 +24,7 @@ def main():
 ##    input()
     call([
         "C:\\Program Files\\Oracle\\VirtualBox\\VBoxManage.exe",
-        "internalcommands","sethduuid","C:\\dev\\C++\\MOSS\\VMs\\MOSS-disk-flat.vmdk","6cce5f18-38e4-46e3-a5f1-6991622637f1"
+        "internalcommands","sethduuid","C:\\dev\\C++\\MOSS\\VMs\\MOSS-disk-flat.vmdk","3e35d8c1-f057-4b4c-9d9e-120881738019"
     ])
     
     call([
