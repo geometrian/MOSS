@@ -4,6 +4,8 @@ try:    import cPickle as pickle #Only present in Python 2.*; Python 3 automatic
 except: import  pickle as pickle #new equivalent of cPickle, if it's available.
 from subprocess import call
 
+import _paths
+
 
 #Directories
 def get_abs_path(rel_path):
@@ -11,7 +13,8 @@ def get_abs_path(rel_path):
 def get_abs_path_from(directory,rel_path):
     return os.path.normpath(directory+rel_path).replace("\\","/")
 
-root = get_abs_path("")#"../")
+_scripts_dir = os.path.dirname(__file__)
+root = get_abs_path(os.path.join(_scripts_dir,"../"))
 root_build  = root+".build/"
 root_source = root+"source_moss/"
 
@@ -20,10 +23,8 @@ root_source = root+"source_moss/"
 args_compile = "-ffreestanding   -O0   -Wall -Wextra -Wno-packed-bitfield-compat   -fstack-protector-all -fno-exceptions -fno-rtti   -std=c++11"
 args_link = "-ffreestanding   -O0   -nostdlib"
 
-##command_gcc = get_abs_path_from(root,"../../cross/bin/i686-elf-gcc")
-##command_gpp = get_abs_path_from(root,"../../cross/bin/i686-elf-g++")
-command_gcc = os.path.expanduser("~/cross/bin/i686-elf-gcc")
-command_gpp = os.path.expanduser("~/cross/bin/i686-elf-g++")
+command_gcc = os.path.join(_paths.cross_dir,"i686-elf-gcc")
+command_gpp = os.path.join(_paths.cross_dir,"i686-elf-g++")
 
 command_nasm = "nasm"
 
@@ -188,27 +189,3 @@ for file in files:
         file_hashes[file.path] = file.hash
 data_str = pickle.dumps(file_hashes)
 file=open(root_build+"_cache.txt","wb"); file.write(data_str); file.close()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

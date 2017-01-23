@@ -15,6 +15,10 @@
 #	Therefore, all operations are done in a temporary "~/moss_disk_temp" in case this is the case!
 
 
+SCRIPTDIR=$(dirname "$0")
+SOURCEDIR=$SCRIPTDIR/..
+TEMPDISK=$(cd ~/; pwd)/moss_disk_temp
+
 function wait_for_enter() {
 	read -p "  <Press ENTER to continue . . .>"
 }
@@ -34,12 +38,11 @@ export HEADS=16
 export SECTORS_PER_TRACK=63
 export SECTOR_SIZE=512
 
-
 #Make HDD image
 if [ $remake_disk -eq 1 ]
 then
 	echo "######## Making HDD file . . ."
-	dd if=/dev/zero of=~/moss_disk_temp bs=$((HEADS*SECTORS_PER_TRACK*SECTOR_SIZE)) count=$CYLINDERS
+	dd if=/dev/zero of=$TEMPDISK bs=$((HEADS*SECTORS_PER_TRACK*SECTOR_SIZE)) count=$CYLINDERS
 
 	wait_for_enter
 else
@@ -51,19 +54,19 @@ fi
 if [ $remake_disk -eq 1 ]
 then
 	echo "######## Making partition table . . ."
-	sudo parted ~/moss_disk_temp mktable msdos
+	sudo parted $TEMPDISK mktable msdos
 
 	echo "######## Making partition thereon . . ."
 	if [ $fs_ext2_fat -eq 0 ]
 	then
-		cat <<-EOF | sudo parted  ~/moss_disk_temp  mkpart
+		cat <<-EOF | sudo parted  $TEMPDISK  mkpart
 		primary
 		ext2
 		1
 		-0
 		EOF
 	else
-		cat <<-EOF | sudo parted  ~/moss_disk_temp  mkpart
+		cat <<-EOF | sudo parted  $TEMPDISK  mkpart
 		primary
 		fat32
 		1
@@ -79,7 +82,7 @@ fi
 
 #Make the disk image and its partitions into devices
 echo "######## Making disk image and its partitions into devices . . ."
-sudo losetup /dev/loop0 ~/moss_disk_temp
+sudo losetup /dev/loop0 $TEMPDISK
 sudo kpartx  -v -a -s  /dev/loop0 #See note at top of file
 #wait_for_enter
 
@@ -131,18 +134,17 @@ echo "######## Copying over GrUB files . . ."
 #At the suggestion of http://www.slideshare.net/sukhdotin/installing-grub-on-virtual-hard-disk-images-5094625,
 #	just copy the needed files over.
 sudo mkdir -p /mnt/boot/grub
-sudo cp source_moss/grub/stage1 /mnt/boot/grub/stage1
-sudo cp source_moss/grub/stage2 /mnt/boot/grub/stage2
-sudo cp source_moss/grub/e2fs_stage1_5 /mnt/boot/grub/e2fs_stage1_5
+sudo cp $SOURCEDIR/source_moss/grub/stage1 /mnt/boot/grub/stage1
+sudo cp $SOURCEDIR/source_moss/grub/stage2 /mnt/boot/grub/stage2
+sudo cp $SOURCEDIR/source_moss/grub/e2fs_stage1_5 /mnt/boot/grub/e2fs_stage1_5
 #wait_for_enter
 
 #Copy the kernel over and the facility to boot it
 echo "######## Copying over kernel files . . ."
-sudo cp .build/MOSS.bin /mnt/boot/MOSS.bin
-sudo cp source_moss/grub/menu.lst /mnt/boot/grub/menu.lst
+sudo cp $SOURCEDIR/.build/MOSS.bin /mnt/boot/MOSS.bin
+sudo cp $SOURCEDIR/source_moss/grub/menu.lst /mnt/boot/grub/menu.lst
 echo "######## Copying over kernel data files . . ."
-#sudo mkdir -p /mnt/files
-sudo cp -r files /mnt/
+sudo cp -r $SOURCEDIR/filesystem/ /mnt/
 #wait_for_enter
 
 #Setup GrUB device map.  I've done this before, but never passing /dev/null in . . .
@@ -150,7 +152,7 @@ if [ $remake_grub -eq 1 ]
 then
 	echo "######## Setting up GrUB . . ."
 	grub --device-map=/dev/null <<-EOF
-	device (hd0) /home/imallett/moss_disk_temp
+	device (hd0) $TEMPDISK
 	geometry (hd0) $((CYLINDERS)) $((HEADS)) $((SECTORS_PER_TRACK))
 	root (hd0,0)
 	setup (hd0)
@@ -175,7 +177,7 @@ sudo losetup -d /dev/loop0
 
 #Copy final result
 #	Note not moving so that can avoid e.g. remaking it if we rerun this script
-cp ~/moss_disk_temp .build/moss-disk.bin
+cp $TEMPDISK $SOURCEDIR/.build/moss-disk.bin
 
 
 #Done

@@ -42,6 +42,7 @@ in my home directory, and the whole operation becomes:
     export PREFIX=~/cross/
     mkdir $PREFIX
 
+If you want to use a different directory, change the value in `source/x86/scripts/_paths.py`.
 
 ## Step 2: Downloads
 
@@ -85,7 +86,7 @@ Run the following commands to configure and build cross-compile-`binutils`:
     make install
     cd ..
 
-The build will take a bit of time.
+The build will only take a couple minutes on a newish computer.
 
 At this point, you should have a bunch of binaries built into `cross/bin/`.  In particular, you
 should have e.g. `i686-elf-as`, `i686-elf-ld`, etc.  I recommend you verify this up-front, as the

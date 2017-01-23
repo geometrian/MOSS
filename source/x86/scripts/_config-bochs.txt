@@ -1,0 +1,11 @@
+ata0-master: type=disk, path=".build/moss-disk.bin", cylinders=100, heads=16, spt=63
+boot: disk, cdrom
+
+mouse: enabled=0, toggle=ctrl+f10
+
+romimage: file=$BXSHARE/BIOS-bochs-latest
+
+vga: extension=vbe
+vgaromimage: file=$BXSHARE/VGABIOS-lgpl-latest
+
+com1: enabled=1, mode=file, dev=_log_bochs_output.txt

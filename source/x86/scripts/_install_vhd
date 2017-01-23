@@ -1,4 +1,0 @@
-#http://docs.openstack.org/image-guide/content/ch_converting.html
-
-#Works for VirtualPC
-qemu-img convert -O vpc .build/moss-disk.bin ../../VMs/MOSS-disk-flat.vhd

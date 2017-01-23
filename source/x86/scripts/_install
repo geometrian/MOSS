@@ -1,4 +1,0 @@
-#scripts/_install_vhd
-scripts/_install_vmdk
-
-echo "NOT installing to USB!  If you want to do that, run ./scripts/_install_usb specifically after carefully making sure it has the correct device."

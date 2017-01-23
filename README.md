@@ -8,6 +8,47 @@ if I could get anything working.
 Since then, MOSS has matured, but still lives up to its acronym: the Minimal Operating System
 that Sucks.
 
+## Setup
+
+### Linux-only setup:
+
+1. sudo apt-get install build-essential git
+2. In a folder somewhere, check out `MOSS`.  E.g.:
+`cd ~; git clone https://github.com/imallett/MOSS`.
+3. [Set up a cross-compiler](cross/README.md).
+
+### Windows + Linux VM setup:
+
+1. Set up and install Linux into a VirtualBox x86-64 VM.  Note that an 8GB HDD is too small to
+handle both an e.g. Ubuntu 16.10 MATE installation and a GCC compile.  I recommend at least 16GB,
+ensuring that there's no swap file eating half of it.
+2. Update/upgrade everything (`sudo apt-get update` etc.)
+3. `sudo apt-get install build-essential git`
+4. Insert guest-additions CD into VM and follow the autorun prompt.
+5. sudo adduser <username> vboxsf
+6. Create a shared folder
+7. Reboot
+8. In the shared folder, check out `MOSS`.  E.g.:
+`cd /media/sf_dev/; git clone https://github.com/imallett/MOSS`.
+9. [Set up a cross-compiler](cross/README.md).
+
+### Additional
+
+I do MOSS development using the Windows + Linux VM setup above.  The following makes that easier:
+
+- [Visual Studio](https://www.visualstudio.com/) is used for the project files.  Note that (the
+real version of) Visual Studio currently only runs on Windows.
+- A hex editor is handy.  On Windows, I like [HxD](https://mh-nexus.de/en/hxd/).
+
+
+
+- [Python](https://www.python.org/), for a lot of scripts.
+
+- An emulator, such as [Bochs](http://bochs.sourceforge.net/) or
+[VirtualBox](https://www.virtualbox.org/wiki/VirtualBox), or real hardware that is USB bootable.
+
+
+
 ## Orientation
 
 A few selected locations in the file structure to help you get your bearings.
@@ -19,28 +60,13 @@ bit messy, I'm afraid.
 - `source/x86/` is where MOSS's source is kept, along with project files and build directories.
 The ARM branch is not currently being developed.
   - `source/x86/.build/` is where MOSS disk images get built.
-  - `source/x86/files/` is where you can add files to be included in the built disk image.
-  - `source/x86/scripts/` are helper scripts used to build and convert MOSS images.  Most are messy
-and many will require some modifications to paths to work on others' machines.  This should be
-fixed.
+  - `source/x86/filesystem/` is where you can add files to be included in the built disk image.
+  - `source/x86/scripts/` are helper scripts used to build and convert MOSS images.
   - `source/x86/source_*` sources for MOSS and standard libraries.
-  - `source/x86/_run_*_win.py` are scripts that conveniently spool up a built MOSS disk image in an
-emulator.  Will likely require modifications to paths to work on others' machines.  This should be
-fixed.
+  - `source/x86/_run_*.py` are scripts that conveniently spool up a built MOSS disk image in an
+emulator.
 - `VMs/` is a handy location to put virtual machines for emulation, and is also the location to
-which emulator builds output.
-
-## Requirements
-
-- [Python](https://www.python.org/), for a lot of scripts.
-- Linux-y environment (I use an x86-64 Ubuntu VM), with ability to install packages.
-- [Visual Studio](https://www.visualstudio.com/) is recommended for the project files.
-- An emulator, such as [Bochs](http://bochs.sourceforge.net/) or
-[VirtualBox](https://www.virtualbox.org/wiki/VirtualBox), or real hardware that is USB bootable.
-
-Because (the real version of) Visual Studio currently only runs on Windows, the recommended setup
-is a Windows machine, with a shared file structure to a Linux VM.  Do development in Visual Studio;
-do compiles in the VM.
+which non-Bochs emulator builds output.
 
 ## Philosophy
 

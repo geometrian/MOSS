@@ -1,4 +1,0 @@
-#http://stackoverflow.com/questions/454899/how-to-convert-flat-raw-disk-image-to-vmdk-for-virtualbox-or-vmplayer
-
-#Works for VirtualBox and VMWare
-qemu-img convert -O vmdk .build/moss-disk.bin ../../VMs/MOSS-disk-flat.vmdk
