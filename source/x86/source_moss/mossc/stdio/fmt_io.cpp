@@ -104,24 +104,29 @@ class SpecifierBase {
 			LOOP:
 				switch (*specifier_str) {
 					case '-':
-						if (found_ljst) return nullptr; found_ljst=true;
-						flag_ljst = true;
+						if (found_ljst) return nullptr;
+						found_ljst = true;
+						flag_ljst  = true;
 						break;
 					case '+':
-						if (found_sign) return nullptr; found_sign=true;
-						flag_sign = 1;
+						if (found_sign) return nullptr;
+						found_sign = true;
+						flag_sign  =    1;
 						break;
 					case ' ':
-						if (found_sign) return nullptr; found_sign=true;
-						flag_sign = 2;
+						if (found_sign) return nullptr;
+						found_sign = true;
+						flag_sign  =    2;
 						break;
 					case '#':
-						if (found_hash) return nullptr; found_hash=true;
-						flag_hash = true;
+						if (found_hash) return nullptr;
+						found_hash = true;
+						flag_hash  = true;
 						break;
 					case '0':
-						if (found_zero) return nullptr; found_zero=true;
-						flag_zero = true;
+						if (found_zero) return nullptr;
+						found_zero = true;
+						flag_zero  = true;
 						break;
 					default:
 						return specifier_str;
