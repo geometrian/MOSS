@@ -15,14 +15,18 @@ guests), it may be a BIOS/UEFI setting (see e.g. VT-x on Intel processors).
 
 MOSS runs well here.  Recommended.
 
+### Setup (Linux):
+
+1. Install and run VirtualBox: `sudo apt-get install virtualbox; virtualbox &`
+2. Create a new VM (name: `MOSS`, Type: `Other`, Version: `Other/Unknown`; _not_ 64-bit).  It
+doesn't need much RAM.  64MB should be plenty.  Use and existing virtual hard disk file, and
+point it to the disk the build created: `VMs/MOSS-disk-flat.vmdk`.
+3. Start the VM.
+
 ### Setup (Windows):
 
-- Build MOSS
-- Download and install VirtualBox
-- Create a new VM for MOSS of type `Other` version `Other/Unknown` (_not_ 64-bit). using existing media (then point it to the disk the build placed into
-`VMs/`).
-
-### Setup (Linux):
+Same as for Linux, except in the first step, you'll have to download VirtualBox manually; e.g. from
+[here](https://www.virtualbox.org/wiki/Downloads).
 
 ## [Bochs](http://bochs.sourceforge.net/)
 
@@ -31,9 +35,9 @@ anything else except MOSS's raw `.bin` kernel image.
 
 ## [QEMU](http://wiki.qemu.org/Main_Page)
 
-MOSS runs on QEMU, but there are a few issues still to work out.  The `qemu-img` utility is also
-used for converting disk images for VirtualBox and VMware (i.e., to `.vmdk`), and so is their
-prerequisite.
+MOSS runs on QEMU, but there are a few issues still to work out.  It seems to start very quickly.
+The `qemu-img` utility is also used for converting disk images for VirtualBox and VMware (i.e., to
+`.vmdk`), and so is their prerequisite.
 
 ## Virtual PC
 

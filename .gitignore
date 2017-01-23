@@ -31,3 +31,4 @@ VMs/*
 **/.build/
 **/log/
 _log*
+*log.txt

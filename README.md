@@ -12,42 +12,51 @@ that Sucks.
 
 ### Linux-only setup:
 
-1. sudo apt-get install build-essential git
+1. Update/upgrade everything
+(`sudo apt-get update`/`sudo apt-get upgrade`/`sudo apt-get dist-upgrade`)
+2. Install misc. necessary packages: `sudo apt-get install build-essential git nasm kpartx grub`
 2. In a folder somewhere, check out `MOSS`.  E.g.:
 `cd ~; git clone https://github.com/imallett/MOSS`.
 3. [Set up a cross-compiler](cross/README.md).
+4. Install tools and emulators: `sudo apt-get install qemu-kvm bochs-x`.
+5. Build MOSS.  E.g. `cd source/x86/; ./scripts/all.sh`.
+6. Run it!  E.g. `python _run_bochs.py`/`python _run_qemu.py`.
+7. [To set up VirtualBox](VMs/README.md).
 
 ### Windows + Linux VM setup:
 
 1. Set up and install Linux into a VirtualBox x86-64 VM.  Note that an 8GB HDD is too small to
 handle both an e.g. Ubuntu 16.10 MATE installation and a GCC compile.  I recommend at least 16GB,
 ensuring that there's no swap file eating half of it.
-2. Update/upgrade everything (`sudo apt-get update` etc.)
-3. `sudo apt-get install build-essential git`
+2. Update/upgrade everything
+(`sudo apt-get update`/`sudo apt-get upgrade`/`sudo apt-get dist-upgrade`)
+3. Install misc. necessary packages: `sudo apt-get install build-essential git nasm kpartx grub`
 4. Insert guest-additions CD into VM and follow the autorun prompt.
-5. sudo adduser <username> vboxsf
-6. Create a shared folder
-7. Reboot
+5. Add yourself to share folders: `sudo adduser <username> vboxsf`
+6. Create a shared folder.
+7. Reboot.
 8. In the shared folder, check out `MOSS`.  E.g.:
 `cd /media/sf_dev/; git clone https://github.com/imallett/MOSS`.
 9. [Set up a cross-compiler](cross/README.md).
+10. Install tools and emulators: `sudo apt-get install qemu-kvm bochs-x`.
+11. Build MOSS.  E.g. `cd source/x86/; ./scripts/all.sh`.
+12. Run it!  E.g. `python _run_bochs.py`/`python _run_qemu.py`.
+13. [To set up VirtualBox](VMs/README.md).
 
-### Additional
+### Additional Windows
 
 I do MOSS development using the Windows + Linux VM setup above.  The following makes that easier:
 
 - [Visual Studio](https://www.visualstudio.com/) is used for the project files.  Note that (the
 real version of) Visual Studio currently only runs on Windows.
+- [Python](https://www.python.org/) is assumed to ship with Linux, as above, but on Windows you
+have to install it if you want to run any of the Python scripts.  The scripts should be compatible
+with either major version.
+- The virtualization softwares installed above can also be installed on Windows.  If you do so, the
+Python scripts can be run, and the virtualization run in Windows.
 - A hex editor is handy.  On Windows, I like [HxD](https://mh-nexus.de/en/hxd/).
-
-
-
-- [Python](https://www.python.org/), for a lot of scripts.
-
-- An emulator, such as [Bochs](http://bochs.sourceforge.net/) or
-[VirtualBox](https://www.virtualbox.org/wiki/VirtualBox), or real hardware that is USB bootable.
-
-
+- Real hardware that is USB bootable can be fun to put MOSS on.  After building, run
+`source/x86/scripts/_install_usb.sh`.
 
 ## Orientation
 

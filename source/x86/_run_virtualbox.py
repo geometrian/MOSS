@@ -26,17 +26,17 @@ def main():
 ##    ])
 ##    input()
     call([
-        _paths.get_virtualbox_manage(),
-        "internalcommands","sethduuid",_paths.get_vmdk(),"3e35d8c1-f057-4b4c-9d9e-120881738019"
+        _paths.virtualbox_manage,
+        "internalcommands","sethduuid",_paths.vmdk,"3e35d8c1-f057-4b4c-9d9e-120881738019"
     ])
     
     call([
-        _paths.get_virtualbox_manage(),
+        _paths.virtualbox_manage,
         "startvm","MOSS"
     ])
 
     if os.name == "nt":
         call([
-            _paths.get_nircmd(),"win","activate","title","MOSS [Running] - Oracle VM VirtualBox"
+            _paths.nircmd,"win","activate","title","MOSS [Running] - Oracle VM VirtualBox"
         ])
 if __name__ == "__main__": main()

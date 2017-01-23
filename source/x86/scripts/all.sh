@@ -1,3 +1,5 @@
-./scripts/build.sh
-./scripts/release_setup.sh
-./scripts/install.sh
+SCRIPTDIR=$(dirname "$0")
+
+$SCRIPTDIR/build.sh
+$SCRIPTDIR/release_setup.sh
+$SCRIPTDIR/install.sh
