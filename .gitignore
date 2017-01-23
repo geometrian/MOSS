@@ -1,4 +1,4 @@
- fol*.cscope_file_list
+*.cscope_file_list
 *.depend
 *.layout
 
@@ -25,7 +25,8 @@ resources/docs/
 resources/nircmd/
 
 cross/*/
-VMs/
+VMs/*
+!VMs/*.md
 
 **/.build/
 **/log/
