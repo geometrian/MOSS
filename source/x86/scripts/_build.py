@@ -20,8 +20,11 @@ root_source = root+"source_moss/"
 args_compile = "-ffreestanding   -O0   -Wall -Wextra -Wno-packed-bitfield-compat   -fstack-protector-all -fno-exceptions -fno-rtti   -std=c++11"
 args_link = "-ffreestanding   -O0   -nostdlib"
 
-command_gcc = get_abs_path_from(root,"../../cross/bin/i586-elf-gcc")
-command_gpp = get_abs_path_from(root,"../../cross/bin/i586-elf-g++")
+##command_gcc = get_abs_path_from(root,"../../cross/bin/i686-elf-gcc")
+##command_gpp = get_abs_path_from(root,"../../cross/bin/i686-elf-g++")
+command_gcc = os.path.expanduser("~/cross/bin/i686-elf-gcc")
+command_gpp = os.path.expanduser("~/cross/bin/i686-elf-g++")
+
 command_nasm = "nasm"
 
 #Types
