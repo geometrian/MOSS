@@ -1,11 +1,11 @@
-#include "terminal.h"
+#include "terminal.hpp"
 
 #include "../../../mossc/cstdio"
 #include "../../../mossc/cstring"
 
-#include "../../io/io.h"
+#include "../../io/io.hpp"
 
-#include "../font.h"
+#include "../font.hpp"
 
 
 namespace MOSS { namespace Graphics { namespace VGA {

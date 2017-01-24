@@ -1,8 +1,8 @@
-#include "simple.h"
+#include "simple.hpp"
 
-#include "../boot/boot_memorymap.h"
-#include "../boot/multiboot.h"
-#include "../kernel.h"
+#include "../boot/boot_memorymap.hpp"
+#include "../boot/multiboot.hpp"
+#include "../kernel.hpp"
 
 
 namespace MOSS { namespace Memory {

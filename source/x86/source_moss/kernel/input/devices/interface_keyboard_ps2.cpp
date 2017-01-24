@@ -1,11 +1,11 @@
-#include "interface_keyboard_ps2.h"
+#include "interface_keyboard_ps2.hpp"
 
-#include "../../io/io.h"
-#include "../../kernel.h"
+#include "../../io/io.hpp"
+#include "../../kernel.hpp"
 
-#include "../keys.h"
+#include "../keys.hpp"
 
-#include "controller_ps2.h"
+#include "controller_ps2.hpp"
 
 
 namespace MOSS { namespace Input { namespace Devices {

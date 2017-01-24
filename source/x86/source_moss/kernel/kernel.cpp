@@ -1,20 +1,20 @@
-#include "kernel.h"
+#include "kernel.hpp"
 
 #include "../mossc/cstdio"
 
-#include "disk/ata/controller.h"
-#include "disk/disk.h"
+#include "disk/ata/controller.hpp"
+#include "disk/disk.hpp"
 
-#include "graphics/gui/manager.h"
-#include "graphics/vesa/controller.h"
-#include "graphics/vesa/framebuffer.h"
-#include "graphics/vga/terminal.h"
-#include "graphics/color.h"
+#include "graphics/gui/manager.hpp"
+#include "graphics/vesa/controller.hpp"
+#include "graphics/vesa/framebuffer.hpp"
+#include "graphics/vga/terminal.hpp"
+#include "graphics/color.hpp"
 
-#include "input/devices/controller_ps2.h"
-//#include "input/devices/mouse_ps2.h"
-#include "input/keys.h"
-#include "input/mouse.h"
+#include "input/devices/controller_ps2.hpp"
+//#include "input/devices/mouse_ps2.hpp"
+#include "input/keys.hpp"
+#include "input/mouse.hpp"
 
 
 namespace MOSS {

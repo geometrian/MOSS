@@ -1,7 +1,7 @@
-#include "fmt_io.h"
+#include "fmt_io.hpp"
 
-#include "../string/copying.h"
-#include "../string/other.h"
+#include "../string/copying.hpp"
+#include "../string/other.hpp"
 
 
 namespace MOSSC {

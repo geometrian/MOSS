@@ -1,13 +1,13 @@
-#include "components.h"
+#include "components.hpp"
 
-#include "../../../mossc/string/copying.h"
+#include "../../../mossc/string/copying.hpp"
 
-#include "../../io/io.h"
-#include "../../kernel.h"
+#include "../../io/io.hpp"
+#include "../../kernel.hpp"
 
-#include "../font.h"
+#include "../font.hpp"
 
-#include "terminal.h"
+#include "terminal.hpp"
 
 
 namespace MOSS { namespace Graphics { namespace VGA {

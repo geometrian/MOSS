@@ -1,10 +1,10 @@
-#include "mode.h"
+#include "mode.hpp"
 
 #include "../../../mossc/cstdio"
 #include "../../../mossc/cstring"
 
-#include "../../interrupt/int32.h"
-#include "../../kernel.h"
+#include "../../interrupt/int32.hpp"
+#include "../../kernel.hpp"
 
 
 namespace MOSS { namespace Graphics { namespace VESA {

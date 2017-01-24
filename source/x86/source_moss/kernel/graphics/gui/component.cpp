@@ -1,6 +1,6 @@
-#include "component.h"
+#include "component.hpp"
 
-#include "../../../mosst/linked_list.h"
+#include "../../../mosst/linked_list.hpp"
 
 
 namespace MOSS { namespace Graphics { namespace GUI {

@@ -1,8 +1,8 @@
-#include "pic.h"
+#include "pic.hpp"
 
-#include "../../includes.h"
+#include "../../includes.hpp"
 
-#include "../io/io.h"
+#include "../io/io.hpp"
 
 
 namespace MOSS { namespace Interrupts { namespace PIC {

@@ -1,4 +1,4 @@
-#include "bg.h"
+#include "bg.hpp"
 
 
 namespace MOSS { namespace Graphics { namespace Font {

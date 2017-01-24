@@ -1,13 +1,13 @@
-#include "controller.h"
+#include "controller.hpp"
 
 #include "../../../mossc/cstdlib"
 #include "../../../mossc/cstring"
 
-#include "../../interrupt/int32.h"
-#include "../../io/io.h"
+#include "../../interrupt/int32.hpp"
+#include "../../io/io.hpp"
 
-#include "framebuffer.h"
-#include "mode.h"
+#include "framebuffer.hpp"
+#include "mode.hpp"
 
 
 //See also http://www.brokenthorn.com/Resources/OSDevVid2.html

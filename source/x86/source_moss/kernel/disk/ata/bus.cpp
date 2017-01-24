@@ -1,9 +1,9 @@
-#include "bus.h"
+#include "bus.hpp"
 
-#include "../../io/io.h"
-#include "../../kernel.h"
+#include "../../io/io.hpp"
+#include "../../kernel.hpp"
 
-#include "device.h"
+#include "device.hpp"
 
 
 namespace MOSS { namespace Disk { namespace ATA {

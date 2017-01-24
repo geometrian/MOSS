@@ -1,14 +1,14 @@
-#include "interface_mouse_ps2.h"
+#include "interface_mouse_ps2.hpp"
 
-#include "../../../mossc/_misc.h"
+#include "../../../mossc/_misc.hpp"
 
-#include "../../graphics/vesa/controller.h"
-#include "../../io/io.h"
-#include "../../kernel.h"
+#include "../../graphics/vesa/controller.hpp"
+#include "../../io/io.hpp"
+#include "../../kernel.hpp"
 
-#include "../mouse.h"
+#include "../mouse.hpp"
 
-#include "controller_ps2.h"
+#include "controller_ps2.hpp"
 
 
 namespace MOSS { namespace Input { namespace Devices {

@@ -1,7 +1,7 @@
-#include "mouse.h"
+#include "mouse.hpp"
 
-#include "../vesa/framebuffer.h"
-#include "../color.h"
+#include "../vesa/framebuffer.hpp"
+#include "../color.hpp"
 
 
 namespace MOSS { namespace Graphics { namespace GUI {

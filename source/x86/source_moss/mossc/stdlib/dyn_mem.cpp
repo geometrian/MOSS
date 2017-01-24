@@ -1,9 +1,9 @@
-#include "dyn_mem.h"
+#include "dyn_mem.hpp"
 
-#include "../../kernel/memory/simple.h"
-#include "../../kernel/kernel.h"
+#include "../../kernel/memory/simple.hpp"
+#include "../../kernel/kernel.hpp"
 
-#include "../string/other.h"
+#include "../string/other.hpp"
 
 
 namespace MOSSC {

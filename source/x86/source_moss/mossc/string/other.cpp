@@ -1,4 +1,4 @@
-#include "other.h"
+#include "other.hpp"
 
 
 namespace MOSSC {

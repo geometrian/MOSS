@@ -1,4 +1,4 @@
-#include "int_arith.h"
+#include "int_arith.hpp"
 
 
 namespace MOSSC {

@@ -236,123 +236,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\source_moss\kernel\boot\boot_memorymap.h">
-      <Filter>source_moss\kernel\boot</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\boot\multiboot.h">
-      <Filter>source_moss\kernel\boot</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\graphics\gui\button.h">
-      <Filter>source_moss\kernel\graphics\gui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\graphics\gui\component.h">
-      <Filter>source_moss\kernel\graphics\gui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\graphics\gui\frame.h">
-      <Filter>source_moss\kernel\graphics\gui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\graphics\gui\manager.h">
-      <Filter>source_moss\kernel\graphics\gui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\graphics\gui\mouse.h">
-      <Filter>source_moss\kernel\graphics\gui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\graphics\gui\rect.h">
-      <Filter>source_moss\kernel\graphics\gui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\graphics\vesa\controller.h">
-      <Filter>source_moss\kernel\graphics\vesa</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\graphics\vesa\framebuffer.h">
-      <Filter>source_moss\kernel\graphics\vesa</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\graphics\vesa\mode.h">
-      <Filter>source_moss\kernel\graphics\vesa</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\graphics\bg.h">
-      <Filter>source_moss\kernel\graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\graphics\color.h">
-      <Filter>source_moss\kernel\graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\graphics\font.h">
-      <Filter>source_moss\kernel\graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\input\devices\controller_ps2.h">
-      <Filter>source_moss\kernel\input\devices</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\input\devices\interface_device_ps2.h">
-      <Filter>source_moss\kernel\input\devices</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\input\devices\interface_keyboard_ps2.h">
-      <Filter>source_moss\kernel\input\devices</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\input\devices\interface_mouse_ps2.h">
-      <Filter>source_moss\kernel\input\devices</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\input\keys.h">
-      <Filter>source_moss\kernel\input</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\input\mouse.h">
-      <Filter>source_moss\kernel\input</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\interrupt\idt.h">
-      <Filter>source_moss\kernel\interrupt</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\interrupt\int32.h">
-      <Filter>source_moss\kernel\interrupt</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\interrupt\misc.h">
-      <Filter>source_moss\kernel\interrupt</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\interrupt\pic.h">
-      <Filter>source_moss\kernel\interrupt</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\io\io.h">
-      <Filter>source_moss\kernel\io</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\memory\gdt.h">
-      <Filter>source_moss\kernel\memory</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\memory\simple.h">
-      <Filter>source_moss\kernel\memory</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\kernel.h">
-      <Filter>source_moss\kernel</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source_moss\mossc\math\trig.h">
-      <Filter>source_moss\mossc\math</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source_moss\mossc\stdio\fmt_io.h">
-      <Filter>source_moss\mossc\stdio</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source_moss\mossc\stdlib\dyn_mem.h">
-      <Filter>source_moss\mossc\stdlib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source_moss\mossc\stdlib\int_arith.h">
-      <Filter>source_moss\mossc\stdlib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source_moss\mossc\string\comparison.h">
-      <Filter>source_moss\mossc\string</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source_moss\mossc\string\concatenation.h">
-      <Filter>source_moss\mossc\string</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source_moss\mossc\string\copying.h">
-      <Filter>source_moss\mossc\string</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source_moss\mossc\string\other.h">
-      <Filter>source_moss\mossc\string</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source_moss\mossc\string\searching.h">
-      <Filter>source_moss\mossc\string</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source_moss\mossc\_common.h">
-      <Filter>source_moss\mossc</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source_moss\mossc\_misc.h">
-      <Filter>source_moss\mossc</Filter>
-    </ClInclude>
     <ClInclude Include="..\source_moss\mossc\math.h">
       <Filter>source_moss\mossc</Filter>
     </ClInclude>
@@ -365,80 +248,197 @@
     <ClInclude Include="..\source_moss\mossc\string.h">
       <Filter>source_moss\mossc</Filter>
     </ClInclude>
-    <ClInclude Include="..\source_moss\mosst\linked_list.h">
-      <Filter>source_moss\mosst</Filter>
+    <ClInclude Include="..\source_moss\kernel\boot\boot_memorymap.hpp">
+      <Filter>source_moss\kernel\boot</Filter>
     </ClInclude>
-    <ClInclude Include="..\source_moss\mosst\string.h">
-      <Filter>source_moss\mosst</Filter>
+    <ClInclude Include="..\source_moss\kernel\boot\multiboot.hpp">
+      <Filter>source_moss\kernel\boot</Filter>
     </ClInclude>
-    <ClInclude Include="..\source_moss\mosst\vector.h">
-      <Filter>source_moss\mosst</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source_moss\includes.h">
-      <Filter>source_moss</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\kernel_entry.h">
-      <Filter>source_moss\kernel</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\misc.h">
-      <Filter>source_moss\kernel</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\disk\filesystems\ext2\block.h">
-      <Filter>source_moss\kernel\disk\filesystems\ext2</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\disk\filesystems\ext2\ext2.h">
-      <Filter>source_moss\kernel\disk\filesystems\ext2</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\disk\filesystems\ext2\inode.h">
-      <Filter>source_moss\kernel\disk\filesystems\ext2</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\disk\ata\bus.h">
+    <ClInclude Include="..\source_moss\kernel\disk\ata\ata.hpp">
       <Filter>source_moss\kernel\disk\ata</Filter>
     </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\disk\ata\controller.h">
+    <ClInclude Include="..\source_moss\kernel\disk\ata\bus.hpp">
       <Filter>source_moss\kernel\disk\ata</Filter>
     </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\disk\ata\device.h">
+    <ClInclude Include="..\source_moss\kernel\disk\ata\controller.hpp">
       <Filter>source_moss\kernel\disk\ata</Filter>
     </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\disk\ata\ata.h">
+    <ClInclude Include="..\source_moss\kernel\disk\ata\device.hpp">
       <Filter>source_moss\kernel\disk\ata</Filter>
     </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\disk\filesystems\filesystem.h">
-      <Filter>source_moss\kernel\disk\filesystems</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\disk\disk.h">
-      <Filter>source_moss\kernel\disk</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\disk\filesystems\ext2\superblock.h">
+    <ClInclude Include="..\source_moss\kernel\disk\filesystems\ext2\block.hpp">
       <Filter>source_moss\kernel\disk\filesystems\ext2</Filter>
     </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\disk\filesystems\ext2\blockgroup.h">
+    <ClInclude Include="..\source_moss\kernel\disk\filesystems\ext2\blockgroup.hpp">
       <Filter>source_moss\kernel\disk\filesystems\ext2</Filter>
     </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\disk\filesystems\ext2\common.h">
+    <ClInclude Include="..\source_moss\kernel\disk\filesystems\ext2\common.hpp">
       <Filter>source_moss\kernel\disk\filesystems\ext2</Filter>
     </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\disk\filesystems\fat\fat.h">
+    <ClInclude Include="..\source_moss\kernel\disk\filesystems\ext2\ext2.hpp">
+      <Filter>source_moss\kernel\disk\filesystems\ext2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\kernel\disk\filesystems\ext2\inode.hpp">
+      <Filter>source_moss\kernel\disk\filesystems\ext2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\kernel\disk\filesystems\ext2\superblock.hpp">
+      <Filter>source_moss\kernel\disk\filesystems\ext2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\kernel\disk\filesystems\fat\fat.hpp">
       <Filter>source_moss\kernel\disk\filesystems\fat</Filter>
     </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\disk\filesystems\lean\lean.h">
+    <ClInclude Include="..\source_moss\kernel\disk\filesystems\lean\lean.hpp">
       <Filter>source_moss\kernel\disk\filesystems\lean</Filter>
     </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\graphics\vga\components.h">
+    <ClInclude Include="..\source_moss\kernel\disk\filesystems\filesystem.hpp">
+      <Filter>source_moss\kernel\disk\filesystems</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\kernel\disk\disk.hpp">
+      <Filter>source_moss\kernel\disk</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\kernel\graphics\gui\button.hpp">
+      <Filter>source_moss\kernel\graphics\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\kernel\graphics\gui\component.hpp">
+      <Filter>source_moss\kernel\graphics\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\kernel\graphics\gui\frame.hpp">
+      <Filter>source_moss\kernel\graphics\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\kernel\graphics\gui\manager.hpp">
+      <Filter>source_moss\kernel\graphics\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\kernel\graphics\gui\mouse.hpp">
+      <Filter>source_moss\kernel\graphics\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\kernel\graphics\gui\rect.hpp">
+      <Filter>source_moss\kernel\graphics\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\kernel\graphics\vesa\controller.hpp">
+      <Filter>source_moss\kernel\graphics\vesa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\kernel\graphics\vesa\framebuffer.hpp">
+      <Filter>source_moss\kernel\graphics\vesa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\kernel\graphics\vesa\mode.hpp">
+      <Filter>source_moss\kernel\graphics\vesa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\kernel\graphics\vga\components.hpp">
       <Filter>source_moss\kernel\graphics\vga</Filter>
     </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\graphics\vga\terminal.h">
+    <ClInclude Include="..\source_moss\kernel\graphics\vga\terminal.hpp">
       <Filter>source_moss\kernel\graphics\vga</Filter>
     </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\serial.h">
+    <ClInclude Include="..\source_moss\kernel\graphics\bg.hpp">
+      <Filter>source_moss\kernel\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\kernel\graphics\color.hpp">
+      <Filter>source_moss\kernel\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\kernel\graphics\font.hpp">
+      <Filter>source_moss\kernel\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\kernel\input\devices\controller_ps2.hpp">
+      <Filter>source_moss\kernel\input\devices</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\kernel\input\devices\interface_device_ps2.hpp">
+      <Filter>source_moss\kernel\input\devices</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\kernel\input\devices\interface_keyboard_ps2.hpp">
+      <Filter>source_moss\kernel\input\devices</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\kernel\input\devices\interface_mouse_ps2.hpp">
+      <Filter>source_moss\kernel\input\devices</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\kernel\input\keys.hpp">
+      <Filter>source_moss\kernel\input</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\kernel\input\mouse.hpp">
+      <Filter>source_moss\kernel\input</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\kernel\interrupt\isr\isr-delegator.hpp">
+      <Filter>source_moss\kernel\interrupt\isr</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\kernel\interrupt\isr\isrs.hpp">
+      <Filter>source_moss\kernel\interrupt\isr</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\kernel\interrupt\idt.hpp">
+      <Filter>source_moss\kernel\interrupt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\kernel\interrupt\int32.hpp">
+      <Filter>source_moss\kernel\interrupt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\kernel\interrupt\misc.hpp">
+      <Filter>source_moss\kernel\interrupt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\kernel\interrupt\pic.hpp">
+      <Filter>source_moss\kernel\interrupt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\kernel\io\io.hpp">
+      <Filter>source_moss\kernel\io</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\kernel\memory\gdt.hpp">
+      <Filter>source_moss\kernel\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\kernel\memory\simple.hpp">
+      <Filter>source_moss\kernel\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\kernel\kernel.hpp">
       <Filter>source_moss\kernel</Filter>
     </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\interrupt\isr\isr-delegator.h">
-      <Filter>source_moss\kernel\interrupt\isr</Filter>
+    <ClInclude Include="..\source_moss\kernel\kernel_entry.hpp">
+      <Filter>source_moss\kernel</Filter>
     </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\interrupt\isr\isrs.h">
-      <Filter>source_moss\kernel\interrupt\isr</Filter>
+    <ClInclude Include="..\source_moss\kernel\misc.hpp">
+      <Filter>source_moss\kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\kernel\serial.hpp">
+      <Filter>source_moss\kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\mossc\math\trig.hpp">
+      <Filter>source_moss\mossc\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\mossc\stdio\fmt_io.hpp">
+      <Filter>source_moss\mossc\stdio</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\mossc\stdlib\dyn_mem.hpp">
+      <Filter>source_moss\mossc\stdlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\mossc\stdlib\int_arith.hpp">
+      <Filter>source_moss\mossc\stdlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\mossc\string\comparison.hpp">
+      <Filter>source_moss\mossc\string</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\mossc\string\concatenation.hpp">
+      <Filter>source_moss\mossc\string</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\mossc\string\copying.hpp">
+      <Filter>source_moss\mossc\string</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\mossc\string\other.hpp">
+      <Filter>source_moss\mossc\string</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\mossc\string\searching.hpp">
+      <Filter>source_moss\mossc\string</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\mossc\_common.hpp">
+      <Filter>source_moss\mossc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\mossc\_misc.hpp">
+      <Filter>source_moss\mossc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\mosst\linked_list.hpp">
+      <Filter>source_moss\mosst</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\mosst\string.hpp">
+      <Filter>source_moss\mosst</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\mosst\vector.hpp">
+      <Filter>source_moss\mosst</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\includes.hpp">
+      <Filter>source_moss</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

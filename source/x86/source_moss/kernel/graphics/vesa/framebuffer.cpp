@@ -1,14 +1,14 @@
-#include "framebuffer.h"
+#include "framebuffer.hpp"
 
 #include "../../../mossc/cmath"
 #include "../../../mossc/cstdio"
 #include "../../../mossc/cstdlib"
 #include "../../../mossc/cstring"
 
-#include "../color.h"
-#include "../font.h"
+#include "../color.hpp"
+#include "../font.hpp"
 
-#include "mode.h"
+#include "mode.hpp"
 
 
 namespace MOSS { namespace Graphics { namespace PixelUtil {

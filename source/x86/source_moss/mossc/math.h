@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../includes.h"
+#include "../includes.hpp"
 
-#include "math/trig.h"
+#include "math/trig.hpp"
 
 
 /*MOSS_DECL_FP2(exp)

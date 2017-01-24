@@ -1,4 +1,4 @@
-#include "comparison.h"
+#include "comparison.hpp"
 
 
 namespace MOSSC {

@@ -1,31 +1,31 @@
-#include "kernel_entry.h"
+#include "kernel_entry.hpp"
 
-#include "../mossc/_misc.h"
+#include "../mossc/_misc.hpp"
 
-#include "disk/ata/controller.h"
-#include "disk/filesystems/ext2/ext2.h"
-#include "disk/filesystems/fat/fat.h"
-#include "disk/disk.h"
+#include "disk/ata/controller.hpp"
+#include "disk/filesystems/ext2/ext2.hpp"
+#include "disk/filesystems/fat/fat.hpp"
+#include "disk/disk.hpp"
 
-#include "boot/multiboot.h"
+#include "boot/multiboot.hpp"
 
-#include "graphics/gui/manager.h"
-#include "graphics/vesa/controller.h"
-#include "graphics/vga/terminal.h"
-#include "graphics/font.h" //TODO: remove?
+#include "graphics/gui/manager.hpp"
+#include "graphics/vesa/controller.hpp"
+#include "graphics/vga/terminal.hpp"
+#include "graphics/font.hpp" //TODO: remove?
 
-#include "input/devices/controller_ps2.h"
+#include "input/devices/controller_ps2.hpp"
 
-#include "interrupt/idt.h"
-//#include "interrupt/isr.h"
-#include "interrupt/misc.h"
-#include "interrupt/pic.h"
+#include "interrupt/idt.hpp"
+//#include "interrupt/isr.hpp"
+#include "interrupt/misc.hpp"
+#include "interrupt/pic.hpp"
 
-#include "memory/gdt.h"
-#include "memory/simple.h"
+#include "memory/gdt.hpp"
+#include "memory/simple.hpp"
 
-#include "kernel.h"
-#include "serial.h"
+#include "kernel.hpp"
+#include "serial.hpp"
 
 
 namespace MOSS {

@@ -1,4 +1,4 @@
-#include "trig.h"
+#include "trig.hpp"
 
 
 namespace MOSSC {

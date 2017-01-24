@@ -1,8 +1,8 @@
-#include "controller.h"
+#include "controller.hpp"
 
-#include "../../kernel.h"
+#include "../../kernel.hpp"
 
-#include "bus.h"
+#include "bus.hpp"
 
 
 namespace MOSS { namespace Disk { namespace ATA {

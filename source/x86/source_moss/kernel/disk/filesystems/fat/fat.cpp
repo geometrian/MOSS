@@ -1,6 +1,6 @@
-#include "fat.h"
+#include "fat.hpp"
 
-#include "../../../kernel.h"
+#include "../../../kernel.hpp"
 
 
 namespace MOSS { namespace Disk { namespace FileSystem {

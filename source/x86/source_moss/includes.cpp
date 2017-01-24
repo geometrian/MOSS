@@ -1,8 +1,8 @@
-#include "includes.h"
+#include "includes.hpp"
 
-#include "kernel/graphics/vga/terminal.h"
-#include "kernel/kernel.h"
-#include "kernel/serial.h"
+#include "kernel/graphics/vga/terminal.hpp"
+#include "kernel/kernel.hpp"
+#include "kernel/serial.hpp"
 
 #include "mossc/cstdio"
 #include "mossc/cstring"

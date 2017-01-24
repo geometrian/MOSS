@@ -1,11 +1,11 @@
-#include "frame.h"
+#include "frame.hpp"
 
-#include "../../input/mouse.h"
+#include "../../input/mouse.hpp"
 
-#include "../vesa/framebuffer.h"
-#include "../color.h"
+#include "../vesa/framebuffer.hpp"
+#include "../color.hpp"
 
-#include "button.h"
+#include "button.hpp"
 
 
 namespace MOSS { namespace Graphics { namespace GUI {

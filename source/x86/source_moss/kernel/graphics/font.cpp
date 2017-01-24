@@ -1,8 +1,8 @@
-#include "font.h"
+#include "font.hpp"
 
-#include "../kernel.h"
+#include "../kernel.hpp"
 
-#include "vga/terminal.h"
+#include "vga/terminal.hpp"
 
 
 namespace MOSS { namespace Graphics { namespace Font {

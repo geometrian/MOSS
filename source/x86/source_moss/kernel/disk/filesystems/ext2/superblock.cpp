@@ -1,10 +1,10 @@
-#include "superblock.h"
+#include "superblock.hpp"
 
-#include "../../../kernel.h"
+#include "../../../kernel.hpp"
 
-#include "../../disk.h"
+#include "../../disk.hpp"
 
-#include "ext2.h"
+#include "ext2.hpp"
 
 
 namespace MOSS { namespace Disk { namespace FileSystem {

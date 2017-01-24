@@ -1,8 +1,8 @@
-#include "isr-delegator.h"
+#include "isr-delegator.hpp"
 
-#include "../pic.h"
+#include "../pic.hpp"
 
-#include "isrs.h"
+#include "isrs.hpp"
 
 
 namespace MOSS { namespace Interrupts {

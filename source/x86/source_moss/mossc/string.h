@@ -1,9 +1,9 @@
 #pragma once
 
-#include "../includes.h"
+#include "../includes.hpp"
 
-#include "string/comparison.h"
-#include "string/concatenation.h"
-#include "string/copying.h"
-#include "string/other.h"
-#include "string/searching.h"
+#include "string/comparison.hpp"
+#include "string/concatenation.hpp"
+#include "string/copying.hpp"
+#include "string/other.hpp"
+#include "string/searching.hpp"

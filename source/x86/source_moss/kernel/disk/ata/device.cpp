@@ -1,6 +1,6 @@
-#include "device.h"
+#include "device.hpp"
 
-#include "../../kernel.h"
+#include "../../kernel.hpp"
 
 #include "../../../mossc/cstring"
 

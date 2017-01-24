@@ -1,7 +1,7 @@
-#include "concatenation.h"
+#include "concatenation.hpp"
 
-#include "copying.h"
-#include "other.h"
+#include "copying.hpp"
+#include "other.hpp"
 
 
 namespace MOSSC {

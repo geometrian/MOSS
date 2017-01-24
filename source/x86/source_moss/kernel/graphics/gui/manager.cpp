@@ -1,14 +1,14 @@
-#include "manager.h"
+#include "manager.hpp"
 
-#include "../../disk/filesystems/filesystem.h"
-#include "../../input/mouse.h"
-#include "../../kernel.h"
+#include "../../disk/filesystems/filesystem.hpp"
+#include "../../input/mouse.hpp"
+#include "../../kernel.hpp"
 
-#include "../vesa/framebuffer.h"
-#include "../color.h"
+#include "../vesa/framebuffer.hpp"
+#include "../color.hpp"
 
-#include "frame.h"
-#include "mouse.h"
+#include "frame.hpp"
+#include "mouse.hpp"
 
 
 namespace MOSS { namespace Graphics { namespace GUI {

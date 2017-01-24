@@ -1,6 +1,6 @@
-#include "filesystem.h"
+#include "filesystem.hpp"
 
-#include "../../kernel.h"
+#include "../../kernel.hpp"
 
 
 namespace MOSS { namespace Disk { namespace FileSystem {

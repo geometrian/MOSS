@@ -1,11 +1,11 @@
-#include "keys.h"
+#include "keys.hpp"
 
 #include "../../mossc/cstring"
-#include "../../includes.h"
+#include "../../includes.hpp"
 
-#include "../input/devices/controller_ps2.h"
-#include "../input/devices/interface_keyboard_ps2.h"
-#include "../kernel.h"
+#include "../input/devices/controller_ps2.hpp"
+#include "../input/devices/interface_keyboard_ps2.hpp"
+#include "../kernel.hpp"
 
 
 namespace MOSS { namespace Input { namespace Keys {

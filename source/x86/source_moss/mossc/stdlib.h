@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../includes.h"
+#include "../includes.hpp"
 
-#include "stdlib/dyn_mem.h"
-#include "stdlib/int_arith.h"
+#include "stdlib/dyn_mem.hpp"
+#include "stdlib/int_arith.hpp"

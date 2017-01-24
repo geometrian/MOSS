@@ -1,4 +1,4 @@
-#include "idt.h"
+#include "idt.hpp"
 
 
 namespace MOSS { namespace Interrupts {

@@ -1,4 +1,4 @@
-#include "rect.h"
+#include "rect.hpp"
 
 
 namespace MOSS { namespace Graphics { namespace GUI {

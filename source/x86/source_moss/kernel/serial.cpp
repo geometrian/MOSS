@@ -1,6 +1,6 @@
-#include "serial.h"
+#include "serial.hpp"
 
-#include "io/io.h"
+#include "io/io.hpp"
 
 
 namespace MOSS { namespace Serial {

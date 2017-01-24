@@ -1,9 +1,9 @@
-#include "controller_ps2.h"
+#include "controller_ps2.hpp"
 
-#include "../../io/io.h"
-#include "../../kernel.h"
+#include "../../io/io.hpp"
+#include "../../kernel.hpp"
 
-#include "interface_device_ps2.h"
+#include "interface_device_ps2.hpp"
 
 
 namespace MOSS { namespace Input { namespace Devices {
