@@ -57,7 +57,7 @@ class InterfaceDevicePS2Mouse final : public InterfaceDevicePS2Base {
 		InterfaceDevicePS2Mouse(ControllerPS2* controller, int device_index, const DeviceType& device_type);
 		virtual ~InterfaceDevicePS2Mouse(void);
 
-		bool handle_irq(void) override;
+		virtual bool handle_irq(void) override;
 
 		void set_position(int x, int y);
 		void   click(int button_index);

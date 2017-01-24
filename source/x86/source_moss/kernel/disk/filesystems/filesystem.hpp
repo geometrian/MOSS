@@ -26,13 +26,13 @@ class ObjectBase {
 	protected:
 		inline ObjectBase(FileSystemBase* filesystem, char const* name, Type type) : filesystem(filesystem), name(name), type(type) {}
 	public:
-		inline virtual ~ObjectBase(void) {}
+		inline virtual ~ObjectBase(void) = default;
 };
 class ObjectFileBase : public ObjectBase {
 	protected:
 		inline ObjectFileBase(FileSystemBase* filesystem, char const* name) : ObjectBase(filesystem,name,TYPE_FILE) {}
 	public:
-		inline virtual ~ObjectFileBase(void) {}
+		inline virtual ~ObjectFileBase(void) = default;
 
 		virtual MOSST::Vector<uint8_t>* get_new_data(void) const = 0;
 };
@@ -66,6 +66,8 @@ class FileSystemBase {
 		}
 
 		virtual ObjectFileBase* open(char const* path) = 0;
+
+		virtual void print(void) const = 0;
 
 	/*private:
 		void _helper_print(ObjectDirectoryBase* directory, int depth) const;

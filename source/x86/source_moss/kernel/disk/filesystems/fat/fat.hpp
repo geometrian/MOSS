@@ -218,7 +218,7 @@ class FAT final {
 
 	public:
 		inline explicit FAT(FileSystemFAT* filesystem) : filesystem(filesystem) {}
-		inline ~FAT(void) {}
+		inline ~FAT(void) = default;
 
 	private:
 		uint16_t _get_next_cluster_number_fat12(LazySector*restrict fatsectors[2],uint32_t fatentry_offset, uint16_t cluster_number) const;
@@ -408,9 +408,9 @@ class ObjectFileFAT final : public ObjectFileBase {
 
 	public:
 		ObjectFileFAT(FileSystemFAT* filesystem, char const* name, uint32_t cluster_number, uint32_t file_size);
-		inline ~ObjectFileFAT(void) {}
+		inline ~ObjectFileFAT(void) = default;
 
-		MOSST::Vector<uint8_t>* get_new_data(void) const override;
+		virtual MOSST::Vector<uint8_t>* get_new_data(void) const override;
 };
 class ObjectDirectoryFAT final : public ObjectDirectoryBase {
 	private:
@@ -418,11 +418,11 @@ class ObjectDirectoryFAT final : public ObjectDirectoryBase {
 
 	public:
 		ObjectDirectoryFAT(FileSystemFAT* filesystem, char const* name, uint32_t cluster_number);
-		inline ~ObjectDirectoryFAT(void) {}
+		inline ~ObjectDirectoryFAT(void) = default;
 
-		void load_entries(void) override;
+		virtual void load_entries(void) override;
 
-		ObjectBase* get_child(MOSST::String const& child_name) const override;
+		virtual ObjectBase* get_child(MOSST::String const& child_name) const override;
 };
 
 class FileSystemFAT final : public FileSystemBase {
@@ -458,9 +458,14 @@ class FileSystemFAT final : public FileSystemBase {
 
 	public:
 		explicit FileSystemFAT(Partition* partition);
-		inline virtual ~FileSystemFAT(void) {}
+		inline virtual ~FileSystemFAT(void) = default;
 
-		ObjectFileBase* open(char const* path) override;
+		virtual ObjectFileBase* open(char const* path) override;
+
+	private:
+		void _print_recursive(ObjectDirectoryFAT* dir, int depth) const;
+	public:
+		virtual void print(void) const override;
 
 	private:
 		//Returns LBA of the first sector of the given cluster.
@@ -469,8 +474,6 @@ class FileSystemFAT final : public FileSystemBase {
 		uint32_t _sector_to_cluster(RelativeLBA sector) const;
 
 		void _fill_new_cluster_chain(MOSST::LinkedList<Chunk*>* clusters, uint32_t first_cluster_number);
-
-		void _print_recursive(ObjectDirectoryFAT* dir, int depth) const;
 };
 
 

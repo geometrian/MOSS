@@ -44,7 +44,7 @@ class ComponentBase {
 		Rect get_client_rect_world(void);
 		Rect get_component_rect_world(void);
 
-		virtual void draw(VESA::Framebuffer*/* framebuffer*/) {}
+		inline virtual void draw(VESA::Framebuffer*/* framebuffer*/) {}
 };
 
 

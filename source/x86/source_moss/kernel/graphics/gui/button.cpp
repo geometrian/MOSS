@@ -16,7 +16,6 @@ namespace MOSS { namespace Graphics { namespace GUI { namespace Buttons {
 ButtonBase::ButtonBase(ComponentBase* parent, const Rect& rect_button) : ComponentBase(parent,rect_button) {
 	hovering = false;
 }
-ButtonBase::~ButtonBase(void) {}
 
 bool ButtonBase::handle_mouse(const Input::Mouse::EventMouseMove& event) /*override*/ {
 	//Kernel::graphics->current_framebuffer->draw_text(200,30, "BUTTON HANDLING MOUSE!", Color(255,0,0));
@@ -34,17 +33,14 @@ bool ButtonBase::handle_mouse(const Input::Mouse::EventMouseMove& event) /*overr
 
 
 ButtonToggleBase::ButtonToggleBase(ComponentBase* parent, const Rect& rect_button, bool initial_state) : ButtonBase(parent,rect_button), state(initial_state) {}
-ButtonToggleBase::~ButtonToggleBase(void) {}
 
 
 ButtonSingleBase::ButtonSingleBase(ComponentBase* parent, const Rect& rect_button) : ButtonBase(parent,rect_button) {
 	selected = false;
 }
-ButtonSingleBase::~ButtonSingleBase(void) {}
 
 
 ButtonClose::ButtonClose(ComponentBase* parent) : ButtonSingleBase(parent,Rect(0,0,20,20)) {}
-ButtonClose::~ButtonClose(void) {}
 
 bool ButtonClose::handle_mouse(const Input::Mouse::EventMouseClick& event) /*override*/ {
 	if (!ComponentBase::handle_mouse(event)) {

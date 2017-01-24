@@ -14,7 +14,7 @@ class Color { public:
 		unsigned int rgba;
 	};
 
-	inline Color(void) {}
+	inline Color(void) = default;
 	inline Color(unsigned char r,unsigned char g,unsigned char b,unsigned char a=255) : r(r),g(g),b(b),a(a) {}
 
 	static Color blend(Color const& foreground, Color const& background) {

@@ -561,10 +561,6 @@ FileSystemFAT::FileSystemFAT(Partition* partition) : FileSystemBase(partition), 
 
 	root = new ObjectDirectoryFAT(this,"/",_sector_to_cluster(first_root_sector));
 	root->load_entries();
-
-	kernel->write_sys(2,"Printing filesystem:\n");
-	_print_recursive(static_cast<ObjectDirectoryFAT*>(root),0);
-	kernel->write_sys(2,"Done!\n");
 }
 
 ObjectFileBase* FileSystemFAT::open(char const* path) /*override*/ {
@@ -596,6 +592,30 @@ ObjectFileBase* FileSystemFAT::open(char const* path) /*override*/ {
 					name.insert_back(c);
 					goto LOOP_NAME;
 			}
+}
+
+void FileSystemFAT::_print_recursive(ObjectDirectoryFAT* dir, int depth) const {
+	//assert_term(depth<10,"Implementation error!");
+	if (!dir->is_loaded) dir->load_entries();
+
+	for (int i=0;i<dir->children.size;++i) {
+		ObjectBase* object = dir->children[i];
+		if (object->type==ObjectBase::TYPE_DIRECTORY) {
+			ObjectDirectoryFAT* dir2 = static_cast<ObjectDirectoryFAT*>(object);
+			if (!(dir2->name=="." || dir2->name=="..")) {
+				kernel->write_sys(depth+2,"\"%s\" (directory)\n",dir2->name.c_str());
+				_print_recursive(dir2,depth+1);
+			}
+		} else {
+			ObjectFileFAT* file = static_cast<ObjectFileFAT*>(object);
+			kernel->write_sys(depth+2,"\"%s\" (file)\n",file->name.c_str());
+		}
+	}
+}
+void FileSystemFAT::print(void) const /*override*/ {
+	kernel->write_sys(2,"Printing filesystem:\n");
+	_print_recursive(static_cast<ObjectDirectoryFAT*>(root),0);
+	kernel->write_sys(2,"Done!\n");
 }
 
 //TODO: inline?
@@ -633,25 +653,6 @@ void FileSystemFAT::_fill_new_cluster_chain(MOSST::LinkedList<Chunk*>* clusters,
 		}
 		//kernel->write("Missed %d\n",static_cast<int>(cluster_number));
 	#undef cluster_number
-}
-
-void FileSystemFAT::_print_recursive(ObjectDirectoryFAT* dir, int depth) const {
-	//assert_term(depth<10,"Implementation error!");
-	if (!dir->is_loaded) dir->load_entries();
-
-	for (int i=0;i<dir->children.size;++i) {
-		ObjectBase* object = dir->children[i];
-		if (object->type==ObjectBase::TYPE_DIRECTORY) {
-			ObjectDirectoryFAT* dir2 = static_cast<ObjectDirectoryFAT*>(object);
-			if (!(dir2->name=="." || dir2->name=="..")) {
-				kernel->write_sys(depth+2,"\"%s\" (directory)\n",dir2->name.c_str());
-				_print_recursive(dir2,depth+1);
-			}
-		} else {
-			ObjectFileFAT* file = static_cast<ObjectFileFAT*>(object);
-			kernel->write_sys(depth+2,"\"%s\" (file)\n",file->name.c_str());
-		}
-	}
 }
 
 

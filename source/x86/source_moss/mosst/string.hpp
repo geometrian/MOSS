@@ -12,11 +12,11 @@ class String final : public Vector<char> {
 	public:
 		inline String(void) : Vector() {}
 		String(char const* data); //Note not explicit
-		inline virtual ~String(void) {}
+		inline virtual ~String(void) = default;
 
 		String& operator=(String const& other);
 
-		void insert_back(char const& object) override;
+		virtual void insert_back(char const& object) override;
 
 		String operator+(String const& other);
 

@@ -175,7 +175,8 @@ extern "C" void kernel_entry(unsigned long magic, unsigned long addr) {
 		MSG1("Setting up file system:\n");
 		Disk::FileSystem::FileSystemFAT filesystem(disk.partitions[0]);
 		kernel->filesystem = &filesystem;
-		//kernel->filesystem->print();
+
+		kernel->filesystem->print();
 
 		/*Disk::FileSystem::ObjectFileBase* file = filesystem.open("/files/folder_a/folder_ab/file_aba.txt");
 		MOSST::Vector<uint8_t>* data = file->get_new_data();

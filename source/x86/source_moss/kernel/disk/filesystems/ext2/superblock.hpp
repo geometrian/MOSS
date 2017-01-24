@@ -130,7 +130,7 @@ class Superblock final {
 
 	public:
 		explicit Superblock(FileSystemExt2* filesystem);
-		~Superblock(void);
+		inline ~Superblock(void)= default;
 
 		void print(void) const;
 };

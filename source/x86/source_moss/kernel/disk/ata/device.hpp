@@ -32,7 +32,7 @@ class Device final {
 
 	public:
 		Device(Bus* bus, int index);
-		inline ~Device(void) {}
+		inline ~Device(void) = default;
 
 		void fill_information(void);
 

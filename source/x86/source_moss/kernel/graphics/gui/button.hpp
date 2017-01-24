@@ -21,9 +21,9 @@ class ButtonBase : public ComponentBase {
 	protected:
 		ButtonBase(ComponentBase* parent, const Rect& rect_button);
 	public:
-		virtual ~ButtonBase(void);
+		inline virtual ~ButtonBase(void) = default;
 
-		bool handle_mouse(const Input::Mouse::EventMouseMove& event) override;
+		virtual bool handle_mouse(const Input::Mouse::EventMouseMove& event) override;
 };
 class ButtonToggleBase : public ButtonBase {
 	private:
@@ -32,7 +32,7 @@ class ButtonToggleBase : public ButtonBase {
 	protected:
 		ButtonToggleBase(ComponentBase* parent, const Rect& rect_button, bool initial_state);
 	public:
-		virtual ~ButtonToggleBase(void);
+		inline virtual ~ButtonToggleBase(void) = default;
 };
 class ButtonSingleBase : public ButtonBase {
 	protected:
@@ -40,16 +40,16 @@ class ButtonSingleBase : public ButtonBase {
 	protected:
 		ButtonSingleBase(ComponentBase* parent, const Rect& rect_button);
 	public:
-		virtual ~ButtonSingleBase(void);
+		inline virtual ~ButtonSingleBase(void) = default;
 };
 class ButtonClose : public ButtonSingleBase {
 	public:
 		ButtonClose(ComponentBase* parent);
-		virtual ~ButtonClose(void);
+		inline virtual ~ButtonClose(void) = default;
 
-		bool handle_mouse(const Input::Mouse::EventMouseClick& event) override;
+		virtual bool handle_mouse(const Input::Mouse::EventMouseClick& event) override;
 
-		void draw(VESA::Framebuffer* framebuffer) override;
+		virtual void draw(VESA::Framebuffer* framebuffer) override;
 };
 
 

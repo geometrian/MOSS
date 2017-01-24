@@ -69,7 +69,7 @@ class BlockGroup final {
 
 
 		}
-		inline ~BlockGroup(void) {}
+		inline ~BlockGroup(void) = default;
 };
 
 

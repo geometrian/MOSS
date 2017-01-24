@@ -49,9 +49,9 @@ class Bus final {
 				uint8_t byte;
 			};
 
-			inline _StatusByte(void) {}
+			inline _StatusByte(void) = default;
 			inline _StatusByte(uint8_t value) : byte(value) {}
-			inline ~_StatusByte(void) {}
+			inline ~_StatusByte(void) = default;
 
 			void print(void) const;
 		} __attribute__((packed));

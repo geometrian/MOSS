@@ -39,7 +39,7 @@ class LazySector final {
 	private:
 		LazySector(HardDiskDrive* drive, Partition* partition, AbsoluteLBA lba);
 	public:
-		inline ~LazySector(void) {} //TODO: should write back data to disk!
+		inline ~LazySector(void) = default; //TODO: should write back data to disk!
 
 		LazySector* get_previous(void) const;
 		LazySector*     get_next(void) const;
@@ -80,7 +80,7 @@ class Partition final {
 
 	public:
 		inline Partition(HardDiskDrive* drive, PartitionTableEntry* entry,int index) : drive(drive), entry(entry),index(index) {}
-		inline ~Partition(void) {}
+		inline ~Partition(void) = default;
 
 		LazySector* operator[](RelativeLBA lba) const;
 

@@ -39,7 +39,7 @@ class InterfaceDevicePS2Keyboard final : public InterfaceDevicePS2Base {
 		InterfaceDevicePS2Keyboard(ControllerPS2* controller, int device_index, DeviceType const& device_type);
 		virtual ~InterfaceDevicePS2Keyboard(void);
 
-		bool handle_irq(void) override;
+		virtual bool handle_irq(void) override;
 
 		bool get_shift_state(void) const;
 

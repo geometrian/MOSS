@@ -31,7 +31,6 @@ Superblock::Superblock(FileSystemExt2* filesystem) : filesystem(filesystem) {
 		num_blockgroups = num_blockgroups1;
 	}
 }
-Superblock::~Superblock(void) {}
 
 void Superblock::print(void) const {
 	kernel->write("Superblock (Ext2 %u.%d):\n",data.revision_major,static_cast<int>(data.revision_minor));

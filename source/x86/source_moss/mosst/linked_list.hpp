@@ -58,7 +58,7 @@ template <typename type> class LinkedList final {
 				int const _direction;
 			public:
 				inline Iterator(LinkedList const* parent,Node* current,int direction) : _parent(parent),_current(current),_direction(direction) {}
-				inline ~Iterator(void) {}
+				inline ~Iterator(void) = default;
 
 				//Note providing prefix operations only
 				inline void operator--(void) { assert_term(_current!=nullptr,"Invalid decrement!"); _current=_direction==1?_current->prev:_current->next; }

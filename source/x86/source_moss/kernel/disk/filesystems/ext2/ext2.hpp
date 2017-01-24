@@ -44,8 +44,8 @@ uint32_t get_blockgroup(Superblock const* superblock, addrinode addr) {
 			uint16_t num_directories;
 			uint8_t unused[32-18];
 
-			inline BlockGroupDescriptor(void) {}
-			inline ~BlockGroupDescriptor(void) {}
+			inline BlockGroupDescriptor(void) = default;
+			inline ~BlockGroupDescriptor(void) = default;
 		} __attribute__((packed));
 		static_assert(sizeof(BlockGroupDescriptor)==32,"Block group descriptor is the wrong size!");
 		BlockGroupDescriptor* groups;

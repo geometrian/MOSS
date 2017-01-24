@@ -86,7 +86,7 @@ class SpecifierBase {
 			#undef FAIL
 		}
 	public:
-		inline virtual ~SpecifierBase(void) {}
+		inline virtual ~SpecifierBase(void) = default;
 
 	public:
 		virtual char* write(char* buffer) = 0;
@@ -271,7 +271,7 @@ class SpecifierIntegralBase : public SpecifierBase {
 			if (precision>20) valid=false; //That's larger than any integer, and would cause a problem with the 20 char buffer in .write_uint(...)!
 		}
 	public:
-		inline virtual ~SpecifierIntegralBase(void) {}
+		inline virtual ~SpecifierIntegralBase(void) = default;
 
 	protected:
 		char* write_udec(char* buffer, uint64_t value) const {
@@ -324,7 +324,7 @@ class SpecifierSignedDec final : public SpecifierIntegralBase {
 		SpecifierSignedDec(va_list* args, char const* specifier_str,int specifier_length) : SpecifierIntegralBase(args, specifier_str,specifier_length) {
 			if (flag_hash) valid=false;
 		}
-		inline virtual ~SpecifierSignedDec(void) {}
+		inline virtual ~SpecifierSignedDec(void) = default;
 
 		char* write(char* buffer) override {
 			int value = va_arg(*args,int);
@@ -338,7 +338,7 @@ class SpecifierUnsignedDec final : public SpecifierIntegralBase {
 		SpecifierUnsignedDec(va_list* args, char const* specifier_str,int specifier_length) : SpecifierIntegralBase(args, specifier_str,specifier_length) {
 			if (flag_hash) valid=false;
 		}
-		inline virtual ~SpecifierUnsignedDec(void) {}
+		inline virtual ~SpecifierUnsignedDec(void) = default;
 
 		char* write(char* buffer) override {
 			unsigned int value = va_arg(*args,unsigned int);
@@ -352,7 +352,7 @@ class SpecifierUnsignedHex final : public SpecifierIntegralBase {
 		SpecifierUnsignedHex(va_list* args, char const* specifier_str,int specifier_length) : SpecifierIntegralBase(args, specifier_str,specifier_length) {
 			if (flag_hash) valid=false;
 		}
-		inline virtual ~SpecifierUnsignedHex(void) {}
+		inline virtual ~SpecifierUnsignedHex(void) = default;
 
 		char* write(char* buffer) override {
 			unsigned int value = va_arg(*args,unsigned int);
@@ -368,7 +368,7 @@ class SpecifierPointer final : public SpecifierIntegralBase {
 			else if (flag_hash) valid=false;
 			else if (precision!=-1) valid=false;
 		}
-		inline virtual ~SpecifierPointer(void) {}
+		inline virtual ~SpecifierPointer(void) = default;
 
 		char* write(char* buffer) override {
 			void* value = va_arg(*args,void*);
@@ -398,7 +398,7 @@ class SpecifierCharacter final : public SpecifierBase {
 			else if (flag_hash) valid=false;
 			else if (precision!=-1) valid=false;
 		}
-		inline virtual ~SpecifierCharacter(void) {}
+		inline virtual ~SpecifierCharacter(void) = default;
 
 		char* write(char* buffer) override {
 			char value = (int)(va_arg(*args,int));
@@ -419,7 +419,7 @@ class SpecifierString final : public SpecifierBase {
 			else if (flag_hash) valid=false;
 			else if (precision!=-1) valid=false;
 		}
-		inline virtual ~SpecifierString(void) {}
+		inline virtual ~SpecifierString(void) = default;
 
 		char* write(char* buffer) override {
 			char* value = va_arg(*args,char*);
@@ -443,7 +443,7 @@ class SpecifierFloat final : public SpecifierBase {
 		SpecifierFloat(va_list* args, char const* specifier_str,int specifier_length) : SpecifierBase(args, specifier_str,specifier_length) {
 			if (precision==-1) precision = 6;
 		}
-		inline virtual ~SpecifierFloat(void) {}
+		inline virtual ~SpecifierFloat(void) = default;
 
 		char* write(char* buffer) override {
 			double value = va_arg(*args,double);
