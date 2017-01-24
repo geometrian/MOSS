@@ -6,14 +6,14 @@
 namespace MOSS { namespace Interrupts {
 
 
-void disable_hw_int(void) {
+inline void disable_hw_int(void) {
 	__asm__ __volatile__("cli");
 }
-void enable_hw_int(void) {
+inline void enable_hw_int(void) {
 	__asm__ __volatile__("sti");
 }
 
-/*void fire(int n) {
+/*inline void fire(int n) {
 	//Adapted from http://www.brokenthorn.com/Resources/OSDev15.html
 	//Self-modifying code!
 	asm(
@@ -27,7 +27,7 @@ void enable_hw_int(void) {
 	:"%al" //clobbered
 	);
 }*/
-void fire_int13h(void) {
+inline void fire_int13h(void) {
 	__asm__ __volatile__("int  $0x13");
 }
 
