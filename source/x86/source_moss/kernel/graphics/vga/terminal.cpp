@@ -116,6 +116,8 @@ void Terminal::set_color(Color color_text, Color color_bg) {
 }
 
 void Terminal::write(char c, size_t x,size_t y) {
+	static_assert(sizeof(char)==1,"Implementation error!");
+
 	size_t index = y*_device->cols + x;
 
 	uint16_t c16 = c;

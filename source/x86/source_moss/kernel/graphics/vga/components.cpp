@@ -578,7 +578,7 @@ void Device::_set_use_font(uint8_t const* font_buffer, size_t font_height) {
 
 	//Select normal plane
 	//graphics_controller.set_planes_read(0b0001);
-	sequencer.set_planes_write(0b0001);
+	sequencer.set_planes_write(0b0011);
 
 	//Turn even/odd addressing back on
 	//fields.OEHostMem = 0b101;
