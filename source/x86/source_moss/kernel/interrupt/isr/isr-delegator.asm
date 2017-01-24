@@ -1,19 +1,19 @@
 ;The ISRs are defined in this file.
 
 ;Note: this file's code is heavily based on http://www.osdever.net/bkerndev/Docs/isrs.htm.  Differences are noted.  See also
-;http://www.acm.uiuc.edu/sigops/roll_your_own/i386/idt.html
+;	http://www.acm.uiuc.edu/sigops/roll_your_own/i386/idt.html
 
 ;Ideally, we'd have a separate ISR entry point for each interrupt vector, each calling the corresponding C handler.  However, this
-;is complicated by the fact that some interrupts push error codes and some do not.  The error code, if it exists, must be popped
-;off the stack before the "iret" instruction (see http://stackoverflow.com/questions/491613/return-from-interrupts-in-x86).  This
-;makes it very difficult if not impossible to call the major section of the ISR (that sets up information and calls the handler)
-;in a separate routine.  One could duplicate all that code, but there are 256 ISRs to make.  It seems like a waste, even if it
-;might be more direct.
+;	is complicated by the fact that some interrupts push error codes and some do not.  The error code, if it exists, must be popped
+;	off the stack before the "iret" instruction (see http://stackoverflow.com/questions/491613/return-from-interrupts-in-x86).  This
+;	makes it very difficult if not impossible to call the major section of the ISR (that sets up information and calls the handler)
+;	in a separate routine.  One could duplicate all that code, but there are 256 ISRs to make.  It seems like a waste, even if it
+;	might be more direct.
 
 ;Some sources (e.g. the link above) recommend pushing a dummy byte in the cases where the CPU does not do so automatically itself,
-;thus simplifying all the ISRs enough to call a common routine, which calls a common C++ handler (which then delegates the interrupt
-;to another, appropriate C++ specific handler) and then finishes up.  This mechanism is adopted here since it is ultimately the
-;cleanest.
+;	thus simplifying all the ISRs enough to call a common routine, which calls a common C++ handler (which then delegates the interrupt
+;	to another, appropriate C++ specific handler) and then finishes up.  This mechanism is adopted here since it is ultimately the
+;	cleanest.
 
 ;Each ISR:
 ;	--Pushes a dummy error code iff a genuine one was not.
@@ -41,7 +41,7 @@
 		push  dword %1 ;interrupt index
 		push  dword 0xABCD1234 ;debug marker
 		;xchg  bx, bx   ;Bochs magic breakpoint
-		jmp   common_subroutine
+		jmp   isr_delegator_asm
 %endmacro
 ;ISR that DOES pass its own error code
 %macro ISR_ERROR 1
@@ -53,10 +53,10 @@
 		push  dword %1 ;interrupt index
 		push  dword 0xDEADBEEF ;debug marker
 		;xchg  bx, bx   ;Bochs magic breakpoint
-		jmp   common_subroutine
+		jmp   isr_delegator_asm
 %endmacro
 
-common_subroutine:
+isr_delegator_asm:
 	pusha
 	push   ds
 	push   es
@@ -79,8 +79,8 @@ common_subroutine:
 
 	;However, the more likely reason is that the call must use absolute addressing instead of eip-relative addressing.  That also explains why the
 	;calling procedure is two instructions instead of the obvious "call  isr%1".  See also http://forum.osdev.org/viewtopic.php?f=1&t=11304.
-	extern isr_common
-	mov   eax, isr_common
+	extern isr_delegator_cpp
+	mov   eax, isr_delegator_cpp
 	call  eax
 
 	pop  eax

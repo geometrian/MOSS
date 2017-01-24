@@ -17,7 +17,7 @@
 #include "input/devices/controller_ps2.h"
 
 #include "interrupt/idt.h"
-#include "interrupt/irq_isr.h"
+//#include "interrupt/isr.h"
 #include "interrupt/misc.h"
 #include "interrupt/pic.h"
 
@@ -137,8 +137,8 @@ extern "C" void kernel_entry(unsigned long magic, unsigned long addr) {
 		MSG1("Setting up interrupts:\n");
 		MSG2("Loading IDT\n");
 		MOSS::Interrupts::load_idt();
-		MSG2("Setting up IRQs\n");
-		MOSS::Interrupts::init_irqs();
+		//MSG2("Setting up ISRs\n");
+		//MOSS::Interrupts::init_isrs();
 		MSG2("Remapping PIC\n\n");
 		MOSS::Interrupts::PIC::remap(32,40);
 	#endif

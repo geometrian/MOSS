@@ -76,6 +76,9 @@
     <Filter Include="source_moss\kernel\graphics\vga">
       <UniqueIdentifier>{305cc36a-0dc8-4390-8773-054c804c41b8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="source_moss\kernel\interrupt\isr">
+      <UniqueIdentifier>{9fd2aedc-d5e1-4c2c-ba50-979f80566118}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\source_moss\kernel\graphics\gui\button.cpp">
@@ -186,9 +189,6 @@
     <ClCompile Include="..\source_moss\kernel\misc.cpp">
       <Filter>source_moss\kernel</Filter>
     </ClCompile>
-    <ClCompile Include="..\source_moss\kernel\interrupt\irq_isr.cpp">
-      <Filter>source_moss\kernel\interrupt</Filter>
-    </ClCompile>
     <ClCompile Include="..\source_moss\kernel\disk\filesystems\ext2\block.cpp">
       <Filter>source_moss\kernel\disk\filesystems\ext2</Filter>
     </ClCompile>
@@ -227,6 +227,12 @@
     </ClCompile>
     <ClCompile Include="..\source_moss\kernel\serial.cpp">
       <Filter>source_moss\kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source_moss\kernel\interrupt\isr\isr-delegator.cpp">
+      <Filter>source_moss\kernel\interrupt\isr</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source_moss\kernel\interrupt\isr\isrs.cpp">
+      <Filter>source_moss\kernel\interrupt\isr</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -377,9 +383,6 @@
     <ClInclude Include="..\source_moss\kernel\misc.h">
       <Filter>source_moss\kernel</Filter>
     </ClInclude>
-    <ClInclude Include="..\source_moss\kernel\interrupt\irq_isr.h">
-      <Filter>source_moss\kernel\interrupt</Filter>
-    </ClInclude>
     <ClInclude Include="..\source_moss\kernel\disk\filesystems\ext2\block.h">
       <Filter>source_moss\kernel\disk\filesystems\ext2</Filter>
     </ClInclude>
@@ -431,6 +434,12 @@
     <ClInclude Include="..\source_moss\kernel\serial.h">
       <Filter>source_moss\kernel</Filter>
     </ClInclude>
+    <ClInclude Include="..\source_moss\kernel\interrupt\isr\isr-delegator.h">
+      <Filter>source_moss\kernel\interrupt\isr</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\kernel\interrupt\isr\isrs.h">
+      <Filter>source_moss\kernel\interrupt\isr</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\source_moss\kernel\boot\boot.asm">
@@ -475,8 +484,8 @@
     <None Include="..\source_moss\linker.ld">
       <Filter>source_moss</Filter>
     </None>
-    <None Include="..\source_moss\kernel\interrupt\irq_isr.asm">
-      <Filter>source_moss\kernel\interrupt</Filter>
+    <None Include="..\source_moss\kernel\interrupt\isr\isr-delegator.asm">
+      <Filter>source_moss\kernel\interrupt\isr</Filter>
     </None>
   </ItemGroup>
 </Project>

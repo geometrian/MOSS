@@ -40,8 +40,6 @@ class regs16_t final { public:
 
 
 //http://www.rohitab.com/discuss/topic/35103-switch-between-real-mode-and-protected-mode/
-
-//tell compiler our int32 function is external
 extern "C" void int32(unsigned char intnum, regs16_t* regs);
 
 /*//int32 test
