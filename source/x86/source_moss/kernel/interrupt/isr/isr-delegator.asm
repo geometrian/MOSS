@@ -17,8 +17,8 @@
 
 ;Each ISR:
 ;	--Pushes a dummy error code iff a genuine one was not.
-;	--Jumps to the common subroutine
-;The subroutine:
+;	--Jumps to the common subroutine "isr_delegator_asm"
+;The subroutine "isr_delegator_asm":
 ;	--Pushes the interrupt number (ultimately for the common C++ handler's benefit)
 ;	--Pushes some key information, including the general purpose registers and the segment registers.  The purpose of the latter
 ;	  seems to be to allow the C++ specific interrupt handler to know whether the originator came from the kernel or userland?
@@ -28,7 +28,7 @@
 
 ;Note: not enabling/disabling hardware interrupts with "sti"/"cli" is intentional.  See the notes for this section.
 
-;TODO: remove debugging markers (and in isr.cpp)
+;TODO: remove debugging markers (and in "types.hpp"'s "InterruptState")
 
 
 ;ISR that DOES NOT pass its own error code
@@ -74,11 +74,11 @@ isr_delegator_asm:
 	push  eax
 
 	;The link above that all this is heavily based on claims that this is a special instruction that doesn't change "eip".  Since "call" is equivalent
-	;to "push ret_addr\njmp func" (http://stackoverflow.com/questions/7060970/substitutes-for-x86-assembly-call-instruction), and "jmp" ought to change
-	;"eip", I don't see how that's possible.  Granted, the *net* effect of this instruction is nothing on "eip"?
+	;	to "push ret_addr\njmp func" (http://stackoverflow.com/questions/7060970/substitutes-for-x86-assembly-call-instruction), and "jmp" ought to change
+	;	"eip", I don't see how that's possible.  Granted, the *net* effect of this instruction is nothing on "eip"?
 
 	;However, the more likely reason is that the call must use absolute addressing instead of eip-relative addressing.  That also explains why the
-	;calling procedure is two instructions instead of the obvious "call  isr%1".  See also http://forum.osdev.org/viewtopic.php?f=1&t=11304.
+	;	calling procedure is two instructions instead of the obvious "call  isr%1".  See also http://forum.osdev.org/viewtopic.php?f=1&t=11304.
 	extern isr_delegator_cpp
 	mov   eax, isr_delegator_cpp
 	call  eax
@@ -122,7 +122,7 @@ ISR_NOERROR 16
 ISR_NOERROR 17
 ISR_NOERROR 18
 ISR_NOERROR 19
-;	ISRs [20,31] are Intel-reserved (and are currently considered fatal; see isr.cpp)
+;	ISRs [20,31] are Intel-reserved (and are currently considered fatal; see "isrs.hpp")
 %assign i 20
 %rep    12
 	ISR_NOERROR i

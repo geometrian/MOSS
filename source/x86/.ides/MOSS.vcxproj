@@ -113,6 +113,7 @@
     <ClInclude Include="..\source_moss\kernel\interrupt\int32.hpp" />
     <ClInclude Include="..\source_moss\kernel\interrupt\isr\isr-delegator.hpp" />
     <ClInclude Include="..\source_moss\kernel\interrupt\isr\isrs.hpp" />
+    <ClInclude Include="..\source_moss\kernel\interrupt\isr\types.hpp" />
     <ClInclude Include="..\source_moss\kernel\interrupt\misc.hpp" />
     <ClInclude Include="..\source_moss\kernel\interrupt\pic.hpp" />
     <ClInclude Include="..\source_moss\kernel\io\io.hpp" />

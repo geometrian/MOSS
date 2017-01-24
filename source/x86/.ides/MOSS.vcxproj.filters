@@ -446,6 +446,9 @@
     <ClInclude Include="..\source_moss\kernel\process\process.hpp">
       <Filter>source_moss\kernel\process</Filter>
     </ClInclude>
+    <ClInclude Include="..\source_moss\kernel\interrupt\isr\types.hpp">
+      <Filter>source_moss\kernel\interrupt\isr</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\source_moss\kernel\boot\boot.asm">

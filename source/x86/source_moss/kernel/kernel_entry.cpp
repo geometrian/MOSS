@@ -115,12 +115,6 @@ extern "C" void kernel_entry(unsigned long magic, unsigned long addr) {
 
 	//terminal.interface.crtc.set_mode(Graphics::VGA::CathodeRayTubeController::Mode::text132x60);
 
-	//terminal.interface.set_use_font(Graphics::Font::font8x8);
-	//terminal.interface.dump_registers();
-	//terminal.interface.set_use_font(Graphics::Font::font8x8);
-	//terminal.interface.crtc.set_mode(Graphics::VGA::CathodeRayTubeController::Mode::text128x80);
-	//terminal.interface.dump_registers();
-
 	#define MSG0(MESSAGE) kernel->write_sys(0,MESSAGE)
 	#define MSG1(MESSAGE) kernel->write_sys(1,MESSAGE)
 	#define MSG2(MESSAGE) kernel->write_sys(2,MESSAGE)
@@ -176,25 +170,26 @@ extern "C" void kernel_entry(unsigned long magic, unsigned long addr) {
 		Disk::FileSystem::FileSystemFAT filesystem(disk.partitions[0]);
 		kernel->filesystem = &filesystem;
 
-		kernel->filesystem->print();
+		//kernel->filesystem->print();
 
 		/*Disk::FileSystem::ObjectFileBase* file = filesystem.open("/files/folder_a/folder_ab/file_aba.txt");
 		MOSST::Vector<uint8_t>* data = file->get_new_data();
 		delete data;*/
 	#endif
 
-	//kernel->terminal->interface.dump_registers();
-
-	kernel->write("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789`~!@#$%%^&*()-_=+\\|");
+	//kernel->write("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789`~!@#$%%^&*()-_=+\\|");
 	while (true);
 
-	/*kernel->write("float a\n");
-	float a = 1.0f;
-	kernel->write("float b\n");
-	float b = 255.0f;
-	kernel->write("float c\n");
-	float c = a / b;
-	kernel->write("float success!\n"); while (true);*/
+	#if 0
+		kernel->write("float a\n");
+		float a = 1.0f;
+		kernel->write("float b\n");
+		float b = 255.0f;
+		kernel->write("float c\n");
+		float c = a / b;
+		kernel->write("float success!\n");
+		while (true);
+	#endif
 
 	/*terminal->write("Test firing . . .\n");
 	MOSS::Interrupts::fire_int13h();

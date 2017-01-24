@@ -8,13 +8,13 @@
 namespace MOSS { namespace Interrupts {
 
 
-void isr_delegator_cpp(State const* state) {
+void isr_delegator_cpp(InterruptState const* state) {
 	//MOSS_DEBUG_BOCHSBREAK;
 
 	//See sign-extending about unsigned bytes here: http://forum.osdev.org/viewtopic.php?f=1&t=23998&sid=98cd3b1e6b1256f0dbdb0885e84ba05f&start=15.
 	//	Shouldn't be an issue since everything pushed is 32 bits.
 
-	uint32_t which = state->int_ind;
+	uint32_t which = state->int_index;
 
 	/*kernel->write("Received interrupt:\n");
 	kernel->write("  Interrupt index: %d\n",state->int_ind);
@@ -83,15 +83,9 @@ void isr_delegator_cpp(State const* state) {
 	} else {
 		assert_term(which<=19,"Got interrupt from Intel reserved area!");
 		switch (which) {
-			#define ERRORCODE_ISR_CASE(I,TYPE) case I: {\
-				union {\
-					uint32_t data;\
-					TYPE code;\
-				} convert;\
-				convert.data = state->err_code;\
-				isr##I(convert.code);\
-				break;\
-			}
+			#define ERRORCODE_ISR_CASE(I,TYPE) case I:\
+				isr##I(state->error_code.TYPE);\
+				break;
 			case  0:  isr0(); break;
 			case  1:  isr1(); break;
 			case  2:  isr2(); break;
@@ -100,16 +94,16 @@ void isr_delegator_cpp(State const* state) {
 			case  5:  isr5(); break;
 			case  6:  isr6(); break;
 			case  7:  isr7(); break;
-			ERRORCODE_ISR_CASE( 8,  ErrorCode)
+			ERRORCODE_ISR_CASE( 8,  standard)
 			case  9:  isr9(); break;
-			ERRORCODE_ISR_CASE(10,  ErrorCode)
-			ERRORCODE_ISR_CASE(11,  ErrorCode)
-			ERRORCODE_ISR_CASE(12,  ErrorCode)
-			ERRORCODE_ISR_CASE(13,  ErrorCode)
-			ERRORCODE_ISR_CASE(14,ErrorCodePF)
+			ERRORCODE_ISR_CASE(10,  standard)
+			ERRORCODE_ISR_CASE(11,  standard)
+			ERRORCODE_ISR_CASE(12,  standard)
+			ERRORCODE_ISR_CASE(13,  standard)
+			ERRORCODE_ISR_CASE(14,page_fault)
 			case 15: isr15(); break;
 			case 16: isr16(); break;
-			ERRORCODE_ISR_CASE(17,  ErrorCode)
+			ERRORCODE_ISR_CASE(17,  standard)
 			case 18: isr18(); break;
 			case 19: isr19(); break;
 			#undef ERRORCODE_ISR_CASE
