@@ -16,8 +16,8 @@ Do all of the above: (`./scripts/all.sh`).
 
 ## Running
 
-MOSS supports running in a variety of virtualization environments as well as on USB-bootable
-hardware.  [For more about VM environments supported by MOSS](../../VMs/README.md).
+MOSS runs in a variety of virtualization environments as well as on USB-bootable hardware.
+[For more about VM environments supported by MOSS](../../VMs/README.md).
 
 - `./_run_bochs.py`: Runs an already-built MOSS image on the system's Bochs emulator.
 - `./_run_bochsdbg.py`: Runs an already-built MOSS image on the system's Bochs emulator, using

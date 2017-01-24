@@ -5,8 +5,9 @@ Once, in college, I woke up in the middle of the night and realized I had to wri
 system.  No delusions, mind, it would almost certainly remain a hobbyist endeavor.  I'd be happy
 if I could get anything working.
 
-Since then, MOSS has matured, but still lives up to its acronym: the Minimal Operating System
-that Sucks.
+The initial result became an open-source project on Google Code
+([here](https://code.google.com/archive/p/ianmallett-moss/)), and since then, MOSS has matured
+still further.  But still lives up to its acronym: the Minimal Operating System that Sucks.
 
 ## Setup
 
@@ -14,7 +15,7 @@ that Sucks.
 
 1. Update/upgrade everything
 (`sudo apt-get update`/`sudo apt-get upgrade`/`sudo apt-get dist-upgrade`)
-2. Install misc. necessary packages: `sudo apt-get install build-essential git nasm kpartx grub`
+2. Install misc. necessary packages: `sudo apt-get install build-essential nasm git kpartx grub`
 2. In a folder somewhere, check out `MOSS`.  E.g.:
 `cd ~; git clone https://github.com/imallett/MOSS`.
 3. [Set up a cross-compiler](cross/README.md).
@@ -30,7 +31,7 @@ handle both an e.g. Ubuntu 16.10 MATE installation and a GCC compile.  I recomme
 ensuring that there's no swap file eating half of it.
 2. Update/upgrade everything
 (`sudo apt-get update`/`sudo apt-get upgrade`/`sudo apt-get dist-upgrade`)
-3. Install misc. necessary packages: `sudo apt-get install build-essential git nasm kpartx grub`
+3. Install misc. necessary packages: `sudo apt-get install build-essential nasm git kpartx grub`
 4. Insert guest-additions CD into VM and follow the autorun prompt.
 5. Add yourself to share folders: `sudo adduser <username> vboxsf`
 6. Create a shared folder.

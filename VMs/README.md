@@ -22,7 +22,7 @@ MOSS runs well here.  Recommended.
 2. Create a new VM (name: `MOSS`, Type: `Other`, Version: `Other/Unknown`; _not_ 64-bit).  It
 doesn't need much RAM.  64MB should be plenty.  Use an existing virtual hard disk file, and point
 it to the disk the build created: `VMs/MOSS-disk-flat.vmdk`.
-3. Start the VM.
+3. Start the VM (click on it or run `source/x86/_run_virtualbox.py`)
 
 ### Setup (Windows):
 
