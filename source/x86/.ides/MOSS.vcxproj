@@ -121,6 +121,7 @@
     <ClInclude Include="..\source_moss\kernel\memory\simple.hpp" />
     <ClInclude Include="..\source_moss\kernel\kernel_entry.hpp" />
     <ClInclude Include="..\source_moss\kernel\misc.hpp" />
+    <ClInclude Include="..\source_moss\kernel\process\process.hpp" />
     <ClInclude Include="..\source_moss\kernel\serial.hpp" />
     <ClInclude Include="..\source_moss\mossc\math.h" />
     <ClInclude Include="..\source_moss\mossc\math\trig.hpp" />

@@ -79,6 +79,9 @@
     <Filter Include="source_moss\kernel\interrupt\isr">
       <UniqueIdentifier>{9fd2aedc-d5e1-4c2c-ba50-979f80566118}</UniqueIdentifier>
     </Filter>
+    <Filter Include="source_moss\kernel\process">
+      <UniqueIdentifier>{ebf482ee-d504-47cf-bd0e-8bb2e46045fe}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\source_moss\kernel\graphics\gui\button.cpp">
@@ -439,6 +442,9 @@
     </ClInclude>
     <ClInclude Include="..\source_moss\includes.hpp">
       <Filter>source_moss</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source_moss\kernel\process\process.hpp">
+      <Filter>source_moss\kernel\process</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
