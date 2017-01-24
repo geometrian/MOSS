@@ -4,14 +4,22 @@
 namespace MOSS { namespace Interrupts {
 
 
-//IDT Entry or "gate".  Types can be interrupt gate, task gate, trap gate.
-//	The key difference between an interrupt gate and a trap gate is that interrupt gates disable interrupts before processing.
-//	When an interrupt fires, the entry is used to jump to the appropriate handler function.  For interrupt/trap gates, the offset
-//		and selector are the address of this function in the GDT or LDT.  Specifically, the selector should refer to the code
-//		segment where the handler function resides in the GDT, and the offset is where that function is within.  For task gates,
-//		the offset is not used and the selector is the TSS selector.
-//	See http://www.brokenthorn.com/Resources/OSDev15.html
-//	See http://wiki.osdev.org/IDT
+//ASM helper that actually loads the table.
+extern "C" void _lidt(uint32_t base, size_t limit);
+
+
+/*
+IDT Entry or "gate".
+	See:
+		http://www.brokenthorn.com/Resources/OSDev15.html
+		http://wiki.osdev.org/IDT
+	Types can be one of {interrupt gate, task gate, trap gate}.
+	The key difference between an interrupt gate and a trap gate is that interrupt gates disable interrupts before processing.
+	When an interrupt fires, the entry is used to jump to the appropriate handler function.  For interrupt/trap gates, the offset
+		and selector are the address of this function in the GDT or LDT.  Specifically, the selector should refer to the code
+		segment where the handler function resides in the GDT, and the offset is where that function is within.  For task gates,
+		the offset is not used and the selector is the TSS selector.
+*/
 class EntryIDT final {
 	private:
 		uint32_t      _offset_low : 16; //See above
@@ -104,14 +112,13 @@ MOSS_INTERRUPT(ISR_ASM)
 
 static EntryIDT idt_entries[256];
 void load_idt(void) {
-	uint32_t base  = (uint32_t)(&idt_entries);
-	uint16_t limit = sizeof(EntryIDT)*256 - 1;
-
 	#define IDT_SET_GATE(N) EntryIDT::construct(idt_entries+N, (uint32_t)(isr##N##_asm), EntryIDT::Type::TypeByte::Interrupt32, 0);
 	MOSS_INTERRUPT(IDT_SET_GATE)
 	#undef IDT_SET_GATE
 
-	idt_lidt(base,limit);
+	uint32_t base  = (uint32_t)(&idt_entries);
+	uint16_t limit = sizeof(EntryIDT)*256 - 1;
+	_lidt(base,limit);
 }
 
 

@@ -6,12 +6,14 @@
 namespace MOSS { namespace Memory {
 
 
-extern "C" void gdt_lgdt(uint32_t base, size_t limit); //ASM routine
-
-//Note that this function ought to be called with hardware interrupts disabled; if an interrupt fires while in progress . . .
+//Load the global descriptor table (GDT), which describes memory layout to the CPU.  See ".cpp"
+//	file for more info.  Note: this function ought to be called with hardware interrupts
+//	disabled.
 void load_gdt(void);
 
 
+//Loading a selector into a segment register automatically reads the GDT and stores its properties
+//	inside the processor itself.
 extern "C" void reload_segments(void); //ASM routine
 
 

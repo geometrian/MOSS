@@ -1,14 +1,14 @@
-idt_ptr:
+_idt_ptr:
 	dw  0 ;For limit storage
 	dd  0 ;For base storage
 
-global idt_lidt
-idt_lidt:
+global _lidt
+_lidt:
 	mov  eax, [esp + 4]
-	mov  [idt_ptr + 2], eax
+	mov  [_idt_ptr + 2], eax
 	mov  ax, [esp + 8]
-	mov  [idt_ptr], ax
+	mov  [_idt_ptr], ax
 
-	lidt  [idt_ptr]
+	lidt  [_idt_ptr]
 
 	ret

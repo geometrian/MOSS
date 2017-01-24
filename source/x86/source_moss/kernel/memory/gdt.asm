@@ -1,21 +1,21 @@
-gdt_ptr:
+_gdt_ptr:
 	dw  0 ;For limit storage
 	dd  0 ;For base storage
 
-global gdt_lgdt
-gdt_lgdt:
+global _lgdt
+_lgdt:
 	mov  eax, [esp + 4]
-	mov  [gdt_ptr + 2], eax
+	mov  [_gdt_ptr + 2], eax
 	mov  ax, [esp + 8]
-	mov  [gdt_ptr], ax
+	mov  [_gdt_ptr], ax
 
-	lgdt  [gdt_ptr]
+	lgdt  [_gdt_ptr]
 
 	ret
 
 ;See http://wiki.osdev.org/Segmentation
-;The 0x08 is the offset of the kernel code selector in the GDT (the second 8-byte entry, following the null-entry)
-;The 0x10 is the offset of the kernel data selector in the GDT (the third 8-byte entry, following the code selector at 0x08)
+;	The 0x08 is the offset of the kernel code selector in the GDT (the second 8-byte entry, following the null-entry)
+;	The 0x10 is the offset of the kernel data selector in the GDT (the third 8-byte entry, following the code selector at 0x08)
 global reload_segments
 reload_segments:
 	;Reload CS register containing code selector

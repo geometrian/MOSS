@@ -4,25 +4,50 @@
 namespace MOSS { namespace Memory {
 
 
-//GDT Entry
+//ASM helper that actually loads the table.
+extern "C" void _lgdt(uint32_t base, size_t limit);
+
+/*
+GDT Entry
+	Refer to diagram:
+		https://en.wikipedia.org/wiki/Global_Descriptor_Table
+		http://wiki.osdev.org/File:Gdt_entry.png
+	The GDT tells the CPU about memory's organization.
+	Fields:
+		Limit (20 bits): Maximum addressable unit (units are bytes or pages; see flags bit 3)
+		Base (32 bits): Address where memory segment begins
+		Access byte:
+			Accessed bit.  Initialized to 0; set to 1 when CPU accesses.
+			Readable/writable bit.  Data should always readable.  Code should always be non-writable.
+			Direction bit/conforming bit.
+				Data selectors: 0 is segment grows up; 1 is segment grows down.
+				Code selectors: 0 only executable by processes with exact privilege; 1 lower is okay too.
+			Executable bit:
+				See http://files.osdev.org/mirrors/geezer/os/pm.htm:
+					executable bit: 1 is code/data selector, 0 is TSS, LDT, or Gate (but also says earlier the same as the below):
+				See http://wiki.osdev.org/Global_Descriptor_Table:
+					executable bit: 1 is code selector, 0 is data selector
+				See http://wiki.osdev.org/Segmentation
+					executable bit: 1 is code/data selector, 0 is system
+				I am going to use 1=code selector/0=data selector version, since doing it the other way causes a triple fault.
+			Privilege: two bits containing ring level; see direction bit for code.
+			Present bit: must be 1.
+		Flags:
+			Bit 0: can be reserved for OS use
+			Bit 1: unused (at least on x86).  Initialized to 0.
+			Bit 2: 0 is 16-bit protected mode; 1 is 32-bit protected mode
+			Bit 3: 0 is 1B blocks (byte granularity); 1 is 4KiB blocks (page granularity).
+*/
 class EntryGDT final {
 	private:
 		uint32_t       _limit_low : 16; //The lower 16 bits of the limit
 		uint32_t        _base_low : 24; //The lower 24 bits of base
 	public:
-		//Access byte used in GDT entries
-		//	See http://files.osdev.org/mirrors/geezer/os/pm.htm:
-		//		executable bit: 1 is code/data selector, 0 is TSS, LDT, or Gate (but also says earlier the same as the below):
-		//	See http://wiki.osdev.org/Global_Descriptor_Table:
-		//		executable bit: 1 is code selector, 0 is data selector
-		//	See http://wiki.osdev.org/Segmentation
-		//		executable bit: 1 is code/data selector, 0 is system
-		//	I am going to use 1=code selector/0=data selector version, since doing it the other way causes a triple fault.
 		union Access {
 			class AccessByte final { public:
 				bool     accessed :  1; //Initialized to 0; CPU sets when segment is accessed
 				bool           rw :  1; //Writable bit for data selectors / Readable bit for code selectors
-				bool     dir_conf :  1; //For data selectors, 0 the segment grows up, 1 the segment grows down.  For code selectors, 0 only executable by processes with exactly privilege, 1 lower is okay too
+				bool     dir_conf :  1; //For data selectors, 0 the segment grows up, 1 the segment grows down.  For code selectors, 
 				bool   executable :  1; //See above
 				bool       unused :  1; //Actually usused?  Initialized to 1 (Descriptor Bit; see http://www.brokenthorn.com/Resources/OSDev8.html)
 				uint8_t privilege :  2; //Ring
@@ -62,6 +87,7 @@ class EntryGDT final {
 					return result;
 				}
 			} flags; //Will be packed since EntryGDT is packed?
+			static_assert(sizeof(AccessByte)==1,"Implementation error!");
 			uint8_t          byte :  8;
 		} access;
 	private:
@@ -92,7 +118,7 @@ class EntryGDT final {
 			return (_base_high<<24) | _base_low;
 		}
 
-		static void construct(EntryGDT* entry, uint32_t base, uint32_t limit, Access::AccessByte access) {
+		static void construct(EntryGDT* entry, uint32_t base,uint32_t limit, Access::AccessByte access) {
 			entry->set_base(base);
 			entry->set_limit(limit);
 
@@ -104,14 +130,11 @@ class EntryGDT final {
 			entry->flags_granularity = 1; //The limit is a 32-bit number and represents the number of 4KiB blocks
 		}
 } __attribute__((packed));
-static_assert(sizeof(EntryGDT)==8,"EntryGDT is the wrong size!");
+static_assert(sizeof(EntryGDT)==8,"Implementation error!");
 
 #define MOSS_NUM_GDT 5
 static EntryGDT _gdt_entries[MOSS_NUM_GDT];
 void load_gdt(void) {
-	uint32_t base  = (uint32_t)(&_gdt_entries);          //The linear address of the first gdt_entry_t struct.
-	uint16_t limit = sizeof(EntryGDT)*MOSS_NUM_GDT - 1; //The upper 16 bits of all selector limits.  Size of table minus 1.  sizeof(EntryGDT) should be 8.
-
 	EntryGDT::construct(_gdt_entries,   0x00000000u,         0u, EntryGDT::Access::AccessByte::          get_null()); //Null segment
 	EntryGDT::construct(_gdt_entries+1, 0x00000000u,0xFFFFFFFFu, EntryGDT::Access::AccessByte::get_selector_code(0)); //Kernel code segment
 	EntryGDT::construct(_gdt_entries+2, 0x00000000u,0xFFFFFFFFu, EntryGDT::Access::AccessByte::get_selector_data(0)); //Kernel data segment
@@ -141,7 +164,9 @@ void load_gdt(void) {
 	moss_assert( ((unsigned char*)(gdt_entries))[23]==0x00, "Mismatch on GDT byte 8");
 	kernel->write("  Matched data segment!\n");*/
 
-	gdt_lgdt(base,limit);
+	uint32_t base  = (uint32_t)(&_gdt_entries);         //The linear address of the first gdt_entry_t struct.
+	uint16_t limit = sizeof(EntryGDT)*MOSS_NUM_GDT - 1; //The upper 16 bits of all selector limits.  Size of table minus 1.  sizeof(EntryGDT) should be 8.
+	_lgdt(base,limit);
 }
 #undef MOSS_NUM_GDT
 

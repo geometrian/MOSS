@@ -73,13 +73,13 @@ extern "C" void kernel_entry(unsigned long magic, unsigned long addr) {
 	Memory::MemoryManager memory(mbi);
 	kernel->memory = &memory;
 
-	//Set highest resolution
+	//Set high resolution
 	vga.set_use_font(Graphics::Font::font8x8);
 	vga.set_mode(Graphics::VGA::Device::Mode::Text128x80);
 
 	kernel->terminal->clear();
-	kernel->terminal->write_test_pattern_res();
-	kernel->vga->crtc.print_timing(4,6);
+	//kernel->terminal->write_test_pattern_res();
+	//kernel->vga->crtc.print_timing(4,6);
 
 	//The GRUB documentation http://www.gnu.org/software/grub/manual/multiboot/multiboot.html implies
 	//	that interrupts are already disabled.  That's good, because the following allows us to deal with
@@ -87,7 +87,7 @@ extern "C" void kernel_entry(unsigned long magic, unsigned long addr) {
 	//terminal.write("Forcing disable hardware interrupts\n");
 	//MOSS::Interrupts::disable_hw_int();
 
-	/*terminal.set_color_text(Graphics::VGA::Terminal::Color::GREEN); kernel->write(
+	terminal.set_color_text(Graphics::VGA::Terminal::Color::GREEN); kernel->write(
 		"         _    _ "  "  ____  "   "  ____ "   "  ____ "   "\n"
 		"       /| \\  / |" " /  _ \\ "  " /___/ "   " /___/ "   "\n"
 		"       ||  \\/  |" "|| / \\ |"  "|\\____ "  "|\\____ "  "\n"
@@ -99,7 +99,7 @@ extern "C" void kernel_entry(unsigned long magic, unsigned long addr) {
 		"  The Minimal Operating System that Sucks\n"
 	); terminal.set_color_text(Graphics::VGA::Terminal::Color::PURPLE); kernel->write(
 		"    by Ian Mallett\n\n"
-	);*/
+	);
 
 	//test_mode(Graphics::VGA::Device::Mode::Text80x25);
 	//test_mode(Graphics::VGA::Device::Mode::Text80x30);
@@ -120,7 +120,6 @@ extern "C" void kernel_entry(unsigned long magic, unsigned long addr) {
 	//terminal.interface.set_use_font(Graphics::Font::font8x8);
 	//terminal.interface.crtc.set_mode(Graphics::VGA::CathodeRayTubeController::Mode::text128x80);
 	//terminal.interface.dump_registers();
-	while (1);
 
 	#define MSG0(MESSAGE) kernel->write_sys(0,MESSAGE)
 	#define MSG1(MESSAGE) kernel->write_sys(1,MESSAGE)
@@ -131,7 +130,7 @@ extern "C" void kernel_entry(unsigned long magic, unsigned long addr) {
 		MSG1("Setting up memory segments:\n");
 		MSG2("Loading GDT\n");
 		MOSS::Memory::load_gdt();
-		MSG2("Reloading segments\n\n");
+		MSG2("Reloading segments (to commit GDT)\n\n");
 		MOSS::Memory::reload_segments();
 	#endif
 	#if 1 //Set up interrupts
