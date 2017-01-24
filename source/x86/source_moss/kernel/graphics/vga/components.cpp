@@ -552,7 +552,8 @@ void Device::_set_use_font(uint8_t const* font_buffer, size_t font_height) {
 	_prepare_change();
 
 	//Turn off even/odd addressing
-	//graphics_controller.set_host_oddeven_read_memory(false);
+	//	The read mode disable shouldn't be necessary AFAICT, but e.g. QEMU seems to require it.
+	graphics_controller.set_host_oddeven_read_memory(false);
 	sequencer.set_host_oddeven_write_memory(false);
 
 	//Select font plane
@@ -583,7 +584,7 @@ void Device::_set_use_font(uint8_t const* font_buffer, size_t font_height) {
 	//fields.OEHostMem = 0b101;
 	//sequencer.set_chain4(true);
 	sequencer.set_host_oddeven_write_memory(true);
-	//graphics_controller.set_host_oddeven_read_memory(true);
+	graphics_controller.set_host_oddeven_read_memory(true);
 
 	_finish_change();
 

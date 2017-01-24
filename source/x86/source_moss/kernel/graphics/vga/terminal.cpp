@@ -164,7 +164,7 @@ void Terminal::write_test_pattern_res(void) {
 		set_pos_x(i);
 		if (i>=9) {
 			if (i>=99) {
-				set_pos_y( (i+1) % 4 );
+				set_pos_y( (i+2) % 4 );
 			} else {
 				set_pos_y( (i+1) % 3 );
 			}

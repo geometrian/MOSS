@@ -5,7 +5,7 @@ Once, in college, I woke up in the middle of the night and realized I had to wri
 system.  No delusions, mind, it would almost certainly remain a hobbyist endeavor.  I'd be happy
 if I could get anything working.
 
-The initial result became an open-source project on Google Code
+The initial result first became an open-source project on Google Code
 ([here](https://code.google.com/archive/p/ianmallett-moss/)), and since then, MOSS has matured
 still further.  But still lives up to its acronym: the Minimal Operating System that Sucks.
 

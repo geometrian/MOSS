@@ -36,9 +36,9 @@ anything else except MOSS's raw `.bin` kernel image.
 
 ## [QEMU](http://wiki.qemu.org/Main_Page)
 
-MOSS runs on QEMU, but there are a few issues still to work out.  It seems to start very quickly.
-The `qemu-img` utility is also used for converting disk images for VirtualBox and VMware (i.e., to
-`.vmdk`), and so is their prerequisite.
+MOSS runs well here, and seems to start especially quickly.  The `qemu-img` utility is also used
+for converting disk images for VirtualBox and VMware (i.e., to `.vmdk`), and so is their
+prerequisite.
 
 ## Virtual PC
 
