@@ -1,12 +1,13 @@
 #Virtual Machines
 
 This directory is a handy location for (and hence the default location of) emulators' builds.
-For emulators, MOSS supports being build for [Bochs](http://bochs.sourceforge.net/) and for
+For emulators, MOSS officially supports being built for [Bochs](http://bochs.sourceforge.net/),
+[QEMU](http://wiki.qemu.org/Main_Page), and
 [VirtualBox](https://www.virtualbox.org/wiki/VirtualBox).
 
-One thing you should be aware of is that, for performance, some virtualization software on uses a
-hardware feature called `VT-x`.  This is a virtualization bit, and can't be used by more than one
-application at a time.
+One thing you should be aware of is that, for performance, some (and notably not all)
+virtualization software uses a hardware feature called `VT-x`.  This is a so-called "virtualization
+bit", and it can't be used by more than one such application at a time.
 
 Note that to enable this virtualization support in the first place (in particular for 64-bit
 guests), it may be a BIOS/UEFI setting (see e.g. VT-x on Intel processors).
@@ -19,8 +20,8 @@ MOSS runs well here.  Recommended.
 
 1. Install and run VirtualBox: `sudo apt-get install virtualbox; virtualbox &`
 2. Create a new VM (name: `MOSS`, Type: `Other`, Version: `Other/Unknown`; _not_ 64-bit).  It
-doesn't need much RAM.  64MB should be plenty.  Use and existing virtual hard disk file, and
-point it to the disk the build created: `VMs/MOSS-disk-flat.vmdk`.
+doesn't need much RAM.  64MB should be plenty.  Use an existing virtual hard disk file, and point
+it to the disk the build created: `VMs/MOSS-disk-flat.vmdk`.
 3. Start the VM.
 
 ### Setup (Windows):

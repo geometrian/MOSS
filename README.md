@@ -10,7 +10,7 @@ that Sucks.
 
 ## Setup
 
-### Linux-only setup:
+### Option 1: Linux-only setup:
 
 1. Update/upgrade everything
 (`sudo apt-get update`/`sudo apt-get upgrade`/`sudo apt-get dist-upgrade`)
@@ -21,9 +21,9 @@ that Sucks.
 4. Install tools and emulators: `sudo apt-get install qemu-kvm bochs-x`.
 5. Build MOSS.  E.g. `cd source/x86/; ./scripts/all.sh`.
 6. Run it!  E.g. `python _run_bochs.py`/`python _run_qemu.py`.
-7. [To set up VirtualBox](VMs/README.md).
+7. [If you want to also set up VirtualBox](VMs/README.md).
 
-### Windows + Linux VM setup:
+### Option 2: Windows + VirtualBox Linux VM setup:
 
 1. Set up and install Linux into a VirtualBox x86-64 VM.  Note that an 8GB HDD is too small to
 handle both an e.g. Ubuntu 16.10 MATE installation and a GCC compile.  I recommend at least 16GB,
@@ -41,9 +41,9 @@ ensuring that there's no swap file eating half of it.
 10. Install tools and emulators: `sudo apt-get install qemu-kvm bochs-x`.
 11. Build MOSS.  E.g. `cd source/x86/; ./scripts/all.sh`.
 12. Run it!  E.g. `python _run_bochs.py`/`python _run_qemu.py`.
-13. [To set up VirtualBox](VMs/README.md).
+13. [If you want to also set up VirtualBox](VMs/README.md).
 
-### Additional Windows
+### Option 2: (Additional Tweaks)
 
 I do MOSS development using the Windows + Linux VM setup above.  The following makes that easier:
 
@@ -58,35 +58,38 @@ Python scripts can be run, and the virtualization run in Windows.
 - Real hardware that is USB bootable can be fun to put MOSS on.  After building, run
 `source/x86/scripts/_install_usb.sh`.
 
-## Orientation
+## Orientation / Source Tree Overview
 
 A few selected locations in the file structure to help you get your bearings.
 
 - `cross/` is a handy location to put your cross-compiler.  You need a cross-compiler, and building
-it [is also documented there](cross/README.md).
+it [is documented here](cross/README.md).
 - `resources/` is a place for content-creation (fonts, images, files, associated scripts, etc.).  A
 bit messy, I'm afraid.
 - `source/x86/` is where MOSS's source is kept, along with project files and build directories.
 The ARM branch is not currently being developed.
-  - `source/x86/.build/` is where MOSS disk images get built.
-  - `source/x86/filesystem/` is where you can add files to be included in the built disk image.
-  - `source/x86/scripts/` are helper scripts used to build and convert MOSS images.
+  - `source/x86/.build/*` is where MOSS disk images get built initially.
+  - `source/x86/filesystem/*` is where you can add additional files to be included in the built
+disk image.
+  - `source/x86/scripts/*` are helper scripts used to build and convert MOSS images.
   - `source/x86/source_*` sources for MOSS and standard libraries.
   - `source/x86/_run_*.py` are scripts that conveniently spool up a built MOSS disk image in an
 emulator.
 - `VMs/` is a handy location to put virtual machines for emulation, and is also the location to
-which non-Bochs emulator builds output.
+which non-Bochs emulator builds are output.
 
-## Philosophy
+## Design Philosophy
 
 MOSS is designed to be as powerful, but still as clear as possible.  In particular, the main
 language is C++, not C, which allows most of the horrible hardware crap to be abstracted into
-semi-OO interfaces.  Not all code is up to this standard, since a lot of it was written during
-various 04:00 impromptu hackathons, and parts of it are being rewritten, even as the functionality
+semi-OO interfaces.  Where applicable, code clarity is preferred over minor improvements in code
+performance, and code overall is written for clarity first.
+
+Unfortunately, not all code is up to this standard, since a lot of it was written during various
+04:00 impromptu hackathons, and parts of it are being rewritten, even as the functionality
 improves.
 
-## Contributing
+## Help and Contributions
 
-MOSS is free for use with attribution, and your pull requests are welcome.  Unfortunately, I
-haven't had time to set up a reproducible way of setting things up, and so, like much else in
-OS development, it is likely to be painful.
+MOSS's source is free for use with attribution, and your pull requests are welcome.  If you have
+trouble setting up MOSS let me know and I might be able to help: `ian[^at^]geometrian.com`.

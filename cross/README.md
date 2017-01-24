@@ -23,13 +23,14 @@ If you're not on `apt`, it should be similar.  Else, you can check for instructi
 [OSDev](http://wiki.osdev.org/GCC_Cross-Compiler#Downloading_the_Source_Code), or install from
 sources.  Sources' links:
 
-- [Bison](ftp://ftp.gnu.org/gnu/bison/)
-- [flex](https://github.com/westes/flex/releases)
-- [GMP](ftp://ftp.gnu.org/gnu/gmp/)
-- [ISL](ftp://gcc.gnu.org/pub/gcc/infrastructure/) (note: potentially more up-to-date releases can be found [here](http://isl.gforge.inria.fr/))
-- [MPC](ftp://ftp.gnu.org/gnu/mpc/)
-- [MPFR](ftp://ftp.gnu.org/gnu/mpfr/)
-- [texinfo](ftp://ftp.gnu.org/gnu/texinfo/)
+- [Bison][1]
+- [flex][2]
+- [GMP][3]
+- [ISL][4] (note: potentially more up-to-date releases can be found
+[here](http://isl.gforge.inria.fr/))
+- [MPC][5]
+- [MPFR][6]
+- [texinfo][7]
 
 ## Step 1: Setup Build Directory
 
@@ -42,7 +43,8 @@ in my home directory, and the whole operation becomes:
     export PREFIX=~/cross/
     mkdir $PREFIX
 
-If you want to use a different directory, change the value in `source/x86/scripts/_paths.py`.
+If you want to use a different directory, you should also change the value in
+`source/x86/scripts/_paths.py`.
 
 ## Step 2: Downloads
 
@@ -116,3 +118,11 @@ The build will take a relatively long time (on the order of an hour or more).
 
 At this point, you should have a cross-compiler (i.e., `i686-elf-gcc`/`i686-elf-g++`) built into
 `cross/bin/`!
+
+   [1]: ftp://ftp.gnu.org/gnu/bison/
+   [2]: https://github.com/westes/flex/releases
+   [3]: ftp://ftp.gnu.org/gnu/gmp/
+   [4]: ftp://gcc.gnu.org/pub/gcc/infrastructure/
+   [5]: ftp://ftp.gnu.org/gnu/mpc/
+   [6]: ftp://ftp.gnu.org/gnu/mpfr/
+   [7]: ftp://ftp.gnu.org/gnu/texinfo/
