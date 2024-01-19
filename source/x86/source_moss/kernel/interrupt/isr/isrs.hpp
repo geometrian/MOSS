@@ -181,8 +181,8 @@ inline void isrs20through31(void) {
 //	the IRQ it handles (see http://wiki.osdev.org/Interrupts).
 
 //ISR 32 = IRQ 0 (Programmable Interrupt Timer Interrupt)
-inline bool isr32(void) {
-	//For now, we just ignore the timer
+inline bool isr32(InterruptState const* state) {
+	kernel->handle_timer(state);
 	return true;
 }
 

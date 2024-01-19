@@ -237,6 +237,9 @@
     <ClCompile Include="..\source_moss\kernel\interrupt\isr\isrs.cpp">
       <Filter>source_moss\kernel\interrupt\isr</Filter>
     </ClCompile>
+    <ClCompile Include="..\source_moss\kernel\interrupt\isr\types.cpp">
+      <Filter>source_moss\kernel\interrupt\isr</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source_moss\mossc\math.h">
@@ -495,6 +498,9 @@
     </None>
     <None Include="..\source_moss\kernel\interrupt\isr\isr-delegator.asm">
       <Filter>source_moss\kernel\interrupt\isr</Filter>
+    </None>
+    <None Include="..\source_moss\kernel\process\process.asm">
+      <Filter>source_moss\kernel\process</Filter>
     </None>
   </ItemGroup>
 </Project>

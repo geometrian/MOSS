@@ -26,10 +26,10 @@ function wait_for_enter() {
 
 echo "######## MOSS beginning setup for release . . ."
 
-export       remake_disk=1
-export remake_partitions=1
-export         remake_fs=1
-export       remake_grub=1
+export       remake_disk=0
+export remake_partitions=0
+export         remake_fs=0
+export       remake_grub=0
 export fs_ext2_fat=1 #0 is Ext2, 1 is FAT 32
 
 #Note: on changing these, change also the Bochs configuration files.

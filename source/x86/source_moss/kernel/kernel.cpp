@@ -16,6 +16,8 @@
 #include "input/keys.hpp"
 #include "input/mouse.hpp"
 
+#include "process/process.hpp"
+
 
 namespace MOSS {
 
@@ -38,6 +40,8 @@ Kernel::Kernel(void) {
 		filesystem = nullptr;
 
 		memory = nullptr;
+
+		scheduler = nullptr;
 	#endif
 }
 
@@ -68,6 +72,10 @@ void Kernel::handle_mouse_click(Input::Mouse::EventMouseClick const& event) {
 }
 void Kernel::handle_mouse_unclick(Input::Mouse::EventMouseUnclick const& event) {
 	gui->handle_mouse(event);
+}
+
+void Kernel::handle_timer(Interrupts::InterruptState const* state) {
+	scheduler->step(state);
 }
 
 void Kernel::write(char const* format,...) {

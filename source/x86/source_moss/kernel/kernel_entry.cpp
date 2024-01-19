@@ -24,6 +24,8 @@
 #include "memory/gdt.hpp"
 #include "memory/simple.hpp"
 
+#include "process/process.hpp"
+
 #include "kernel.hpp"
 #include "serial.hpp"
 
@@ -72,6 +74,10 @@ extern "C" void kernel_entry(unsigned long magic, unsigned long addr) {
 	//Setup dynamic memory (some of the setup, including printing, requires it, so do it first)
 	Memory::MemoryManager memory(mbi);
 	kernel->memory = &memory;
+
+	//Setup processes.  Note requires dynamic memory.
+	Process::Scheduler scheduler;
+	kernel->scheduler = &scheduler;
 
 	//Set high resolution
 	vga.set_use_font(Graphics::Font::font8x8);

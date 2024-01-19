@@ -8,6 +8,7 @@ import os
 if os.name == "nt":
     #Windows Paths
     bochs = "C:/Program Files (x86)/Bochs-2.6.8/bochs.exe"
+    bochsdbg = "C:/Program Files (x86)/Bochs-2.6.8/bochsdbg.exe"
     virtualbox_manage = "C:/Program Files/Oracle/VirtualBox/VBoxManage.exe"
     qemu32 = "C:/Program Files/qemu/qemu-system-i386.exe"
     qemu64 = "C:/Program Files/qemu/qemu-system-x86_64.exe"
@@ -16,6 +17,7 @@ else:
     #Non-Windows Paths
     from distutils import spawn
     bochs = spawn.find_executable("bochs")
+    bochsdbg = bochs
     virtualbox_manage = spawn.find_executable("VBoxManage")
     qemu32 = spawn.find_executable("qemu-system-i386")
     qemu64 = spawn.find_executable("qemu-system-x86_64")

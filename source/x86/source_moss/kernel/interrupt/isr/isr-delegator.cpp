@@ -58,7 +58,7 @@ void isr_delegator_cpp(InterruptState const* state) {
 	if (which>=32) { //remapped IRQ from a PIC
 		bool handled = true;
 		switch (which) {
-			case 32: handled&=isr32(); break;
+			case 32: handled&=isr32(state); break;
 			case 33: handled&=isr33(); break;
 			case 34: isr34(); break;
 			case 35: isr35(); break;

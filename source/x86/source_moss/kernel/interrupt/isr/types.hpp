@@ -31,23 +31,29 @@ static_assert(sizeof(ErrorCodePF)==sizeof(uint32_t),"Implementation error!");
 //This encapsulates the state of the processor after it gets interrupted, including the original
 //	values of the registers.  Refer to the explanation in "isr-delegator.hpp" and code in
 //	"isr-delegator.asm".
-class InterruptState final { public:
-	//Step 6: We push the segment registers
-	uint32_t gs, fs, es, ds;
-	//Step 5: We push all general-purpose registers ("pusha").
-	uint32_t edi, esi, ebp, esp, ebx, edx, ecx, eax;
-	//Step 4: We push a debug value and jump to the common subroutine.
-	uint32_t debug_marker;
-	//Step 3: We push the interrupt's index
-	uint32_t int_index;
-	//Step 2: We push one of the error code types.
-	union {
-		ErrorCode standard;
-		ErrorCodePF page_fault;
-		uint32_t packed;
-	} error_code;
-	//Step 1: CPU pushes automatically when interrupt fires.
-	uint32_t eip, cs, eflags, useresp, ss;
+class InterruptState final {
+	public:
+		//Step 6: We push the segment registers
+		uint32_t gs, fs, es, ds;
+		//Step 5: We push all general-purpose registers ("pusha").  Yes; in this order:
+		//	EAX, ECX, EDX, EBX, ESP (from before this pushing EAX), EBP, ESI, EDI
+		//	See http://x86.renejeschke.de/html/file_module_x86_id_270.html
+		uint32_t edi, esi, ebp, esp, ebx, edx, ecx, eax;
+		//Step 4: We push a debug value and jump to the common subroutine.
+		uint32_t debug_marker;
+		//Step 3: We push the interrupt's index
+		uint32_t int_index;
+		//Step 2: We push one of the error code types.
+		union {
+			ErrorCode standard;
+			ErrorCodePF page_fault;
+			uint32_t packed;
+		} error_code;
+		//Step 1: CPU pushes automatically when interrupt fires.
+		uint32_t eip, cs, eflags, useresp, ss;
+
+	public:
+		void write(void) const;
 };
 
 

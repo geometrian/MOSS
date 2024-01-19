@@ -51,6 +51,7 @@
     <ClCompile Include="..\source_moss\kernel\interrupt\idt.cpp" />
     <ClCompile Include="..\source_moss\kernel\interrupt\isr\isr-delegator.cpp" />
     <ClCompile Include="..\source_moss\kernel\interrupt\isr\isrs.cpp" />
+    <ClCompile Include="..\source_moss\kernel\interrupt\isr\types.cpp" />
     <ClCompile Include="..\source_moss\kernel\interrupt\pic.cpp" />
     <ClCompile Include="..\source_moss\kernel\io\io.cpp" />
     <ClCompile Include="..\source_moss\kernel\kernel.cpp" />
@@ -154,6 +155,7 @@
     <None Include="..\source_moss\kernel\interrupt\int32.asm" />
     <None Include="..\source_moss\kernel\interrupt\isr\isr-delegator.asm" />
     <None Include="..\source_moss\kernel\memory\gdt.asm" />
+    <None Include="..\source_moss\kernel\process\process.asm" />
     <None Include="..\source_moss\linker.ld" />
     <None Include="..\source_moss\mossc\cmath" />
     <None Include="..\source_moss\mossc\cstdio" />

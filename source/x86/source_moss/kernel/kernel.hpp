@@ -43,8 +43,14 @@ namespace MOSSC {
 			class EventMouseUnclick;
 		}
 	}
+	namespace Interrupts {
+		class InterruptState;
+	}
 	namespace Memory {
 		class MemoryManager;
+	}
+	namespace Process {
+		class Scheduler;
 	}
 
 
@@ -76,6 +82,8 @@ class Kernel final {
 	private:
 		Memory::MemoryManager* memory;
 
+		Process::Scheduler* scheduler;
+
 	public:
 		//Allocated on the stack, so these can't do much real processing
 		Kernel(void);
@@ -83,9 +91,12 @@ class Kernel final {
 
 		void handle_key_down(Input::Keys::Event const& event);
 		void handle_key_up(Input::Keys::Event const& event);
+
 		void handle_mouse_move(Input::Mouse::EventMouseMove const& event);
 		void handle_mouse_click(Input::Mouse::EventMouseClick const& event);
 		void handle_mouse_unclick(Input::Mouse::EventMouseUnclick const& event);
+
+		void handle_timer(Interrupts::InterruptState const* state);
 
 		void write(char const* format,...);
 		void write_sys(int level, char const* format,...);
