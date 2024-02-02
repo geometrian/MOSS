@@ -2,3 +2,4 @@
 - **"font2_8x8.png"** (5⨯7 res, 256 glyphs): I'm not sure exactly where this is from.  Seems to be an 8⨯8 rendering of codepage 437—e.g. [here](https://opengameart.org/content/dos-8x8-font) is pretty close, but there are differences.  I may have added the differences myself.
 - **"font3_8x16.png"** (8⨯16 res, 256 glyphs): According to my notes, this is from [telus.net](https://web.archive.org/web/20150220013749/www3.telus.net/anapan8/8x16%20font%20ASCII%20DOS%20437.gif), and appears to be an 8⨯16 rendering of codepage 437.
 - **"font4.psf"** (8⨯16 res, 128 glyphs): This is [from BOOTBOOT](https://gitlab.com/bztsrc/bootboot/-/tree/master/mykernel/c), and appears to be an 8⨯16 rendering of codepage 437, with 128 codepoints.  It is very similar to "font3_8x16.png", but with half the symbols and a few differences in the remaining.
+- **"font5.psf"** (5⨯9 res, 256 glyphs): I created this myself using the editor, aiming to match codepage 437.

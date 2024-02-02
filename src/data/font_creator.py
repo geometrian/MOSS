@@ -28,7 +28,7 @@ def clamp( x:int|float, lo:int|float,hi:int|float ):
 
 def next_power_of_2( x:int ): return 1 if x==0 else (1<<(x-1).bit_length())
 
-def ask_font_config( with_codepoints ):
+def ask_font_config( with_codepoints:bool, with_glyph_size:bool ):
 	win = tk.Toplevel( root )
 	win.title("Specify Font Parameters")
 	win.resizable( False, False )
@@ -36,33 +36,35 @@ def ask_font_config( with_codepoints ):
 
 	if with_codepoints:
 		lbl_n = tk.Label( win, text="Number of codepoints:  " )
-	lbl_w     = tk.Label( win, text="Glyph Width [px]:  "     )
-	lbl_h     = tk.Label( win, text="Glyph Height [px]:  "    )
+	if with_glyph_size:
+		lbl_w = tk.Label( win, text="Glyph Width [px]:  "     )
+		lbl_h = tk.Label( win, text="Glyph Height [px]:  "    )
+	irow = 0
 	if with_codepoints:
-		lbl_n.grid( row=0, column=0 )
-		lbl_w.grid( row=1, column=0 )
-		lbl_h.grid( row=2, column=0 )
-	else:
-		lbl_w.grid( row=0, column=0 )
-		lbl_h.grid( row=1, column=0 )
+		lbl_n.grid( row=irow, column=0 ); irow+=1
+	if with_glyph_size:
+		lbl_w.grid( row=irow, column=0 ); irow+=1
+		lbl_h.grid( row=irow, column=0 )#; irow+=1
 
 	if with_codepoints:
 		n_var = tk.IntVar( value=128 )
-	w_var     = tk.IntVar( value=  8 )
-	h_var     = tk.IntVar( value= 16 )
+	if with_glyph_size:
+		w_var = tk.IntVar( value=  8 )
+		h_var = tk.IntVar( value= 16 )
 
 	if with_codepoints:
 		n = tk.Entry( win, textvariable=n_var )
-	w     = tk.Entry( win, textvariable=w_var )
-	h     = tk.Entry( win, textvariable=h_var )
-	w.focus_set()
+		n.focus_set()
+	if with_glyph_size:
+		w = tk.Entry( win, textvariable=w_var )
+		h = tk.Entry( win, textvariable=h_var )
+		w.focus_set()
+	irow = 0
 	if with_codepoints:
-		n.grid( row=0, column=1 )
-		w.grid( row=1, column=1 )
-		h.grid( row=2, column=1 )
-	else:
-		w.grid( row=0, column=1 )
-		h.grid( row=1, column=1 )
+		n.grid( row=irow, column=1 ); irow+=1
+	if with_glyph_size:
+		w.grid( row=irow, column=1 ); irow+=1
+		h.grid( row=irow, column=1 ); irow+=1 #Note `irow` used below
 
 	codepoints = gly_w = gly_h = -1
 	def end_dialog():
@@ -76,22 +78,21 @@ def ask_font_config( with_codepoints ):
 				return defl
 		if with_codepoints:
 			codepoints = get_validated( n_var, -1 )
-		gly_w          = get_validated( w_var, -1 )
-		gly_h          = get_validated( h_var, -1 )
+		if with_glyph_size:
+			gly_w      = get_validated( w_var, -1 )
+			gly_h      = get_validated( h_var, -1 )
 		win.destroy()
 	sub_btn = tk.Button( win, text="Submit", command=end_dialog )
-	if with_codepoints: sub_btn.grid( row=3, column=0, columnspan=2 )
-	else              : sub_btn.grid( row=2, column=0, columnspan=2 )
+	sub_btn.grid( row=irow, column=0, columnspan=2 )
 
 	root.wait_window( win )
 
 	if with_codepoints and codepoints==-1:
 		return False
-	if gly_w==-1 or gly_h==-1:
+	if with_glyph_size and (gly_w==-1 or gly_h==-1):
 		return False
 
-	if with_codepoints: return ( codepoints, gly_w,gly_h )
-	else              : return (             gly_w,gly_h )
+	return ( codepoints, gly_w,gly_h )
 
 
 
@@ -115,6 +116,33 @@ class Glyph:
 	def edit_clear( self:Self ): self._data=[ False for b in self._data ]
 	def edit_fill ( self:Self ): self._data=[ True  for b in self._data ]
 	def edit_neg  ( self:Self ): self._data=[ not b for b in self._data ]
+	def edit_shift( self:Self, amt:tuple[int,int] ):
+		new_data = [ False for b in range(self.res[1]*self.res[0]) ]
+		for     j in range(self.res[1]):
+			jj = j - amt[1]
+			if jj<0 or jj>=self.res[1]: continue
+			for i in range(self.res[0]):
+				ii = i - amt[0]
+				if ii<0 or ii>=self.res[0]: continue
+				new_data[ j*self.res[0] + i ] = self._data[ jj*self.res[0] + ii ]
+		self._data = new_data
+	def edit_mirror( self:Self, dirs:tuple[bool,bool] ):
+		new_data = [ False for b in range(self.res[1]*self.res[0]) ]
+		for     j in range(self.res[1]):
+			if dirs[1]: jj=(self.res[1]-1)-j
+			else      : jj=                j
+			for i in range(self.res[0]):
+				if dirs[0]: ii=(self.res[0]-1)-i
+				else      : ii=                i
+				new_data[ j*self.res[0] + i ] = self._data[ jj*self.res[0] + ii ]
+		self._data = new_data
+	def edit_res( self:Self, res:tuple[int,int] ):
+		new_data = [ False for b in range(res[1]*res[0]) ]
+		for     j in range(min(( res[1], self.res[1] ))):
+			for i in range(min(( res[0], self.res[0] ))):
+				new_data[ j*res[0] + i ] = self._data[ j*self.res[0] + i ]
+		self.res = tuple(res)
+		self._data = new_data
 
 	def to_bitstring( self:Self, pad_rows:bool=True, pad_end:bool=True ):
 		if pad_rows: padding=(8-self.res[0]%8)%8
@@ -400,12 +428,26 @@ class Font:
 
 		f.close()
 
-	def edit_clear( self ):
+	def edit_clear( self:Self  ):
 		for glyph in self.glyphs: glyph.edit_clear()
-	def edit_fill ( self ):
+	def edit_fill ( self:Self  ):
 		for glyph in self.glyphs: glyph.edit_fill ()
-	def edit_neg  ( self ):
+	def edit_neg  ( self:Self  ):
 		for glyph in self.glyphs: glyph.edit_neg  ()
+	def edit_shift( self:Self, amt:tuple[int,int] ):
+		for glyph in self.glyphs: glyph.edit_shift(amt)
+	def edit_mirror( self:Self, dirs:tuple[bool,bool] ):
+		for glyph in self.glyphs: glyph.edit_mirror(dirs)
+
+	def edit_num_codepoints( self:Self, num_codepoints:int ):
+		while num_codepoints < len(self.glyphs):
+			self.glyphs.pop()
+		while num_codepoints > len(self.glyphs):
+			self.glyphs.append( Glyph( len(self.glyphs), self.glyph_res ) )
+	def edit_glyph_res( self:Self, glyph_res:tuple[int,int] ):
+		self.glyph_res = tuple(glyph_res)
+		for glyph in self.glyphs:
+			glyph.edit_res( glyph_res )
 
 class FontEditor:
 	def __init__( self:Self ):
@@ -492,7 +534,7 @@ class FontEditor:
 		if self.save_as_needed_get_should_abort():
 			return False
 
-		ret = ask_font_config( True )
+		ret = ask_font_config( True, True )
 		if ret == False: return ret
 		codepoints, gly_w,gly_h = ret
 
@@ -526,7 +568,7 @@ class FontEditor:
 			if   ext == ".psf":
 				font = Font.load_psf( path )
 			elif ext == ".txt":
-				ret = ask_font_config( True )
+				ret = ask_font_config( True, True )
 				if ret == False: return ret
 				codepoints, gly_w,gly_h = ret
 
@@ -536,9 +578,9 @@ class FontEditor:
 					tk.messagebox.showerror( "Invalid Parameters", str(err) )
 					return False
 			else:
-				ret = ask_font_config( False )
+				ret = ask_font_config( False, True )
 				if ret == False: return ret
-				gly_w, gly_h = ret
+				_, gly_w,gly_h = ret
 
 				try:
 					font = Font.load_image( path, (gly_w,gly_h) )
@@ -595,6 +637,34 @@ class FontEditor:
 		self._on_edit_one()
 	def on_edit_negall  ( self:Self ):
 		self._font.edit_neg()
+		self._on_edit_all()
+	def on_edit_shift   ( self:Self, amt:tuple[int,int] ):
+		self._font.glyphs[self.curr_ind].edit_shift(amt)
+		self._on_edit_one()
+	def on_edit_shiftall( self:Self, amt:tuple[int,int] ):
+		self._font.edit_shift(amt)
+		self._on_edit_all()
+	def on_edit_mirror   ( self:Self, dirs:tuple[bool,bool] ):
+		self._font.glyphs[self.curr_ind].edit_mirror(dirs)
+		self._on_edit_one()
+	def on_edit_mirrorall( self:Self, dirs:tuple[bool,bool] ):
+		self._font.edit_mirror(dirs)
+		self._on_edit_all()
+
+	def on_font_countpoints_count( self:Self ):
+		ret = ask_font_config( True, False )
+		if ret == False: return ret
+		codepoints, _,_ = ret
+
+		self._font.edit_num_codepoints( codepoints )
+		self.curr_ind = min(( self.curr_ind, len(self._font.glyphs)-1 ))
+		self._on_edit_all()
+	def on_font_glyph_size( self:Self ):
+		ret = ask_font_config( False, True )
+		if ret == False: return ret
+		_, gly_w,gly_h = ret
+
+		self._font.edit_glyph_res( (gly_w,gly_h) )
 		self._on_edit_all()
 
 	def save_as_needed_get_should_abort( self:Self ):
@@ -738,6 +808,23 @@ def main():
 
 	root = tk.Tk()
 	root.title("Font Creator")
+	root.bind( "<Escape>", lambda evt: editor.on_file_exit() )
+	root.protocol( "WM_DELETE_WINDOW", lambda: editor.on_file_exit() )
+	root.bind( "<Left>" , lambda evt: editor.on_left () )
+	root.bind( "<Right>", lambda evt: editor.on_right() )
+	root.bind( "<Up>"   , lambda evt: editor.on_up   () )
+	root.bind( "<Down>" , lambda evt: editor.on_down () )
+	root.bind( "<Home>" , lambda evt: editor.on_home () )
+	root.bind( "<End>"  , lambda evt: editor.on_end  () )
+	root.bind( "<MouseWheel>", editor.on_wheel )
+	def on_resize( evt ):
+		global WINDOW_RES, surf_display
+		if evt.width==WINDOW_RES[0] and evt.height==WINDOW_RES[1]: return
+		WINDOW_RES = [ evt.width, evt.height ]
+		frame.pack( fill="both", expand=1 )
+		surf_display = pygame.display.set_mode( WINDOW_RES )
+		editor.resize()
+	root.bind( "<Configure>", on_resize )
 
 	menu_bar = tk.Menu( root )
 
@@ -749,13 +836,52 @@ def main():
 	menu_file.add_separator()
 	menu_file.add_command( label="Exit"      , accelerator="Alt+F4"      , command=editor.on_file_exit   )
 	menu_bar.add_cascade( menu=menu_file, label="File" )
+	root.bind( "<Control-n>"      , lambda evt: editor.on_file_new   () )
+	root.bind( "<Control-o>"      , lambda evt: editor.on_file_open  () )
+	root.bind( "<Control-s>"      , lambda evt: editor.on_file_save  () )
+	root.bind( "<Control-Shift-S>", lambda evt: editor.on_file_saveas() )
+	root.bind( "<Alt-F4>", lambda evt: editor.on_file_exit() )
 
 	menu_edit = tk.Menu( menu_bar, tearoff=0 )
-	menu_edit.add_command( label="Clear"         , command=editor.on_edit_clear    )
-	menu_edit.add_command( label="Clear (All)"   , command=editor.on_edit_clearall )
+	menu_edit.add_command( label="Clear"         , accelerator="Delete"      , command=editor.on_edit_clear    )
+	menu_edit.add_command( label="Clear (All)"   , accelerator="Shift+Delete", command=editor.on_edit_clearall )
+	menu_edit.add_separator()
 	menu_edit.add_command( label="Negative"      , command=editor.on_edit_neg      )
 	menu_edit.add_command( label="Negative (All)", command=editor.on_edit_negall   )
+	menu_edit.add_separator()
+	menu_edit.add_command( label="Mirror L–R"      , accelerator="Ctrl+M"      , command=lambda:editor.on_edit_mirror   ((True,False)) )
+	menu_edit.add_command( label="Mirror L–R (All)", accelerator="Ctrl+Shift+M", command=lambda:editor.on_edit_mirrorall((True,False)) )
+	menu_edit.add_command( label="Mirror U–D"      , accelerator="Ctrl+I"      , command=lambda:editor.on_edit_mirror   ((False,True)) )
+	menu_edit.add_command( label="Mirror U–D (All)", accelerator="Ctrl+Shift+I", command=lambda:editor.on_edit_mirrorall((False,True)) )
+	menu_edit.add_separator()
+	menu_edit.add_command( label="Nudge Left"       , accelerator="Ctrl+Left"       , command=lambda:editor.on_edit_shift   ((-1, 0)) )
+	menu_edit.add_command( label="Nudge Left (All)" , accelerator="Ctrl+Shift+Left" , command=lambda:editor.on_edit_shiftall((-1, 0)) )
+	menu_edit.add_command( label="Nudge Right"      , accelerator="Ctrl+Right"      , command=lambda:editor.on_edit_shift   (( 1, 0)) )
+	menu_edit.add_command( label="Nudge Right (All)", accelerator="Ctrl+Shift+Right", command=lambda:editor.on_edit_shiftall(( 1, 0)) )
+	menu_edit.add_command( label="Nudge Up"         , accelerator="Ctrl+Up"         , command=lambda:editor.on_edit_shift   (( 0,-1)) )
+	menu_edit.add_command( label="Nudge Up (All)"   , accelerator="Ctrl+Shift+Up"   , command=lambda:editor.on_edit_shiftall(( 0,-1)) )
+	menu_edit.add_command( label="Nudge Down"       , accelerator="Ctrl+Down"       , command=lambda:editor.on_edit_shift   (( 0, 1)) )
+	menu_edit.add_command( label="Nudge Down (All)" , accelerator="Ctrl+Shift+Down" , command=lambda:editor.on_edit_shiftall(( 0, 1)) )
 	menu_bar.add_cascade( menu=menu_edit, label="Edit" )
+	root.bind( "<Delete>"      , lambda evt: editor.on_edit_clear   () )
+	root.bind( "<Shift-Delete>", lambda evt: editor.on_edit_clearall() )
+	root.bind( "<Control-m>"      , lambda evt: editor.on_edit_mirror   ((True,False)) )
+	root.bind( "<Control-Shift-M>", lambda evt: editor.on_edit_mirrorall((True,False)) )
+	root.bind( "<Control-i>"      , lambda evt: editor.on_edit_mirror   ((False,True)) )
+	root.bind( "<Control-Shift-I>", lambda evt: editor.on_edit_mirrorall((False,True)) )
+	root.bind( "<Control-Left>"       , lambda evt: editor.on_edit_shift   ((-1, 0)) )
+	root.bind( "<Control-Shift-Left>" , lambda evt: editor.on_edit_shiftall((-1, 0)) )
+	root.bind( "<Control-Right>"      , lambda evt: editor.on_edit_shift   (( 1, 0)) )
+	root.bind( "<Control-Shift-Right>", lambda evt: editor.on_edit_shiftall(( 1, 0)) )
+	root.bind( "<Control-Up>"         , lambda evt: editor.on_edit_shift   (( 0,-1)) )
+	root.bind( "<Control-Shift-Up>"   , lambda evt: editor.on_edit_shiftall(( 0,-1)) )
+	root.bind( "<Control-Down>"       , lambda evt: editor.on_edit_shift   (( 0, 1)) )
+	root.bind( "<Control-Shift-Down>" , lambda evt: editor.on_edit_shiftall(( 0, 1)) )
+
+	menu_font = tk.Menu( menu_bar, tearoff=0 )
+	menu_font.add_command( label="Codepoints Count...", command=editor.on_font_countpoints_count )
+	menu_font.add_command( label="Glyph Size..."      , command=editor.on_font_glyph_size )
+	menu_bar.add_cascade( menu=menu_font, label="Font" )
 
 	root.config( menu=menu_bar )
 
@@ -774,29 +900,6 @@ def main():
 	ui_font = pygame.font.SysFont("Lucida Console",12)
 
 	root.update()
-
-	root.bind( "<Escape>", lambda evt: editor.on_file_exit() )
-	root.protocol( "WM_DELETE_WINDOW", lambda: editor.on_file_exit() )
-	root.bind( "<Control-n>"      , lambda evt: editor.on_file_new   () )
-	root.bind( "<Control-o>"      , lambda evt: editor.on_file_open  () )
-	root.bind( "<Control-s>"      , lambda evt: editor.on_file_save  () )
-	root.bind( "<Control-Shift-S>", lambda evt: editor.on_file_saveas() )
-	root.bind( "<Alt-F4>", lambda evt: editor.on_file_exit() )
-	root.bind( "<Left>" , lambda evt: editor.on_left () )
-	root.bind( "<Right>", lambda evt: editor.on_right() )
-	root.bind( "<Up>"   , lambda evt: editor.on_up   () )
-	root.bind( "<Down>" , lambda evt: editor.on_down () )
-	root.bind( "<Home>" , lambda evt: editor.on_home () )
-	root.bind( "<End>"  , lambda evt: editor.on_end  () )
-	root.bind( "<MouseWheel>", editor.on_wheel )
-	def on_resize( evt ):
-		global WINDOW_RES, surf_display
-		if evt.width==WINDOW_RES[0] and evt.height==WINDOW_RES[1]: return
-		WINDOW_RES = [ evt.width, evt.height ]
-		frame.pack( fill="both", expand=1 )
-		surf_display = pygame.display.set_mode( WINDOW_RES )
-		editor.resize()
-	root.bind( "<Configure>", on_resize )
 
 	path = "src/data/fonts/font0_bytemap.txt"
 	try:
