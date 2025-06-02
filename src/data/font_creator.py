@@ -808,8 +808,8 @@ def main():
 
 	root = tk.Tk()
 	root.title("Font Creator")
-	root.bind( "<Escape>", lambda evt: editor.on_file_exit() )
 	root.protocol( "WM_DELETE_WINDOW", lambda: editor.on_file_exit() )
+	root.bind( "<Escape>", lambda evt: editor.on_file_exit() )
 	root.bind( "<Left>" , lambda evt: editor.on_left () )
 	root.bind( "<Right>", lambda evt: editor.on_right() )
 	root.bind( "<Up>"   , lambda evt: editor.on_up   () )
@@ -913,7 +913,7 @@ def main():
 		draw()
 
 		clock.tick(60)
-		#print clock.get_fps()
+		#print(clock.get_fps())
 
 	pygame.quit()
 	root.destroy()

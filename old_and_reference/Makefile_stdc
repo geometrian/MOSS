@@ -1,0 +1,89 @@
+ifndef MOSSC_CONFIG
+	$(error MOSSC_CONFIG must be set)
+else
+	ifeq      ($(MOSSC_CONFIG),userland)
+		FLAGS_CC += -DMOSS_ENV=0
+	else ifeq ($(MOSSC_CONFIG),freestanding)
+		FLAGS_CC += -ffreestanding
+		FLAGS_CC += -DMOSS_ENV=1
+	else ifeq ($(MOSSC_CONFIG),embedwin)
+		FLAGS_CC += -DMOSS_ENV=3
+		FLAGS_CC += $(FLAGS_CC_WIN)
+	else
+		$(error Invalid MOSSC_CONFIG!)
+	endif
+endif
+
+$(shell echo 1>&2 "\e[32mBuild for libmoss-std-$(MOSSC_CONFIG)\e[0m")
+
+ifdef BUILD_DIR
+	BUILD_DIR := $(BUILD_DIR)
+	BUILD_SUBDIR := ../$(BUILD_DIR)/libmoss-std-$(MOSSC_CONFIG)
+else
+	$(error BUILD_DIR must be set)
+endif
+
+ifdef FLAGS_ASM
+	FLAGS_ASM := $(FLAGS_ASM)
+else
+	$(error FLAGS_ASM must be set)
+endif
+
+ifdef FLAGS_CC
+	FLAGS_CC := $(FLAGS_CC)
+else
+	$(error FLAGS_CC must be set)
+endif
+
+ifdef FLAGS_AR
+	FLAGS_AR := $(FLAGS_AR)
+else
+	$(error FLAGS_AR must be set)
+endif
+
+
+
+OBJS_ASM := $(patsubst %.asm,$(BUILD_SUBDIR)/%.o,$(wildcard *.asm))
+OBJS_C   := $(patsubst %.c,$(BUILD_SUBDIR)/%.o,$(wildcard *.c))
+OBJS := $(OBJS_ASM) $(OBJS_C)
+
+DEPS_ASM := $(patsubst $(BUILD_SUBDIR)/%.o,$(BUILD_SUBDIR)/%.o.d,$(OBJS_ASM))
+DEPS_C   := $(patsubst $(BUILD_SUBDIR)/%.o,$(BUILD_SUBDIR)/%.d,$(OBJS_C))
+DEPS := $(DEPS_ASM) $(DEPS_C)
+
+OUT_PATH := $(BUILD_SUBDIR)/libmoss-stdc.a
+
+
+
+default: build
+
+
+
+#Compiles ".asm"/".c" files to ".o" files, also generating ".d" ("-MD -MP") dependencies.
+$(BUILD_SUBDIR)/%.o: %.asm
+	$(ASM)   $(FLAGS_ASM)   -o $@      $<
+$(BUILD_SUBDIR)/%.o: %.c
+	$(CC)    $(FLAGS_CC)    -o $@   -c $<
+#Bring in the more-specific rules of the dependencies (not available on first compile; ignore error
+#	with "-").
+-include $(DEPS)
+
+$(OUT_PATH): $(OBJS)
+	$(AR)   $(FLAGS_AR)   $(OUT_PATH) $(OBJS)
+
+
+
+build: builddir $(OUT_PATH)
+
+builddir:
+	mkdir -p $(BUILD_SUBDIR)
+
+clean:
+	rm   -f   $(OBJS) $(DEPS)   $(OUT_PATH)
+	if [ -d $(BUILD_SUBDIR) ]; then rmdir $(BUILD_SUBDIR); fi
+
+print:
+	$(info Build to $(BUILD_SUBDIR)/)
+	$(info   Objects: $(OBJS))
+	$(info   Deps:    $(DEPS))
+	$(info   Output:  $(OUT_PATH))

@@ -24,6 +24,7 @@
 *.zip
 
 .vs/
+src/vs2022/
 
 cross/*/
 
@@ -34,5 +35,10 @@ VMs/*
 **/log/
 _log*
 *log.txt
+
+old_and_reference/src0/VMs/*.vmdk
+old_and_reference/src0/VMs/VirtualBox/*.lnk
+old_and_reference/src0/VMs/VirtualBox/*.vbox
+old_and_reference/src0/VMs/VirtualBox/*.vbox-prev
 
 **/xv6_reference/

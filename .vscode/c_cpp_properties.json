@@ -1,0 +1,28 @@
+{
+    "configurations": [
+        {
+            "name": "moss-x64",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "D:/projects/programming/3rd-party-repos/edk2/MdePkg/Include/",
+                "D:/projects/programming/3rd-party-repos/edk2/MdePkg/Include/X64/",
+                "D:/projects/programming/3rd-party-repos/bootboot/dist/",
+                "D:/projects/programming/C++/MOSS/src/libmoss-stdc/"
+            ],
+            "defines": [
+                "MOSS_DEBUG",
+                "MOSS_ARCH_AMD64"
+            ],
+            "windowsSdkVersion": "10.0.22621.0",
+            "cStandard": "c17",
+            "cppStandard": "c++20",
+            "intelliSenseMode": "windows-clang-x64",
+            "compilerArgs": [
+                "-masm=intel",
+                "-ffreestanding",
+                "-nostdlib"
+            ]
+        }
+    ],
+    "version": 4
+}

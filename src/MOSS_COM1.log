@@ -1,0 +1,52 @@
+[2J[01;01H[=3h[2J[01;01H[2J[01;01H[=3h[2J[01;01H[2J[01;01H[=3h[2J[01;01HBdsDxe: failed to load Boot0001 "UEFI VBOX CD-ROM VB2-01700376 " from PciRoot(0x0)/Pci(0x1,0x1)/Ata(Secondary,Master,0x0): Not Found
+BdsDxe: loading Boot0002 "UEFI VBOX HARDDISK VB3e35d8c1-19807381 " from PciRoot(0x0)/Pci(0x1,0x1)/Ata(Primary,Master,0x0)
+BdsDxe: starting Boot0002 "UEFI VBOX HARDDISK VB3e35d8c1-19807381 " from PciRoot(0x0)/Pci(0x1,0x1)/Ata(Primary,Master,0x0)
+Booting OS...
+ * Locate initrd in Option ROMs
+ * Locate initrd in \BOOTBOOT\INITRD
+ * Gzip compressed initrd @DD8FE000 121387 bytes
+ * Initrd loaded @DD8A9000 348160 bytes
+ * Environment @DDA5D000 363 bytes
+ * Screen 1024 x 768, scanline 4096, fb @E0000000 3145728 bytes, type 1 ARGB
+ * System tables
+ * System time 2024-07-24 10:33:15 GMT+0:00 
+ * tar /sys/moss.x86_64.elf
+ * Autodetecting kernel
+ * Parsing ELF64 @DD8B2C00
+ * fb          @FFFFFFFFFC000000
+ * bootboot    @FFFFFFFFFFE00000
+ * environment @FFFFFFFFFFE01000
+ * Entry point @FFFFFFFFFFE07850, text @DD886000 141304 bytes
+ * Stack size  16384 bytes per core
+ * SMP numcores 1
+ * Pagetables PML4 @DD85D000
+ * Memory Map @DDA5B000 6672 bytes try #1
+PS/2: setting up . . .
+PS/2: device 0 scanning disable output -> fa
+PS/2: device 1 scanning disable output -> fa
+PS/2: controller setup successful!  < chans=(1,1), config=00000111, status=00011100 >
+PS/2: (re)detecting any device on channel 0 . . .
+PS/2: device 0 reset output -> fa, aa
+PS/2: device 0 scanning disable output -> fa
+PS/2: device 0 identify output -> fa, ab, 83
+PS/2: device detected, type 1
+PS/2: device setup complete!
+PS/2: (re)detecting any device on channel 1 . . .
+PS/2: device 1 reset output -> fa, aa, 00
+PS/2: device 1 scanning disable output -> fa
+PS/2: device 1 identify output -> fa, 00
+PS/2: device 1 set resolution output -> fa, fa
+PS/2: device 1 set resolution output -> fa, fa
+PS/2: device 1 set resolution output -> fa, fa
+PS/2: device 1 identify output -> fa, 03
+PS/2: device 1 set resolution output -> fa, fa
+PS/2: device 1 set resolution output -> fa, fa
+PS/2: device 1 set resolution output -> fa, fa
+PS/2: device 1 identify output -> fa, 04
+PS/2: device 1 set resolution output -> fa, fa
+PS/2: device detected, type 4
+PS/2: device setup complete!
+PS/2: device 0 scanning enable output -> fa
+PS/2: device 1 scanning enable output -> fa
+PS/2: device 1 scanning enable output -> fa
+Hello world!
