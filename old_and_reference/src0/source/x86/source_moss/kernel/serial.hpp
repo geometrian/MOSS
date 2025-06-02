@@ -6,7 +6,7 @@
 namespace MOSS { namespace Serial {
 
 
-//http://wiki.osdev.org/Serial_Ports
+//https://wiki.osdev.org/Serial_Ports
 
 void init(void);
 

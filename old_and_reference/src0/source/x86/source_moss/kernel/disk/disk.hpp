@@ -13,8 +13,8 @@ namespace ATA {
 }
 
 
-typedef uint64_t AbsoluteLBA;
-typedef uint64_t RelativeLBA;
+using AbsoluteLBA = uint64_t;
+using RelativeLBA = uint64_t;
 
 //See http://wiki.osdev.org/Partition_Table#MBR
 

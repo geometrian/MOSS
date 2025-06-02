@@ -1,4 +1,17 @@
-#include "gdt.hpp"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 namespace MOSS { namespace Memory {
@@ -39,59 +52,6 @@ GDT Entry
 			Bit 3: 0 is 1B blocks (byte granularity); 1 is 4KiB blocks (page granularity).
 */
 class EntryGDT final {
-	private:
-		uint32_t       _limit_low : 16; //The lower 16 bits of the limit
-		uint32_t        _base_low : 24; //The lower 24 bits of base
-	public:
-		union Access {
-			class AccessByte final { public:
-				bool     accessed :  1; //Initialized to 0; CPU sets when segment is accessed
-				bool           rw :  1; //Writable bit for data selectors / Readable bit for code selectors
-				bool     dir_conf :  1; //For data selectors, 0 the segment grows up, 1 the segment grows down.  For code selectors, 
-				bool   executable :  1; //See above
-				bool       unused :  1; //Actually usused?  Initialized to 1 (Descriptor Bit; see http://www.brokenthorn.com/Resources/OSDev8.html)
-				uint8_t privilege :  2; //Ring
-				bool      present :  1; //Must be 1 for all valid selectors
-
-				static AccessByte get_null(void) {
-					EntryGDT::Access::AccessByte result;
-					result.  accessed = 0;
-					result.        rw = 0;
-					result.  dir_conf = 0;
-					result.executable = 0;
-					result.    unused = 0;
-					result. privilege = 0;
-					result.   present = 0;
-					return result;
-				}
-				static AccessByte get_selector_code(uint8_t ring) {
-					EntryGDT::Access::AccessByte result;
-					result.  accessed =    0;
-					result.        rw =    1;
-					result.  dir_conf =    0;
-					result.executable =    1;
-					result.    unused =    1;
-					result. privilege = ring;
-					result.   present =    1;
-					return result;
-				}
-				static AccessByte get_selector_data(uint8_t ring) {
-					EntryGDT::Access::AccessByte result;
-					result.  accessed =    0;
-					result.        rw =    1;
-					result.  dir_conf =    0;
-					result.executable =    0;
-					result.    unused =    1;
-					result. privilege = ring;
-					result.   present =    1;
-					return result;
-				}
-			} flags; //Will be packed since EntryGDT is packed?
-			static_assert(sizeof(AccessByte)==1,"Implementation error!");
-			uint8_t          byte :  8;
-		} access;
-	private:
-		uint32_t      _limit_high :  4; //The upper 4 bits of the limit
 	public:
 		//Flags.  Can't be in a struct because it is not byte-aligned and it would screw up the packing.
 		int         flags_unused1 :  1; //Can be reserved for OS use

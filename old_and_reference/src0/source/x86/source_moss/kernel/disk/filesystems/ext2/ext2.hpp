@@ -15,12 +15,12 @@
 namespace MOSS { namespace Disk { namespace FileSystem {
 
 
-/*typedef uint32_t addrblock; //direct pointer
-typedef uint32_t addrblocki; //indirect pointer
-typedef uint32_t addrblockii; //doubly indirect pointer
-typedef uint32_t addrblockiii; //triply indirect pointer
-typedef uint32_t addrgroup;
-typedef uint32_t addrinode;
+/*using addrblock = uint32_t; //direct pointer
+using addrblocki = uint32_t; //indirect pointer
+using addrblockii = uint32_t; //doubly indirect pointer
+using addrblockiii = uint32_t; //triply indirect pointer
+using addrgroup = uint32_t;
+using addrinode = uint32_t;
 
 AbsoluteLBA get_lba(Superblock const* superblock, addrblock addr) {
 	return addr * superblock->block_size/512;

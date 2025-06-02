@@ -87,7 +87,7 @@ class Kernel final {
 	public:
 		//Allocated on the stack, so these can't do much real processing
 		Kernel(void);
-		inline ~Kernel(void) = default;
+		~Kernel(void) = default;
 
 		void handle_key_down(Input::Keys::Event const& event);
 		void handle_key_up(Input::Keys::Event const& event);

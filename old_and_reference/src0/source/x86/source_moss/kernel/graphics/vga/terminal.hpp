@@ -26,7 +26,7 @@ class Terminal final {
 		enum class Color : uint8_t {
 			//Each enum representing a color has a bitwise meaning:
 			//	0 b 0 0 0 0 <intense> <red> <green> <blue>
-			//	                           I RGB
+			//	                     I RGB
 
 			BLACK       = 0x00, //0b 0 000
 

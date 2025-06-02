@@ -104,7 +104,7 @@ extern "C" void kernel_entry(unsigned long magic, unsigned long addr) {
 	); terminal.set_color_text(Graphics::VGA::Terminal::Color::MAGENTA); kernel->write(
 		"  The Minimal Operating System that Sucks\n"
 	); terminal.set_color_text(Graphics::VGA::Terminal::Color::PURPLE); kernel->write(
-		"    by Ian Mallett\n\n"
+		"    by Agatha Mallett\n\n"
 	);
 
 	//test_mode(Graphics::VGA::Device::Mode::Text80x25);
