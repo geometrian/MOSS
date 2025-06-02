@@ -1,4 +1,4 @@
-# The Stack
+# The x86 Stack
 
 Each core on the processor has a concept called the stack, which is a region of memory used for
 storing scratch space for the nested functions called.
@@ -7,7 +7,8 @@ On x86, it grows *downward* as function calls nest deeper and deeper inside each
 Intuitively, you can think of starting at a 'high' address like 0xffff'ffff and growing toward 'low'
 addresses (toward zero, 0x0000'0000).  For kernel development, we can actually start at 0x0000'0000
 and push downward to -1 (0xffff'ffff) to kick the whole thing off; this makes sense if you think
-about it as signed.  Also, everything is actually 64-bit.
+about it as signed.  Also, everything nowadays is actually 64-bit, but this just changes the size of
+everything from 4 to 8.  Similarly, for 16-bit, it's 4 to 2.
 
 
 

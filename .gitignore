@@ -3,12 +3,14 @@
 *.layout
 
 *.db
+*.ipch
 *.ipgset
 *.opendb
 *.opensdf
 *.psess
 *.sdf
 *.suo
+*.vsidx
 *.vsp
 
 *.pyc
@@ -21,10 +23,10 @@
 *.xz
 *.zip
 
-resources/docs/
-resources/nircmd/
+.vs/
 
 cross/*/
+
 VMs/*
 !VMs/*.md
 
@@ -32,3 +34,5 @@ VMs/*
 **/log/
 _log*
 *log.txt
+
+**/xv6_reference/

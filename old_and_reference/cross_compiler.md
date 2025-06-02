@@ -1,11 +1,17 @@
 # Cross Compiler
 
 To build MOSS (or any other OS), you need a cross-compiler.  This is because an ordinary compiler
-assumes that there's a platform to run on--something that obviously doesn't exist when you're
+assumes that there's a platform to run on—something that obviously doesn't exist when you're
 trying to compile that platform.
 
 MOSS supports `GCC`, and this file gives instructions on how to build a `GCC` cross-compiler.  You
 will need a Linux environment (I use an x86-64 Ubuntu VM).
+
+This information will not be current, in the constantly evolving compiler landscape.  However, it
+should give a feel for what's necessary.  And it worked at *one* point!
+[OSDev.org](https://wiki.osdev.org/GCC_Cross-Compiler) may have more up-to-date information.
+
+
 
 ## Step 0: Install Prerequisites
 
@@ -15,12 +21,12 @@ To build GCC, we need some prerequisite libraries.  Install
 [`MPC`](http://multiprecision.org/), [`MPFR`](http://www.mpfr.org/), and
 [`texinfo`](https://www.gnu.org/software/texinfo/) onto your system.  (`ISL` is technically
 optional, but is desirable since it enables some optimizations.  Others may be optional or
-tweakable too.)  On `apt` systems, all this can be simply accomplished with:
+tweakable too.)  On `apt` systems like Ubuntu, all this can be simply accomplished with:
 
     sudo apt-get install bison flex libgmp-dev libmpfr-dev libisl-dev libmpc-dev texinfo
 
 If you're not on `apt`, it should be similar.  Else, you can check for instructions on
-[OSDev](http://wiki.osdev.org/GCC_Cross-Compiler#Downloading_the_Source_Code), or install from
+[OSDev](https://wiki.osdev.org/GCC_Cross-Compiler#Downloading_the_Source_Code), or install from
 sources.  Sources' links:
 
 - [Bison][1]
@@ -31,6 +37,8 @@ sources.  Sources' links:
 - [MPC][5]
 - [MPFR][6]
 - [texinfo][7]
+
+
 
 ## Step 1: Setup Build Directory
 
@@ -45,6 +53,8 @@ in my home directory, and the whole operation becomes:
 
 If you want to use a different directory, you should also change the value in
 `source/x86/scripts/_paths.py`.
+
+
 
 ## Step 2: Downloads
 
@@ -62,6 +72,8 @@ known-good configurations:
 | binutils   | [2.27](ftp://ftp.gnu.org/gnu/binutils/binutils-2.27.tar.bz2)   |
 | gcc        | [6.3.0](ftp://ftp.gnu.org/gnu/gcc/gcc-6.3.0/gcc-6.3.0.tar.bz2) |
 
+
+
 ## Step 3: Set Up Build
 
 Export some version numbers just for later convenience (make sure yours match the ones you
@@ -75,6 +87,8 @@ system).
 
     export TARGET=i686-elf
     export PATH="$PREFIX/bin:$PATH"
+
+
 
 ## Step 4: Set Up And Build `binutils`
 
@@ -98,6 +112,8 @@ especially.
 If you do get a problem, it's probably reported and described in the output of the configuration
 step.  Let me know about it, since it might be preventable.
 
+
+
 ## Step 5: Set Up And Build `GCC`
 
 Run the following commands to configure and build a cross-compile-`GCC`.  Note: during the
@@ -119,10 +135,12 @@ The build will take a relatively long time (on the order of an hour or more).
 At this point, you should have a cross-compiler (i.e., `i686-elf-gcc`/`i686-elf-g++`) built into
 `cross/bin/`!
 
-   [1]: ftp://ftp.gnu.org/gnu/bison/
-   [2]: https://github.com/westes/flex/releases
-   [3]: ftp://ftp.gnu.org/gnu/gmp/
-   [4]: ftp://gcc.gnu.org/pub/gcc/infrastructure/
-   [5]: ftp://ftp.gnu.org/gnu/mpc/
-   [6]: ftp://ftp.gnu.org/gnu/mpfr/
-   [7]: ftp://ftp.gnu.org/gnu/texinfo/
+
+
+    [1]: ftp://ftp.gnu.org/gnu/bison/
+    [2]: https://github.com/westes/flex/releases
+    [3]: ftp://ftp.gnu.org/gnu/gmp/
+    [4]: ftp://gcc.gnu.org/pub/gcc/infrastructure/
+    [5]: ftp://ftp.gnu.org/gnu/mpc/
+    [6]: ftp://ftp.gnu.org/gnu/mpfr/
+    [7]: ftp://ftp.gnu.org/gnu/texinfo/

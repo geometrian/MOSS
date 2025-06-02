@@ -1,5 +1,6 @@
-- **"font0_bytemap.txt" and "font1_bytemap.txt"** (5⨯7 res, 128 glyphs): I created myself using the editor.  The latter is just a slight improvement of the former.
-- **"font2_8x8.png"** (5⨯7 res, 256 glyphs): I'm not sure exactly where this is from.  Seems to be an 8⨯8 rendering of codepage 437—e.g. [here](https://opengameart.org/content/dos-8x8-font) is pretty close, but there are differences.  I may have added the differences myself.
+- **"font0_5x7_bytemap.txt" and "font1_5x7_bytemap.txt"** (5⨯7 res, 128 glyphs): I created myself using the editor.  The latter is just a slight improvement of the former.
+- **"font2_8x8.png"** (8⨯8 res, 256 glyphs): I'm not sure exactly where this is from.  Seems to be an 8⨯8 rendering of codepage 437—e.g. [here](https://opengameart.org/content/dos-8x8-font) is pretty close, but there are differences.  I may have added the differences myself.
 - **"font3_8x16.png"** (8⨯16 res, 256 glyphs): According to my notes, this is from [telus.net](https://web.archive.org/web/20150220013749/www3.telus.net/anapan8/8x16%20font%20ASCII%20DOS%20437.gif), and appears to be an 8⨯16 rendering of codepage 437.
-- **"font4.psf"** (8⨯16 res, 128 glyphs): This is [from BOOTBOOT](https://gitlab.com/bztsrc/bootboot/-/tree/master/mykernel/c), and appears to be an 8⨯16 rendering of codepage 437, with 128 codepoints.  It is very similar to "font3_8x16.png", but with half the symbols and a few differences in the remaining.
-- **"font5.psf"** (5⨯9 res, 256 glyphs): I created this myself using the editor, aiming to match codepage 437.
+- **"font4_8x16.psf"** (8⨯16 res, 128 glyphs): This is [from BOOTBOOT](https://gitlab.com/bztsrc/bootboot/-/tree/master/mykernel/c), and appears to be an 8⨯16 rendering of codepage 437, with 128 codepoints.  It is very similar to "font3_8x16.png", but with half the symbols and a few differences in the remaining.
+- **"font5_5x9.psf"** (5⨯9 res, 256 glyphs): I created this myself using the editor, aiming to match codepage 437.
+- **"Tamsyn8x16b.psf"** (5⨯9 res, 256 glyphs): This is [Tamsyn](http://www.fial.com/~scott/tamsyn-font/) bold.
