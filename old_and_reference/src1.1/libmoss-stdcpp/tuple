@@ -1,0 +1,189 @@
+#pragma once
+
+/*
+https://en.cppreference.com/w/cpp/header/tuple
+INCOMPLETE, also note removed `explicit` on constructors and `noexcept` in some places because
+complicated definitions
+*/
+
+// #include <compare>
+
+
+
+#if 0
+namespace std
+{
+
+
+
+// class template tuple
+template< class... Types > struct tuple
+{
+
+
+	// tuple construction
+	constexpr tuple() = default;
+	constexpr tuple( Types const&... ); // only if sizeof...(Types) >= 1
+	template< class... UTypes >
+	constexpr tuple( UTypes&&... )
+		std::forward<UTypes>(args)
+	{
+	} // only if sizeof...(Types) >= 1
+
+	tuple( tuple const& ) = default;
+	tuple( tuple&& ) = default;
+
+	template< class... UTypes > constexpr
+	tuple( tuple<UTypes...> const& );
+	template< class... UTypes > constexpr
+	tuple( tuple<UTypes...>&& );
+
+	// allocator-extended constructors
+	#if 0
+	template< class Alloc > constexpr
+	tuple( allocator_arg_t, Alloc const& a );
+	template< class Alloc > constexpr
+	tuple( allocator_arg_t, Alloc const& a, Types const& ... );
+	template< class Alloc, class... UTypes > constexpr
+	tuple( allocator_arg_t, Alloc const& a, UTypes&&... );
+	template< class Alloc > constexpr
+	tuple( allocator_arg_t, Alloc const& a, tuple const& );
+	template< class Alloc > constexpr
+	tuple( allocator_arg_t, Alloc const& a, tuple&& );
+	template< class Alloc, class... UTypes > constexpr
+	tuple( allocator_arg_t, Alloc const& a, tuple const<UTypes...>& );
+	template< class Alloc, class... UTypes > constexpr
+	tuple( allocator_arg_t, Alloc const& a, tuple<UTypes...>&& );
+	#endif
+
+	// tuple assignment
+	constexpr tuple& operator=( tuple const& ) = default;
+	constexpr tuple& operator=( tuple&& ) = default;
+
+	template< class... UTypes >
+	constexpr tuple& operator=( tuple<UTypes...> const& );
+	template< class... UTypes >
+	constexpr tuple& operator=( tuple<UTypes...>&& );
+
+	// tuple swap
+	constexpr void swap( tuple& ) noexcept( /* see description */ );
+};
+
+template< class... UTypes              > tuple(UTypes...) -> tuple<UTypes...>;
+//template< class Alloc, class... UTypes > tuple(allocator_arg_t,Alloc,UTypes...) -> tuple<UTypes...>;
+//template< class Alloc, class... UTypes > tuple(allocator_arg_t,Alloc,tuple<UTypes...>) -> tuple<UTypes...>;
+
+#if 0
+// tuple creation functions
+inline constexpr /* unspecified */ ignore;
+#endif
+
+#if 0
+template< class T > struct unwrap_refwrapper { using type=T; };
+template< class T > struct unwrap_refwrapper<reference_wrapper<T>> { using type=T&; };
+template< class T > using unwrap_decay_t = typename unwrap_refwrapper<decay_t<T>>::type;
+// or use unwrap_ref_decay_t (since C++20)
+template< class... Types >
+constexpr // since C++14
+tuple<unwrap_decay_t<Types>...> make_tuple( Types&&... args )
+{
+	return tuple<unwrap_decay_t<Types>...>(std::forward<Types>(args)...);
+}
+#endif
+
+template< class... Types >
+constexpr tuple<Types&&...> forward_as_tuple( Types&&... ) noexcept
+{
+	return tuple<Types&&...>( std::forward<Types>(args)... );
+}
+
+template< class... Types >
+constexpr tuple<Types&...> tie( Types&... ) noexcept { return {args...}; }
+
+#if 0
+template< class... Tuples >
+constexpr tuple<CTypes...> tuple_cat( Tuples&&... );
+#endif
+
+// calling a function with a tuple of arguments
+#if 0
+namespace _MOSS
+{
+	template< class F, class Tuple, size_t... I > constexpr
+	decltype(auto) apply_impl( F&& f, Tuple&& t, index_sequence<I...> )
+	{
+		return INVOKE( std::forward<F>(f), get<I>(std::forward<Tuple>(t))... );
+	}
+}
+template< class F, class Tuple >
+constexpr decltype(auto) apply( F&& f, Tuple&& t )
+{
+	return apply_impl( std::forward<F>(f), std::forward<Tuple>(t),
+		make_index_sequence< tuple_size_v<decay_t<Tuple>> >{}
+	);
+}
+
+template< class T, class Tuple >
+constexpr T make_from_tuple( Tuple&& t )
+#endif
+
+#if 0
+// tuple helper classes
+template< class T > struct tuple_size; // not defined
+template< class T > struct tuple_size<T const>;
+
+template< class... Types > struct tuple_size< tuple<Types...> >;
+
+template< size_t I, class T >
+struct tuple_element; // not defined
+template< size_t I, class T >
+struct tuple_element< I, T const >;
+
+template< size_t I, class... Types >
+struct tuple_element< I, tuple<Types...> >;
+
+template< size_t I, class T >
+using tuple_element_t = typename tuple_element<I,T>::type;
+
+// element access
+template< size_t I, class... Types > constexpr
+tuple_element_t<I,tuple<Types...>>& get( tuple<Types...>& ) noexcept;
+template< size_t I, class... Types > constexpr
+tuple_element_t<I,tuple<Types...>>&& get( tuple<Types...>&& ) noexcept;
+template< size_t I, class... Types > constexpr
+tuple_element_t<I,tuple<Types...>> const& get( tuple<Types...> const& ) noexcept;
+template< size_t I, class... Types > constexpr
+tuple_element_t<I, tuple<Types...>> const&& get( tuple<Types...> const&& ) noexcept;
+template< class T, class... Types >
+constexpr T& get( tuple<Types...>& t ) noexcept;
+template< class T, class... Types >
+constexpr T&& get( tuple<Types...>&& t ) noexcept;
+template< class T, class... Types >
+constexpr T const& get( tuple<Types...> const& t ) noexcept;
+template< class T, class... Types >
+constexpr T const&& get( tuple<Types...> const&& t ) noexcept;
+
+// relational operators
+template< class... TTypes, class... UTypes >
+constexpr bool operator==( tuple<TTypes...> const&, tuple<UTypes...> const& );
+template< class... TTypes, class... UTypes >
+constexpr common_comparison_category_t</*synth-three-way-result*/<TTypes, UTypes>...>
+operator<=>( tuple<TTypes...>const&, tuple<UTypes...>const& );
+
+// allocator-related traits
+template< class... Types, class Alloc > struct uses_allocator< tuple<Types...>, Alloc >;
+
+// specialized algorithms
+template< class... Types >
+constexpr void
+swap( tuple<Types...>& x, tuple<Types...>& y ) noexcept( /* see description */ );
+
+// tuple helper classes
+template< class T >
+inline constexpr size_t tuple_size_v = tuple_size<T>::value;
+#endif
+
+
+
+}
+#endif

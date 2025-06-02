@@ -1,0 +1,10 @@
+#pragma once
+
+/*
+https://en.cppreference.com/w/cpp/types/climits
+COMPLETE
+*/
+
+
+
+#include "../libmoss-stdc/limits.h"

@@ -1,0 +1,19 @@
+#pragma once
+
+/*
+https://en.cppreference.com/w/cpp/header/cstdarg
+COMPLETE
+*/
+
+
+
+#include "../libmoss-stdc/stdarg.h"
+
+
+
+namespace std
+{
+
+using va_list = ::va_list;
+
+}

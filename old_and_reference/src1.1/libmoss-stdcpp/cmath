@@ -1,0 +1,75 @@
+#pragma once
+
+/*
+https://en.cppreference.com/w/cpp/header/cmath
+*/
+
+
+
+#include "../libmoss-stdc/math.h"
+
+
+
+namespace std
+{
+
+
+
+MOSS_ND_CEXPR_FN float        abs( float       val ) MOSS_NOEXCEPT { return fabsf( val ); }
+MOSS_ND_CEXPR_FN double       abs( double      val ) MOSS_NOEXCEPT { return fabs ( val ); }
+MOSS_ND_CEXPR_FN long double  abs( long double val ) MOSS_NOEXCEPT { return fabsl( val ); }
+MOSS_ND_CEXPR_FN float       fabs( float       val ) MOSS_NOEXCEPT { return fabsf( val ); }
+MOSS_ND_CEXPR_FN long double fabs( long double val ) MOSS_NOEXCEPT { return fabsl( val ); }
+
+/*MOSS_ND_FN inline float       fma( float       x,float       y, float       z ) MOSS_NOEXCEPT
+{
+	return fmaf( x,y, z );
+}
+MOSS_ND_FN inline long double fma( long double x,long double y, long double z ) MOSS_NOEXCEPT
+{
+	return fmal( x,y, z );
+}*/
+MOSS_ND_FN inline float  fma( float  x,float  y, float  z ) MOSS_NOEXCEPT { return __moss_fmaf( x,y, z ); }
+MOSS_ND_FN inline double fma( double x,double y, double z ) MOSS_NOEXCEPT { return __moss_fmad( x,y, z ); }
+
+
+
+MOSS_ND_FN inline float       pow ( float       base, float       power ) MOSS_NOEXCEPT
+{
+	return powf( base, power );
+}
+MOSS_ND_FN inline long double pow ( long double base, long double power ) MOSS_NOEXCEPT
+{
+	return powl( base, power );
+}
+
+MOSS_ND_CEXPR_FN float       sqrt ( float       val ) MOSS_NOEXCEPT { return sqrtf(val); }
+MOSS_ND_CEXPR_FN long double sqrt ( long double val ) MOSS_NOEXCEPT { return sqrtl(val); }
+
+MOSS_ND_FN inline float       cbrt( float       val ) MOSS_NOEXCEPT { return cbrtf( val ); }
+MOSS_ND_FN inline long double cbrt( long double val ) MOSS_NOEXCEPT { return cbrtl( val ); }
+
+
+
+/*MOSS_ND_CEXPR_FN float       round( float       val ) MOSS_NOEXCEPT { return roundf( val ); }
+MOSS_ND_CEXPR_FN long double round( long double val ) MOSS_NOEXCEPT { return roundl( val ); }
+
+MOSS_ND_CEXPR_FN long       lround( float       val ) MOSS_NOEXCEPT { return lroundf( val ); }
+MOSS_ND_CEXPR_FN long       lround( long double val ) MOSS_NOEXCEPT { return lroundl( val ); }
+
+MOSS_ND_CEXPR_FN long long llround( float       val ) MOSS_NOEXCEPT { return llroundf( val ); }
+MOSS_ND_CEXPR_FN long long llround( long double val ) MOSS_NOEXCEPT { return llroundl( val ); }*/
+MOSS_ND_CEXPR_FN float  round( float  val ) MOSS_NOEXCEPT { return __moss_roundf( val ); }
+MOSS_ND_CEXPR_FN double round( double val ) MOSS_NOEXCEPT { return __moss_roundd( val ); }
+
+
+
+MOSS_ND_CEXPR_FN bool isinf( float  val ) MOSS_NOEXCEPT { return (bool)__moss_isinf_f32(val); }
+MOSS_ND_CEXPR_FN bool isinf( double val ) MOSS_NOEXCEPT { return (bool)__moss_isinf_f64(val); }
+
+MOSS_ND_CEXPR_FN bool isnan( float  val ) MOSS_NOEXCEPT { return (bool)__moss_isnan_f32(val); }
+MOSS_ND_CEXPR_FN bool isnan( double val ) MOSS_NOEXCEPT { return (bool)__moss_isnan_f64(val); }
+
+
+
+}

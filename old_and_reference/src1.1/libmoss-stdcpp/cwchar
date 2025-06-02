@@ -1,0 +1,10 @@
+#pragma once
+
+/*
+https://en.cppreference.com/w/cpp/header/cwchar
+INCOMPLETE
+*/
+
+
+
+#include "../libmoss-stdc/wchar.h"

@@ -1,0 +1,8 @@
+#pragma once
+
+/*
+https://en.cppreference.com/w/cpp/header/cfloat
+COMPLETE except for as mentioned in "float.h" (`FLT_ROUNDS`)
+*/
+
+#include "../libmoss-stdc/float.h"

@@ -1,0 +1,51 @@
+#pragma once
+
+/*
+https://en.cppreference.com/w/cpp/header/new
+*/
+
+#include "cstdlib"
+
+
+
+namespace std
+{
+
+enum class align_val_t : size_t {};
+
+struct bad_alloc {};
+
+}
+
+
+
+#ifdef __INTELLISENSE__
+	#define MOSS_OPMEM
+#else
+	//#define MOSS_OPMEM __attribute__((__visibility__("default"))) //__declspec(dllexport)
+	#define MOSS_OPMEM __attribute__((weak))
+#endif
+
+
+
+/*MOSS_OPMEM [[nodiscard]] void* operator new  ( size_t size                         );
+MOSS_OPMEM [[nodiscard]] void* operator new[]( size_t size                         );
+MOSS_OPMEM [[nodiscard]] void* operator new  ( size_t size, std::align_val_t align );
+MOSS_OPMEM [[nodiscard]] void* operator new[]( size_t size, std::align_val_t align );
+
+MOSS_OPMEM void operator delete  ( void* ptr                         ) noexcept;
+MOSS_OPMEM void operator delete[]( void* ptr                         ) noexcept;
+MOSS_OPMEM void operator delete  ( void* ptr, std::align_val_t align ) noexcept;
+MOSS_OPMEM void operator delete[]( void* ptr, std::align_val_t align ) noexcept;*/
+
+
+
+[[nodiscard]] inline void* operator new  ( size_t /*size*/, void* ptr ) noexcept { return ptr; }
+[[nodiscard]] inline void* operator new[]( size_t /*size*/, void* ptr ) noexcept { return ptr; }
+
+inline void operator delete  ( void* /*ptr*/, void* /*place*/ ) noexcept {}
+inline void operator delete[]( void* /*ptr*/, void* /*place*/ ) noexcept {}
+
+
+
+#undef MOSS_OPMEM

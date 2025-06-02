@@ -1,0 +1,84 @@
+#pragma once
+
+/*
+https://en.cppreference.com/w/cpp/header/vector
+*/
+
+//#include "__array_base.hpp"
+#include "__flex_array.hpp"
+
+#include "iterator"
+#include "memory"
+
+
+
+namespace std
+{
+
+
+
+#if 0
+template< class T, class Alloc=allocator<T> >
+class vector : public _MOSS_ArrayBase< T, size_t >
+{
+	public:
+		using value_type = T;
+		using size_type       = size_t   ;
+		using difference_type = ptrdiff_t;
+		using allocator_type = Alloc;
+
+		using       pointer = typename allocator_traits<Alloc>::pointer      ;
+		using const_pointer = typename allocator_traits<Alloc>::const_pointer;
+		using       reference = value_type      &;
+		using const_reference = value_type const&;
+	
+		using       iterator =       pointer;
+		using const_iterator = const_pointer;
+		//using       reverse_iterator = std::reverse_iterator<      iterator>;
+		//using const_reverse_iterator = std::reverse_iterator<const_iterator>;
+
+		constexpr vector() noexcept(noexcept(Alloc()));
+			(since C++20)
+			(2) 	
+		constexpr explicit vector( const Alloc& alloc ) noexcept;
+			(since C++20)
+			(3) 	
+		constexpr vector( size_type count,
+
+						  const T& value,
+						  const Alloc& alloc = Alloc() );
+			(since C++20)
+			(4) 	
+		constexpr explicit vector( size_type count,
+								   const Alloc& alloc = Alloc() );
+			(since C++20)
+			(5) 	
+		template< class InputIt >
+
+		constexpr vector( InputIt first, InputIt last,
+						  const Alloc& alloc = Alloc() );
+			(since C++20)
+			(6) 	
+		constexpr vector( const vector& other );
+			(since C++20)
+			(7) 	
+		constexpr vector( const vector& other, const Alloc& alloc );
+			(since C++20)
+			(8) 	
+		constexpr vector( vector&& other ) noexcept;
+			(since C++20)
+			(9) 	
+		constexpr vector( vector&& other, const Alloc& alloc );
+			(since C++20)
+			(10) 	
+		constexpr vector( std::initializer_list<T> init,
+						  const Alloc& alloc = Alloc() );
+};
+#endif
+
+template< class T, class Alloc=allocator<T> >
+using vector = _MOSS_FlexArray< T, 10, size_t, Alloc >;
+
+
+
+}

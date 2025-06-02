@@ -1,0 +1,9 @@
+#pragma once
+
+/*
+https://en.cppreference.com/w/cpp/header/cstdio
+*/
+
+
+
+#include "../libmoss-stdc/stdio.h"

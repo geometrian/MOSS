@@ -1,0 +1,10 @@
+#pragma once
+
+/*
+https://en.cppreference.com/w/cpp/header/cassert
+COMPLETE
+*/
+
+
+
+#include "../libmoss-stdc/assert.h"

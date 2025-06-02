@@ -1,0 +1,53 @@
+#pragma once
+
+/*
+https://en.cppreference.com/w/cpp/header/cstring
+COMPLETE except as mentioned in "string.h"
+*/
+
+
+
+#include "../libmoss-stdc/string.h"
+
+
+
+namespace std
+{
+
+
+
+inline char const* strchr ( char const* str, int ch ) { return __moss_strchr ( str, ch ); }
+inline char      * strchr ( char      * str, int ch ) { return __moss_strchr ( str, ch ); }
+inline char const* strrchr( char const* str, int ch ) { return __moss_strrchr( str, ch ); }
+inline char      * strrchr( char      * str, int ch ) { return __moss_strrchr( str, ch ); }
+
+inline char const* strpbrk( char const* find_str, char const* dict_str )
+{
+	return __moss_strpbrk( find_str, dict_str );
+}
+inline char      * strpbrk( char      * find_str, char const* dict_str )
+{
+	return __moss_strpbrk( find_str, dict_str );
+}
+
+inline char const* strstr( char const* in_str, char const* search_str )
+{
+	return __moss_strstr( in_str, search_str );
+}
+inline char      * strstr( char      * in_str, char const* search_str )
+{
+	return __moss_strstr( in_str, search_str );
+}
+
+inline void const* memchr( void const* data, int ch, size_t size )
+{
+	return __moss_memchr( data, ch, size );
+}
+inline void      * memchr( void      * data, int ch, size_t size )
+{
+	return __moss_memchr( data, ch, size );
+}
+
+
+
+}

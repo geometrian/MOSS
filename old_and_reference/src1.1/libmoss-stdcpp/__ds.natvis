@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+	<!-- Arrays -->
+	<Type Name="std::_MOSS_ArrayBase&lt;*,*,*&gt;">
+		<DisplayString>_MOSS_ArrayBase{{ size={(($T3*)this)->_count} }}</DisplayString>
+		<Expand HideRawView="false">
+			<Item Name="[size]">(($T3*)this)->_count</Item>
+			<ArrayItems>
+				<Size>(($T3*)this)->_count</Size>
+				<ValuePointer>($T1*)(($T3*)this)->_data.ptr</ValuePointer>
+			</ArrayItems>
+		</Expand>
+	</Type>
+	<Type Name="std::_MOSS_CappedArray&lt;*,*,*&gt;">
+		<DisplayString>CappedArray{{ size={_count} }}</DisplayString>
+		<Expand HideRawView="false">
+			<Item Name="[size]">_count</Item>
+			<ArrayItems>
+				<Size>_count</Size>
+				<ValuePointer>($T1*)_data</ValuePointer>
+			</ArrayItems>
+		</Expand>
+	</Type>
+	<Type Name="std::_MOSS_FlexArray&lt;*,*,*,*&gt;">
+		<DisplayString>FlexArray{{ size={_count} }}</DisplayString>
+		<Expand HideRawView="false">
+			<Item Name="[size]">_count</Item>
+			<Synthetic Name="[capacity]" Condition="_dyn_capacity==  0">
+				<DisplayString>{$T2} (statically allocated)</DisplayString>
+			</Synthetic>
+			<Synthetic Name="[capacity]" Condition="_dyn_capacity&gt;0">
+				<DisplayString>{_dyn_capacity} (dynamically allocated)</DisplayString>
+			</Synthetic>
+			<ArrayItems>
+				<Size>_count</Size>
+				<ValuePointer>_data.ptr</ValuePointer>
+			</ArrayItems>
+		</Expand>
+	</Type>
+
+	<!-- String -->
+	<Type Name="std::basic_string&lt;char,*,*&gt;">
+		<DisplayString>{ _data.ptr, na }</DisplayString>
+		<Expand HideRawView="false">
+			<Synthetic Name="[size]">
+				<DisplayString>{_count-1} ({_count})</DisplayString>
+			</Synthetic>
+			<ArrayItems>
+				<Size>_count-1</Size>
+				<ValuePointer>_data.ptr</ValuePointer>
+			</ArrayItems>
+		</Expand>
+	</Type>
+
+	<!-- Heap -->
+	<Type Name="std::_MOSS_Heap&lt;*,*,*&gt;">
+		<DisplayString>Heap{{ size={_backing._count} }}</DisplayString>
+		<Expand HideRawView="true">
+			<ExpandedItem>_backing</ExpandedItem>
+		</Expand>
+	</Type>
+
+	<!-- Priority Queue -->
+	<Type Name="std::_MOSS_PriorityQueue&lt;*,*,*&gt;">
+		<DisplayString>PriorityQueue{{ size={_heap._backing._count} }}</DisplayString>
+		<Expand HideRawView="true">
+			<ExpandedItem>_heap</ExpandedItem>
+		</Expand>
+	</Type>
+	<Type Name="std::_MOSS_BoundedPriorityQueue&lt;*,*,*,*&gt;">
+		<DisplayString Condition="$T3>0" >PriorityQueue{{ size={_heap._backing._count}, bound={$T3} }}</DisplayString>
+		<DisplayString Condition="$T3==0">PriorityQueue{{ size={_heap._backing._count}, bound={capacity()} }}</DisplayString>
+		<Expand HideRawView="true">
+			<ExpandedItem>_heap</ExpandedItem>
+		</Expand>
+	</Type>
+
+	<!-- KD-Tree -->
+	<Type Name="std::_MOSS_KDTreeNode&lt;0&gt;"><!-- eGeneral -->
+		<DisplayString Condition="has_children==0b00">Node{{ split={ind_split_axis}, children=(none) }}</DisplayString>
+		<DisplayString Condition="has_children==0b10">Node{{ split={ind_split_axis}, children={{{ind_child_left},(none)}} }}</DisplayString>
+		<DisplayString Condition="has_children==0b01">Node{{ split={ind_split_axis}, children={{(none),{ind_child_right}}} }}</DisplayString>
+		<DisplayString Condition="has_children==0b11">Node{{ split={ind_split_axis}, children={{{ind_child_left},{ind_child_right}}} }}</DisplayString>
+		<Expand HideRawView="true">
+			<Item Name="[split axis]">ind_split_axis</Item>
+			<Item Name="[left child index]"  Condition="has_child_left" >ind_child_left </Item>
+			<Item Name="[right child index]" Condition="has_child_right">ind_child_right</Item>
+			<Synthetic Name="[user data]">
+				<DisplayString>{(uint16)user_data_0,bb}'{(uint16)user_data_1,bb}</DisplayString>
+			</Synthetic>
+			<Synthetic Name="[parent index]" Condition="ind_parent==0x0000FFFFFFFFFFFFull">
+				<DisplayString>(none; root)</DisplayString>
+			</Synthetic>
+			<Item Name="[parent index]" Condition="ind_parent!=0x0000FFFFFFFFFFFFull">ind_parent</Item>
+		</Expand>
+	</Type>
+	<Type Name="std::_MOSS_KDTreeNode&lt;1&gt;"><!-- eStatic64 -->
+		<DisplayString Condition="has_children==0b00">Node{{ split={ind_split_axis}, children=(none) }}</DisplayString>
+		<DisplayString Condition="has_children==0b10">Node{{ split={ind_split_axis}, children={{(next index),(none)}} }}</DisplayString>
+		<DisplayString Condition="has_children==0b01">Node{{ split={ind_split_axis}, children={{(none),{ind_child_right}}} }}</DisplayString>
+		<DisplayString Condition="has_children==0b11">Node{{ split={ind_split_axis}, children={{(next index),{ind_child_right}}} }}</DisplayString>
+		<Expand HideRawView="true">
+			<Item Name="[split axis]">ind_split_axis</Item>
+			<Synthetic Name="[left child index]" Condition="has_child_left">
+				<DisplayString>(next index)</DisplayString>
+			</Synthetic>
+			<Item Name="[right child index]" Condition="has_child_right">ind_child_right</Item>
+			<Item Name="[swapped children]"  Condition="has_children"   >(bool)swapped_children</Item>
+		</Expand>
+	</Type>
+	<Type Name="std::_MOSS_KDTree&lt;*,*&gt;">
+		<DisplayString>KDTree{{ size={_nodes.size()} }}</DisplayString>
+		<Expand HideRawView="true">
+			<Synthetic Name="[nodes]" >
+				<DisplayString>{_nodes}</DisplayString>
+				<Expand><IndexListItems>
+					<Size>_nodes.size()</Size>
+					<ValueNode>_nodes[$i]</ValueNode>
+				</IndexListItems></Expand>
+			</Synthetic>
+			<Synthetic Name="[points]">
+				<DisplayString>{_points}</DisplayString>
+				<Expand><IndexListItems>
+					<Size>_points.size()</Size>
+					<ValueNode>_points[$i]</ValueNode>
+				</IndexListItems></Expand>
+			</Synthetic>
+		</Expand>
+	</Type>
+</AutoVisualizer>

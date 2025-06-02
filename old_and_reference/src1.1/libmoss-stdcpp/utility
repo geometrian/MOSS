@@ -1,0 +1,92 @@
+#pragma once
+
+/*
+https://en.cppreference.com/w/cpp/header/utility
+*/
+
+#include "cstddef" //`std::byte`
+
+//#include "compare"
+#include "initializer_list"
+#include "type_traits" //`remove_reference_t`
+
+
+
+namespace std
+{
+
+
+
+//template< class T1, class T2 > using pair = tuple<T1,T2>;
+
+
+
+[[nodiscard]] constexpr
+bool __moss_is_all_zeros( void const* buffer, size_t size ) noexcept
+{
+	for ( size_t i=0; i<size; ++i )
+	{
+		if ( static_cast<byte const*>(buffer)[i] != byte{0x00} ) [[unlikely]] return false;
+	}
+	return true;
+}
+
+
+template< class T >
+add_rvalue_reference_t<T> declval() noexcept
+{
+	static_assert( false, "`declval` cannot be evaluated" );
+}
+
+
+
+[[noreturn]] inline void unreachable()
+{
+	__moss_assert_false( "Reached unreachable!" );
+}
+
+
+
+template< class T >
+constexpr remove_reference_t<T>&& move( T&& val ) noexcept
+{
+	return static_cast< remove_reference_t<T>&& >( val );
+}
+
+template< class T >
+constexpr T&& forward( remove_reference_t<T>& val ) noexcept
+{
+	return static_cast< T&& >( val );
+}
+template< class T >
+constexpr T&& forward( remove_reference_t<T>&& val ) noexcept
+{
+	static_assert( !is_lvalue_reference_v<T>, "Cannot forward an rvalue as an lvalue." );
+	return static_cast< T&& >( val );
+}
+
+
+
+template< class T >
+constexpr void swap( T& val0, T& val1 )
+	//noexcept( is_nothrow_move_constructible_v<T> && is_nothrow_move_assignable_v<T> )
+{
+	auto tmp = std::move( val0 );
+	val0 = std::move( val1 );
+	val1 = std::move( tmp );
+}
+
+template< class T, size_t N >
+constexpr void swap( T (&vals0)[N], T (&vals1)[N] )
+	//noexcept( is_nothrow_swappable_v<T> )
+{
+	for ( size_t k=0; k<N; ++k ) swap( vals0[k], vals1[k] );
+}
+
+
+
+
+
+
+
+}

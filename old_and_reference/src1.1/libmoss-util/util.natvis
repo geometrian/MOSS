@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+	<!-- Colors -->
+	<Type Name="MOSS::Color::sRGB">
+		<DisplayString>sRGB{{ {(int)r}, {(int)g}, {(int)b} }}</DisplayString>
+		<Expand HideRawView="true">
+			<Item Name="r">(int)r</Item>
+			<Item Name="g">(int)g</Item>
+			<Item Name="b">(int)b</Item>
+		</Expand>
+	</Type>
+	<Type Name="MOSS::Color::sRGB_A">
+		<DisplayString>sRGB+A{{ {(int)r}, {(int)g}, {(int)b}, {(int)a} }}</DisplayString>
+		<Expand HideRawView="true">
+			<Item Name="r">(int)r</Item>
+			<Item Name="g">(int)g</Item>
+			<Item Name="b">(int)b</Item>
+			<Item Name="a">(int)a</Item>
+		</Expand>
+	</Type>
+
+	<!-- Unicode -->
+	<Type Name="MOSS::unichar">
+		<DisplayString>'{natvis_strs[(int)byte0],s8b}'</DisplayString>
+		<Expand HideRawView="true">
+			<Item Name="byte0">(int)byte0</Item>
+			<Item Name="byte1">(int)byte1</Item>
+			<Item Name="byte2">(int)byte2</Item>
+			<Item Name="byte3">(int)byte3</Item>
+		</Expand>
+	</Type>
+
+	<!-- Terminal -->
+	<Type Name="MOSS::Term::CharMatrix::Char">
+		<DisplayString Condition=" attribs.is_dirty">{{ Char {ch}, dirty }}</DisplayString>
+		<DisplayString Condition="!attribs.is_dirty">{{ Char {ch}, clean }}</DisplayString>
+		<Expand HideRawView="true">
+			<Item Name="ch">ch</Item>
+			<ExpandedItem>attribs</ExpandedItem>
+		</Expand>
+	</Type>
+</AutoVisualizer>

@@ -1,0 +1,161 @@
+#pragma once
+
+/*
+https://en.cppreference.com/w/cpp/header/array
+*/
+
+//#include "compare"
+#include "initializer_list"
+
+#include "type_traits"
+#include "utility"
+
+
+
+namespace std
+{
+
+
+
+// class template array
+template< class T, size_t N >
+class array
+{
+	private:
+		T _backing[ N ];
+
+	public:
+		// types
+		using value_type = T;
+		using size_type = size_t;
+		using difference_type = ptrdiff_t;
+
+		using       pointer = T      *;
+		using const_pointer = T const*;
+		using       reference = T      &;
+		using const_reference = T const&;
+		using       iterator = pointer;
+		using const_iterator = pointer;
+		//using       reverse_iterator = std::reverse_iterator<      iterator>;
+		//using const_reverse_iterator = std::reverse_iterator<const_iterator>;
+
+		constexpr array() = default;
+		constexpr array( std::initializer_list<T> ilist )
+		{
+			__moss_assert( ilist.size()==N, "Invalid argument count!" );
+			T* dst = _backing;
+			for ( T const& val : ilist ) *(dst++)=val;
+		}
+
+		constexpr void fill( T const& val )
+		{
+			for ( size_type i=0; i<N; ++i ) _backing[i]=val;
+		}
+		constexpr void swap( array& other ) /*noexcept(is_nothrow_swappable_v<T>);*/
+		{
+			array tmp = std::move( *this );
+			*this = std::move( other );
+			other = std::move( tmp );
+		}
+
+		// iterators
+		constexpr const_iterator cbegin() const noexcept { return _backing    ; }
+		constexpr       iterator  begin()       noexcept { return _backing    ; }
+		constexpr const_iterator  begin() const noexcept { return _backing    ; }
+		constexpr const_iterator cend  () const noexcept { return _backing + N; }
+		constexpr       iterator  end  ()       noexcept { return _backing + N; }
+		constexpr const_iterator  end  () const noexcept { return _backing + N; }
+
+		/*constexpr const_reverse_iterator crbegin() const noexcept;
+		constexpr       reverse_iterator  rbegin()       noexcept;
+		constexpr const_reverse_iterator  rbegin() const noexcept;
+		constexpr const_reverse_iterator crend  () const noexcept;
+		constexpr       reverse_iterator  rend  ()       noexcept;
+		constexpr const_reverse_iterator  rend  () const noexcept;*/
+
+		// capacity
+		[[nodiscard]] constexpr bool empty() const noexcept { return N==0; }
+		constexpr size_type     size() const noexcept { return N; }
+		constexpr size_type max_size() const noexcept { return N; }
+
+		// element access
+		constexpr       reference operator[]( size_type ind )
+		{
+			__moss_assert( ind<N, "access array out of bounds" );
+			return _backing[ind];
+		}
+		constexpr const_reference operator[]( size_type ind ) const
+		{
+			__moss_assert( ind<N, "access array out of bounds" );
+			return _backing[ind];
+		}
+		/*constexpr       reference at        ( size_type ind )
+		{
+			if ( ind<N ) [[likely]] return (*this)[ind];
+			throw out_of_range( "access array out of bounds" );
+		}
+		constexpr const_reference at        ( size_type ind ) const
+		{
+			if ( ind<N ) [[likely]] return (*this)[ind];
+			throw out_of_range( "access array out of bounds" );
+		}*/
+
+		constexpr       reference front()       { return _backing[ 0     ]; }
+		constexpr const_reference front() const { return _backing[ 0     ]; }
+		constexpr       reference back ()       { return _backing[ N - 1 ]; }
+		constexpr const_reference back () const { return _backing[ N - 1 ]; }
+
+		constexpr T      * data()       noexcept { return _backing; }
+		constexpr T const* data() const noexcept { return _backing; }
+};
+
+template< class T, class... U > array(T,U...) -> array< T, 1+sizeof...(U) >;
+
+template< class T, size_t N > constexpr
+bool operator==( array<T,N> const& lhs, array<T,N> const& rhs )
+{
+	for ( typename array<T,N>::size_type i=0; i<N; ++i ) if (!( lhs[i] == rhs[i] )) return false;
+	return true;
+}
+//template< class T, size_t N > constexpr
+//__synth_three_way_result<T> operator<=>(array<T,N> const& x, array<T,N> const& y);
+
+// specialized algorithms
+template< class T, size_t N >
+constexpr void swap( array<T,N>& arr0, array<T,N>& arr1 ) noexcept( noexcept(arr0.swap(arr1)) )
+{
+	arr0.swap( arr1 );
+}
+
+// array creation functions
+template< class T, size_t N > constexpr
+array< remove_cv_t<T>, N > to_array( T(&arr)[N] )
+{
+	array< remove_cv_t<T>, N > ret;
+	for ( typename array<T,N>::size_type i=0; i<N; ++i ) ret[i]=arr[i];
+	return ret;
+}
+template< class T, size_t N > constexpr
+array< remove_cv_t<T>, N > to_array( T(&&arr)[N] )
+{
+	array< remove_cv_t<T>, N > ret;
+	for ( typename array<T,N>::size_type i=0; i<N; ++i ) ret[i]=std::move( arr[i] );
+	return ret;
+}
+
+// tuple interface
+#if 0
+template<           class T           > struct tuple_size;
+template<           class T, size_t N > struct tuple_size< array<T,N> >;
+template< size_t I, class T           > struct tuple_element;
+template< size_t I, class T, size_t N > struct tuple_element< I, array<T,N> >;
+
+template< size_t I, class T, size_t N > constexpr T      &  get( array<T,N>      &  arr ) noexcept;
+template< size_t I, class T, size_t N > constexpr T      && get( array<T,N>      && arr ) noexcept;
+template< size_t I, class T, size_t N > constexpr T const&  get( array<T,N> const&  arr ) noexcept;
+template< size_t I, class T, size_t N > constexpr T const&& get( array<T,N> const&& arr ) noexcept;
+#endif
+
+
+
+}

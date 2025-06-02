@@ -1,0 +1,100 @@
+#pragma once
+
+/*
+https://en.cppreference.com/w/cpp/header/memory
+*/
+
+//#include "compare"
+
+#include "new"
+#include "type_traits"
+
+
+
+namespace std
+{
+
+
+
+template< class T, size_t align, size_t padding=0 >
+struct __moss_allocator_aligned
+{
+	static_assert( align>=alignof(T) && align%alignof(T)==0, "Invalid alignment!" );
+
+	using value_type = T;
+	using size_type       = size_t;
+	using difference_type = ptrdiff_t;
+
+	using       pointer = T      *;
+	using const_pointer = T const*;
+	using       reference = T      &;
+	using const_reference = T const&;
+
+	using propagate_on_container_move_assignment = true_type;
+
+	template<class T2> struct rebind final
+	{
+		using other = std::conditional_t< std::is_same_v<T,T2>,
+			__moss_allocator_aligned< T , align      , padding >, //C++ wants T2=T1 -> other=this
+			__moss_allocator_aligned< T2, alignof(T2), padding >
+		>;
+	};
+
+	constexpr __moss_allocator_aligned() noexcept = default;
+	constexpr __moss_allocator_aligned( __moss_allocator_aligned const& /*other*/ ) noexcept = default;
+	template< class T2, size_t align2, size_t padding2 >
+	constexpr __moss_allocator_aligned( __moss_allocator_aligned<T2,align2,padding2> const& /*other*/ ) noexcept {}
+
+	template< class T2, size_t align2, size_t padding2 > [[nodiscard]] constexpr
+	bool operator==( __moss_allocator_aligned<T2,align2,padding2> const& /*other*/ ) noexcept
+	{
+		return true;
+	}
+
+	[[nodiscard]] constexpr T* allocate( size_t size )
+	{
+		void* ptr = ::operator new( size*sizeof(T)+padding, align_val_t{align} );
+		return static_cast<T*>(ptr);
+	}
+	constexpr void deallocate( T* ptr, size_t /*size*/ )
+	{
+		::operator delete( static_cast<void*>(ptr), align_val_t{align} );
+	}
+
+	//Additional convenience functions
+	constexpr void deallocate( T* ptr )
+	{
+		deallocate( ptr, 0 );
+	}
+	[[nodiscard]] constexpr T* realloc( T* ptr, size_t size )
+	{
+		deallocate( ptr );
+		return allocate( size );
+	}
+};
+
+template< class T >
+using allocator = __moss_allocator_aligned< T, alignof(T) >;
+
+
+
+template< class Alloc >
+struct allocator_traits
+{
+	using allocator_type = Alloc;
+	using value_type = Alloc::value_type;
+	using       pointer = Alloc::      pointer;
+	using const_pointer = Alloc::const_pointer;
+	//using       void_pointer = Alloc::      void_pointer;
+	//using const_void_pointer = Alloc::const_void_pointer;
+	using difference_type = Alloc::difference_type;
+	using size_type = Alloc::size_type;
+	//using propagate_on_container_copy_assignment = Alloc::propagate_on_container_copy_assignment;
+	//using propagate_on_container_move_assignment = Alloc::propagate_on_container_move_assignment;
+	//using propagate_on_container_swap            = Alloc::propagate_on_container_swap if present;
+	//using is_always_equal = Alloc::is_always_equal;
+};
+
+
+
+}

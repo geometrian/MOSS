@@ -1,0 +1,46 @@
+#pragma once
+
+/*
+https://en.cppreference.com/w/cpp/header/bit
+*/
+
+#include "../libmoss-stdc/__arch.h"
+
+
+
+#if __MOSS_CPP__ >= 2020
+
+namespace std
+{
+
+
+
+template< class To, class From >
+#ifndef __INTELLISENSE__
+requires( sizeof(To) == sizeof(From) )
+#endif
+[[nodiscard]] constexpr To bit_cast( From val ) noexcept
+{
+	return __builtin_bit_cast( To, val );
+}
+
+
+
+enum class endian
+{
+	#if defined _MSC_VER && !defined __clang__
+		little = 0,
+		big    = 1,
+		native = little
+	#else
+		little = __ORDER_LITTLE_ENDIAN__,
+		big    = __ORDER_BIG_ENDIAN__,
+		native = __BYTE_ORDER__
+	#endif
+};
+
+
+
+}
+
+#endif

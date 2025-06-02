@@ -1,0 +1,134 @@
+#pragma once
+
+/*
+https://en.cppreference.com/w/cpp/header/algorithm
+*/
+
+#include "initializer_list"
+#include "utility"
+
+
+
+namespace std
+{
+
+
+
+template< class T >
+T const& min( T const& a,T const& b          ) { return b<a      ? b : a; }
+template< class T, class Cmp >
+T const& min( T const& a,T const& b, Cmp cmp ) { return cmp(b,a) ? b : a; }
+
+template< class T > 
+T const& max(T const& a,T const& b          ) { return a<b      ? b : a; }
+template< class T, class Cmp > 
+T const& max(T const& a,T const& b, Cmp cmp ) { return cmp(a,b) ? b : a; }
+
+template< class FwdIter >
+FwdIter min_element( FwdIter first, FwdIter last         )
+{
+	if ( first == last ) return last;
+ 
+	FwdIter smallest = first;
+	while ( ++first != last ) if ( *first < *smallest ) smallest=first;
+	return smallest;
+}
+template< class FwdIter, class Cmp >
+FwdIter min_element( FwdIter first,FwdIter last, Cmp cmp )
+{
+	if ( first == last ) return last;
+ 
+	FwdIter smallest = first;
+	while ( ++first != last ) if (cmp( *first, *smallest )) smallest=first;
+	return smallest;
+}
+
+template< class FwdIter >
+FwdIter max_element( FwdIter first,FwdIter last          )
+{
+	if ( first == last ) return last;
+ 
+	FwdIter largest = first;
+	while ( ++first != last ) if ( *largest < *first ) largest=first;
+	return largest;
+}
+template< class FwdIter, class Cmp >
+FwdIter max_element( FwdIter first,FwdIter last, Cmp cmp )
+{
+	if ( first == last ) return last;
+ 
+	FwdIter largest = first;
+	while ( ++first != last ) if (cmp( *largest, *first )) largest=first;
+	return largest;
+}
+
+template< class T >
+T min( std::initializer_list<T> ilist          ) { return *std::min_element( ilist.begin(),ilist.end()      ); }
+template< class T, class Cmp >
+T min( std::initializer_list<T> ilist, Cmp cmp ) { return *std::min_element( ilist.begin(),ilist.end(), cmp ); }
+
+template< class T >
+T max( std::initializer_list<T> ilist          ) { return *std::max_element( ilist.begin(),ilist.end()      ); }
+template< class T, class Cmp >
+T max( std::initializer_list<T> ilist, Cmp cmp ) { return *std::max_element( ilist.begin(),ilist.end(), cmp ); }
+
+
+
+template< class InpIter, class T > [[nodiscard]] constexpr
+InpIter find( InpIter first,InpIter last, T const& val )
+{
+	for ( ; first!=last; ++first ) if ( *first == val ) break;
+	return first;
+}
+template< class InpIter, class UnaryPred > [[nodiscard]] constexpr
+InpIter find_if( InpIter first,InpIter last, UnaryPred pred )
+{
+	for ( ; first!=last; ++first ) if ( pred(*first) ) break;
+	return first;
+}
+template< class InpIter, class UnaryPred > [[nodiscard]] constexpr
+InpIter find_if_not( InpIter first,InpIter last, UnaryPred pred )
+{
+	for ( ; first!=last; ++first ) if ( !pred(*first) ) break;
+	return first;
+}
+
+
+
+/*
+Given range [`first`,`last`), collects⁽¹⁾ items not matching `val`⁽²⁾ at the front, returning the
+new end of this sub-range.  The size of the original range is not modified; to also erase them, also
+use `erase(⋯)` (the remove-erase idiom):
+
+	std::vector<int> vec = { 2, 1, 2, 3, 2, 2, 5, 1, 2, 7, 2, 2 }; // [2,1,2,3,2,2,5,1,2,7,2,2]
+	auto compacted_end = std::remove( vec.begin(),vec.end(), 2 );  // [1,3,5,1,7,2,#,#,2,#,2,2]
+	vec.erase( compacted_end, vec.end() );                         // [1,3,5,1,7]
+
+⁽¹⁾ Objects are moved with `move(⋯)`.  Moved-from integers in the example are denoted "#".
+⁽²⁾ By "not matching `val`", more precisely it is "does not compare `==` to `val`".
+*/
+template< class FwdIter, class T > constexpr
+FwdIter remove( FwdIter first,FwdIter last, T const& val )
+{
+	FwdIter repl = find( first,last, val );
+	for ( FwdIter iter=repl; iter!=last; ++iter )
+	{
+		if (!( *iter == val )) *(repl++)=std::move( *iter ); //Compact
+	}
+	return repl;
+}
+// Like other overload, except collects items that return truthy when `pred(⋯)` is applied to them.
+template< class FwdIter, class UnaryPred >
+FwdIter remove_if( FwdIter first,FwdIter last, UnaryPred pred )
+{
+	FwdIter repl = find( first,last, val );
+	for ( FwdIter iter=repl; iter!=last; ++iter )
+	{
+		if ( !pred(*iter) ) *(repl++)=std::move( *iter ); //Compact
+	}
+	return repl;
+}
+
+
+
+}

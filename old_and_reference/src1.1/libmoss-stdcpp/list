@@ -1,0 +1,443 @@
+#pragma once
+
+/*
+https://en.cppreference.com/w/cpp/header/list
+*/
+
+
+
+//#include <compare>
+#include "initializer_list"
+#include "memory"
+
+
+
+namespace std
+{
+
+
+
+// class template list
+template< class T, class Alloc=allocator<T> >
+class list {
+	public:
+		using value_type = T;
+		using size_type       = size_t   ;
+		using difference_type = ptrdiff_t;
+		using allocator_type = Alloc;
+
+		using       pointer = typename allocator_traits<Alloc>::      pointer;
+		using const_pointer = typename allocator_traits<Alloc>::const_pointer;
+		using       reference        = value_type      &;
+		using const_reference        = value_type const&;
+
+	private:
+		Alloc _alloc;
+
+		struct _Node final
+		{
+			_Node *prev, *next;
+			T val;
+		};
+		_Node *_front, *_back; //Note might be the same!
+		size_type _size = 0;
+
+		//template< bool is_const >
+		struct _Iter final
+		{
+			_Node* node;
+
+			[[nodiscard]] constexpr reference operator* () const noexcept { return  node->val; }
+			[[nodiscard]] constexpr pointer   operator->() const noexcept { return &node->val; }
+
+			_Iter& operator--(   ) noexcept { node=node->prev; return *this; }
+			_Iter& operator++(   ) noexcept { node=node->next; return *this; }
+			_Iter  operator--(int) noexcept { _Iter tmp=*this; --(*this); return tmp; }
+			_Iter  operator++(int) noexcept { _Iter tmp=*this; ++(*this); return tmp; }
+
+			[[nodiscard]] bool operator==( _Iter const& other ) const noexcept { return node==other.node; }
+		};
+
+	public:
+		using       iterator = _Iter;//< false >;
+		using const_iterator = _Iter;//< true  >;
+		//using       reverse_iterator = std::reverse_iterator<      iterator>;
+		//using const_reverse_iterator = std::reverse_iterator<const_iterator>;
+
+	public:
+		list() : list(Alloc()) {}
+		explicit list( Alloc const& alloc ) : _alloc(alloc), _front(nullptr),_back(nullptr) {}
+		explicit list( size_type count, Alloc const& alloc=Alloc() ) : list( alloc )
+		{
+			for ( size_type i=0; i<count; ++i ) emplace_front();
+		}
+		list( size_type count,T const& val, Alloc const& alloc=Alloc() ) : list( alloc )
+		{
+			assign( count, val );
+		}
+		template< class InpIter >
+		list( InpIter first,InpIter last, Alloc const& alloc=Alloc()) : list( alloc )
+		{
+			assign( first, last );
+		}
+		list( list const& other                                     ) :
+			list( other.cbegin(),other.cend(), other._alloc ) {}
+		list( list const& other, Alloc const& alloc=Alloc() ) :
+			list( other.cbegin(),other.cend(), alloc        ) {}
+		list( list&& other                                     )
+		{
+			_alloc = std::move( other._alloc );
+			_front=other._front; other._front=nullptr;
+			_back =other._back ; other._back =nullptr;
+		}
+		list( list&& other, Alloc const& alloc=Alloc() )
+		{
+			_alloc = alloc;
+			_front=other._front; other._front=nullptr;
+			_back =other._back ; other._back =nullptr;
+		}
+		list( initializer_list<T> ilist, Alloc const& alloc=Alloc() ) :
+			list( ilist.begin(),ilist.end(), alloc ) {}
+		//template< container-compatible-range<T> R >
+		//list( from_range_t, R&& rng, Alloc const& alloc=Alloc() );
+		~list() { clear(); }
+
+		list& operator=( list const& other )
+		{
+			clear();
+			_alloc = other._alloc;
+			assign( other.begin(), other.end() );
+		}
+		list& operator=( list&& other )
+			/*noexcept(allocator_traits<Alloc>::is_always_equal::value)*/
+		{
+			clear();
+			_alloc = std::move( other._alloc );
+			_front=other._front; other._front=nullptr;
+			_back =other._back ; other._back =nullptr;
+		}
+		list& operator=( initializer_list<T> ilist ) { assign( ilist.begin(), ilist.end() ); }
+		template< class InpIter >
+		void assign( InpIter first, InpIter last )
+		{
+			clear();
+			for ( InpIter iter=first; iter!=last; ++iter ) push_back(*iter);
+		}
+		//template< container-compatible-range<T> R >
+		//void assign_range( R&& rng );
+		void assign( size_type count, T const& val )
+		{
+			for ( size_type i=0; i<count; ++i ) push_back( val );
+		}
+		void assign( initializer_list<T> ilist ) { assign( ilist.begin(), ilist.end() ); }
+		Alloc get_allocator() const noexcept { return _alloc; }
+
+		const_iterator cbegin() const noexcept { return { _front  }; }
+		      iterator  begin()       noexcept { return { _front  }; }
+		const_iterator  begin() const noexcept { return { _front  }; }
+		const_iterator cend  () const noexcept { return { nullptr }; }
+		      iterator  end  ()       noexcept { return { nullptr }; }
+		const_iterator  end  () const noexcept { return { nullptr }; }
+		/*const_reverse_iterator crbegin() const noexcept;
+		      reverse_iterator  rbegin()       noexcept;
+		const_reverse_iterator  rbegin() const noexcept;
+		const_reverse_iterator crend  () const noexcept;
+		      reverse_iterator  rend  ()       noexcept;
+		const_reverse_iterator  rend  () const noexcept;*/
+
+		[[nodiscard]] bool empty() const noexcept { return _front==nullptr; }
+		size_type     size() const noexcept { return _size; }
+		size_type max_size() const noexcept { return std::numeric_limits<difference_type>::max(); }
+		void resize( size_type count                       )
+		{
+			if ( size() > count )
+			{
+				do { pop_back(); } while ( size() > count );
+				return;
+			}
+			while ( size() < count ) emplace_back();
+		}
+		void resize( size_type count, T const& val_if_more )
+		{
+			if ( size() > count )
+			{
+				do { pop_back(); } while ( size() > count );
+				return;
+			}
+			while ( size() < count ) push_back( val_if_more );
+		}
+
+		      reference front()
+		{
+			__moss_assert( !empty(), "Access to %s of empty %s!", "front", "list" );
+			return _front->val;
+		}
+		const_reference front() const
+		{
+			__moss_assert( !empty(), "Access to %s of empty %s!", "front", "list" );
+			return _front->val;
+		}
+		      reference back ()
+		{
+			__moss_assert( !empty(), "Access to %s of empty %s!", "back" , "list" );
+			return _back ->val;
+		}
+		const_reference back () const
+		{
+			__moss_assert( !empty(), "Access to %s of empty %s!", "back" , "list" );
+			return _back ->val;
+		}
+
+	private:
+		//https://stackoverflow.com/questions/37284243/why-can-stdlist-have-an-allocator-of-type-t
+		using _ActualAlloc = typename Alloc::template rebind<_Node>::other;
+		template< class... Args > [[nodiscard]] _Node* _alloc_node( Args&&... args )
+		{
+			++_size;
+			_Node* new_node = ((_ActualAlloc)_alloc).allocate(sizeof(_Node));
+			new (&new_node->val) T( std::forward<Args>(args)... );
+			return new_node;
+		}
+		void _dealloc_node( _Node* node ) noexcept
+		{
+			--_size;
+			node->val.~T();
+			((_ActualAlloc)_alloc).deallocate( node );
+		}
+	public:
+		template< class... Args > reference emplace_front( Args&&... args )
+		{
+			emplace( cbegin(), std::forward<Args>(args)... );
+			return front();
+		}
+		template< class... Args > reference emplace_back ( Args&&... args )
+		{
+			emplace( cend(), std::forward<Args>(args)... );
+			return back();
+		}
+		template< class... Args > iterator emplace( const_iterator iter, Args&&... args )
+		{
+			_Node* new_node = _alloc_node( std::forward<Args>(args)... );
+
+			if ( empty() ) [[unlikely]]
+			{
+				_front = _back = new_node;
+				new_node->prev = new_node->next = nullptr;
+			}
+			else if ( iter.node == nullptr ) //end
+			{
+				new_node->next = nullptr;
+				new_node->prev = _back  ;
+				_back->next = new_node;
+				_back = new_node;
+			}
+			else if ( iter.node == _front ) //begin
+			{
+				new_node->next = _front ;
+				new_node->prev = nullptr;
+				_front->prev = new_node;
+				_front = new_node;
+			}
+			else //insert between two valid nodes
+			{
+				__moss_assert_impl( iter.node->prev != nullptr );
+				_Node *prev=iter.node->prev, *next=iter.node;
+				prev->next=new_node; new_node->prev=prev;
+				new_node->next=next; next->prev=new_node;
+			}
+
+			return { new_node };
+		}
+		void push_front( T const& val ) { emplace_front(                 val  ); }
+		void push_front( T&&      val ) { emplace_front( std::forward<T>(val) ); }
+		//template< container-compatible-range<T> R >
+		//void prepend_range( R&& rng );
+		void push_back( T const& val ) { emplace_back(                 val  ); }
+		void push_back( T&&      val ) { emplace_back( std::forward<T>(val) ); }
+		//template< container-compatible-range<T> R >
+		//void append_range( R&& rng );
+		void pop_front()
+		{
+			__moss_assert( !empty(), "Access to %s of empty %s!", "front", "list" );
+			_Node* node = _front;
+			_front = _front->next;
+			_dealloc_node( node );
+		}
+		void pop_back ()
+		{
+			__moss_assert( !empty(), "Access to %s of empty %s!", "back" , "list" );
+			_Node* node = _back;
+			_back = _back->prev;
+			_dealloc_node( node );
+		}
+		iterator insert( const_iterator iter, T const& val ) { return emplace( iter,                 val  ); }
+		iterator insert( const_iterator iter, T&&      val ) { return emplace( iter, std::forward<T>(val) ); }
+		iterator insert( const_iterator iter, size_type count,T const& val )
+		{
+			while ( count > 0 ) { iter=insert( iter, val ); --count; }
+			return iter;
+		}
+		template< class InpIter >
+		iterator insert( const_iterator iter, InpIter first,InpIter last )
+		{
+			for ( InpIter inpiter=first; inpiter!=last; ++inpiter ) iter=insert( iter, *inpiter );
+			return iter;
+		}
+		//template< container-compatible-range<T> R >
+		//iterator insert_range( const_iterator iter, R&& rng );
+		iterator insert( const_iterator iter, initializer_list<T> ilist )
+		{
+			return insert( iter, ilist.begin(),ilist.end() );
+		}
+
+		iterator erase( const_iterator iter )
+		{
+			if ( size() == 1 ) [[unlikely]]
+			{
+				_front = _back = nullptr;
+			}
+			else if ( iter.node == _back ) //back
+			{
+				_back = _back->prev;
+				_back->next = nullptr;
+			}
+			else if ( iter.node == _front ) //begin
+			{
+				_front = _front->next;
+				_front->prev = nullptr;
+			}
+			else //erase between two valid nodes
+			{
+				__moss_assert_impl( iter.node->prev != nullptr );
+				_Node *prev=iter.node->prev, *next=iter.node;
+				prev->next=next; next->prev=prev;
+			}
+
+			iterator after = { iter.node->next };
+			_dealloc_node( iter.node );
+			return after;
+		}
+		iterator erase( const_iterator first, const_iterator last )
+		{
+			for ( iterator iter=first; iter!=last; ) iter=erase( iter );
+			return iter;
+		}
+		void swap( list& other ) /*noexcept(allocator_traits<Alloc>::is_always_equal::value);*/
+		{
+			::std::swap( _alloc, other._alloc );
+			::std::swap( _front, other._front );
+			::std::swap( _back , other._back  );
+			::std::swap( _size, other._size );
+		}
+		void clear() noexcept { while ( !empty() ) pop_front(); }
+
+		#if 0
+		void splice( const_iterator dst_iter, list&  src );
+		void splice( const_iterator dst_iter, list&& src );
+		void splice( const_iterator dst_iter, list&  src,const_iterator src_iter );
+		void splice( const_iterator dst_iter, list&& src,const_iterator src_iter );
+		void splice( const_iterator dst_iter, list&  src,const_iterator src_first,const_iterator src_last );
+		void splice( const_iterator dst_iter, list&& src,const_iterator src_first,const_iterator src_last );
+		#endif
+
+		size_type remove( T const& val )
+		{
+			iterator iter = begin();
+			size_type count = 0;
+			LOOP:
+				if ( iter != end() )
+				{
+					if ( iter.node->val == val ) { iter=erase( iter ); ++count; }
+					else                         ++iter;
+					goto LOOP;
+				}
+			return count;
+		}
+		template< class UnaryPred >
+		size_type remove_if( UnaryPred pred )
+		{
+			iterator iter = begin();
+			size_type count = 0;
+			LOOP:
+				if ( iter != end() )
+				{
+					if ( pred(val) ) { iter=erase( iter ); ++count; }
+					else             ++iter;
+					goto LOOP;
+				}
+			return count;
+		}
+
+		#if 0
+		size_type unique();
+		template< class BinaryPred >
+		size_type unique(BinaryPred binary_pred);
+
+		void merge( list&  other );
+		void merge( list&& other );
+		template< class Cmp > void merge( list&  other, Cmp cmp );
+		template< class Cmp > void merge( list&& other, Cmp cmp );
+
+		void sort();
+		template< class Cmp > void sort( Cmp cmp );
+		#endif
+
+		void reverse() noexcept { ::std::swap( _front, _back ); }
+};
+
+
+
+#if 0
+template< class InpIter, class Alloc=allocator<__iter_value_type<InpIter>> >
+list( InpIter, InpIter, Alloc=Alloc() ) -> list< __iter_value_type<InpIter>, Alloc >;
+
+template< ranges::input_range R, class Alloc=allocator<ranges::range_value_t<R>> >
+list( from_range_t, R&&, Alloc=Alloc() ) -> list< ranges::range_value_t<R>, Alloc >;
+#endif
+
+template< class T, class Alloc > [[nodiscard]] inline
+bool operator==( list<T,Alloc> const& list0, list<T,Alloc> const& list1 )
+{
+	if ( list0.size() != list1.size() ) return false;
+	for ( auto iter0=list0.cbegin(),iter1=list1.cbegin(); iter0!=list0.cend(); ++iter0,++iter1 )
+	{
+		if (!( *iter0 == *iter1 )) return false;
+	}
+	return true;
+}
+
+#if 0
+template< class T, class Alloc >
+__synth_three_way_result<T> operator<=>(list<T, Alloc> const& x,
+list<T, Alloc> const& y);
+#endif
+
+template< class T, class Alloc > inline
+void swap( list<T,Alloc>& list0, list<T,Alloc>& list1 ) noexcept(noexcept( list0.swap(list1) ))
+{
+	list0.swap( list1 );
+}
+
+template< class T, class Alloc, class U >
+typename list<T,Alloc>::size_type erase( list<T,Alloc>& lst, U const& val )
+{
+	return lst.remove_if([&](auto& elem) { return elem == value; });
+}
+template< class T, class Alloc, class UnaryPred >
+typename list<T,Alloc>::size_type erase_if( list<T,Alloc>& lst, UnaryPred pred )
+{
+	return lst.remove_if (pred );
+}
+
+
+
+#if 0
+namespace pmr
+{
+	template< class T > using list = std::list< T, polymorphic_allocator<T> >;
+}
+#endif
+
+
+
+}

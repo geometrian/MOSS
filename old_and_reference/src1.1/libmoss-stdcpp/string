@@ -1,0 +1,713 @@
+#pragma once
+
+/*
+https://en.cppreference.com/w/cpp/header/string
+https://en.cppreference.com/w/cpp/string
+*/
+
+//#include <compare>
+#include "initializer_list"
+
+#include "cstring"
+
+#include "vector"
+
+
+
+namespace std
+{
+
+
+
+// character traits
+#if 1
+template< class CharT > struct char_traits;
+
+template<> struct char_traits< char >
+{
+	using char_type  = char;
+	using int_type   = int ;
+	//using off_type   = streamoff;
+	//using pos_type   = streampos;
+	//using state_type = mbstate_t;
+	//using comparison_category = strong_ordering;
+
+	static constexpr void assign( char_type& ch0, char_type const& ch1 ) noexcept { ch0 = ch1; }
+	static constexpr bool eq( char_type ch0, char_type ch1 ) noexcept { return ch0 == ch1; }
+	static constexpr bool lt( char_type ch0, char_type ch1 ) noexcept { return ch0 <  ch1; }
+
+	//static constexpr int compare( char_type const* str0,char_type const* str1, size_t count )
+	//{
+	//	return strncmp( str0,str1, count );
+	//}
+	//static constexpr size_t length( char_type const* str ) { return strlen( str ); }
+	//static constexpr char_type const* find( char_type const* str,size_t count, char_type const& ch );
+	//static constexpr char_type* move( char_type* str0,char_type const* str1, size_t count );
+	//static constexpr char_type* copy( char_type* str0,char_type const* str1, size_t count );
+	//static constexpr char_type* assign( char_type* str, size_t count, char_type ch );
+
+	static constexpr int_type not_eof( int_type ch ) noexcept { return ch != '\0'; }
+	static constexpr char_type to_char_type( int_type  ch ) noexcept { return (char_type)ch; }
+	static constexpr int_type  to_int_type ( char_type ch ) noexcept { return (int_type )ch; }
+	static constexpr bool eq_int_type( int_type ch0, int_type ch1 ) noexcept { return ch0 == ch1; }
+	static constexpr int_type eof() noexcept { return '\0'; }
+};
+
+#if 0
+template<> struct char_traits< char8_t >; // freestanding
+template<> struct char_traits< char16_t >; // freestanding
+template<> struct char_traits< char32_t >; // freestanding
+template<> struct char_traits< wchar_t >; // freestanding
+#endif
+
+#endif
+
+
+
+template< class CharT, class Traits=char_traits<CharT>, class Alloc=allocator<CharT> >
+class basic_string : public vector<CharT,Alloc>
+{
+	private:
+		using _TypeParent = vector<CharT,Alloc>;
+	public:
+		MOSS_INHERIT_N( _TypeParent,
+			value_type, size_type, difference_type,
+			reference, const_reference,
+			iterator, const_iterator
+		)
+		using traits_type = Traits;
+
+		//using       reverse_iterator = std::reverse_iterator<      iterator>;
+		//using const_reverse_iterator = std::reverse_iterator<const_iterator>;
+
+		static constexpr size_type npos = size_type(-1);
+
+		constexpr basic_string() noexcept(noexcept(Alloc())) : basic_string(Alloc()) {}
+		constexpr explicit basic_string( Alloc const& alloc ) noexcept :
+			_TypeParent( 1, '\0' ) {}
+		constexpr explicit basic_string( size_type count,                  Alloc const& alloc=Alloc() ) :
+			_TypeParent( count+1, '\0' ) {}
+		constexpr          basic_string( size_type count,CharT const& val, Alloc const& alloc=Alloc() ) :
+			_TypeParent( count+1, val )
+		{
+			static_cast<_TypeParent*>(this)->back() = '\0';
+		}
+		template< class InpIter >
+		constexpr basic_string( InpIter first,InpIter last, Alloc const& alloc=Alloc() ) :
+			_TypeParent( first,last, alloc )
+		{
+			static_cast<_TypeParent*>(this)->emplace_back( '\0' );
+		}
+		constexpr basic_string( basic_string const& other ) :
+			_TypeParent( static_cast<_TypeParent const&>(other) ) {}
+		constexpr basic_string( basic_string&& other              ) noexcept :
+			_TypeParent( static_cast<_TypeParent&&>(other)        ) {}
+		constexpr basic_string( basic_string&& other, Alloc alloc )          :
+			_TypeParent( static_cast<_TypeParent&&>(other), alloc ) {}
+		constexpr basic_string( initializer_list<CharT> ilist, Alloc const& alloc=Alloc() ) :
+			_TypeParent( ilist, alloc )
+		{
+			static_cast<_TypeParent*>(this)->emplace_back( '\0' );
+		}
+		//constexpr basic_string( basic_string&& str, size_type pos,                 Alloc const& alloc=Alloc() )
+		//	: basic_string( std::forward(str), pos,str.size(), alloc ) {}
+		//constexpr basic_string( basic_string&& str, size_type pos,size_type count, Alloc const& alloc=Alloc() );
+		//template< class StrI >
+		//constexpr basic_string( StrI const& t, size_type pos,size_type count, Alloc const& alloc=Alloc() );
+		//template< class T >
+		//constexpr explicit basic_string( StrI const& t, Alloc const& alloc=Alloc() );
+		constexpr basic_string( CharT const* str, size_type count, Alloc const& alloc=Alloc() ) :
+			_TypeParent( count+1, alloc )
+		{
+			memcpy( data(),str, count+1 );
+		}
+		constexpr basic_string( CharT const* str,                  Alloc const& alloc=Alloc() ) :
+			basic_string( str,str+strlen(str), alloc ) {}
+		basic_string( nullptr_t ) = delete;
+		//template <__container_compatible_range<CharT> R>
+		//constexpr basic_string( from_range_t, R&& rng, Alloc const& alloc=Alloc() );
+
+		//using vector<CharT,Alloc>::operator=();
+		template< class StrI >
+		constexpr basic_string& operator=( StrI const& str )
+		{
+			return assign( str.begin(), str.end() );
+		}
+		constexpr basic_string& operator=( CharT const* str )
+		{
+			return assign( str, str+strlen(str) );
+		}
+		basic_string& operator=( nullptr_t ) = delete;
+		constexpr basic_string& operator=( CharT ch )
+		{
+			clear();
+			emplace_back( ch );
+			return *this;
+		}
+		constexpr basic_string& operator=( initializer_list<CharT> ilist )
+		{
+			return assign( ilist.begin(), ilist.end() );
+		}
+
+		[[nodiscard]] constexpr const_reference front() const noexcept { return (*this)[          0 ]; }
+		[[nodiscard]] constexpr       reference front()       noexcept { return (*this)[          0 ]; }
+		[[nodiscard]] constexpr const_reference back () const noexcept { return (*this)[ size() - 1 ]; }
+		[[nodiscard]] constexpr       reference back ()       noexcept { return (*this)[ size() - 1 ]; }
+
+		[[nodiscard]] constexpr const_iterator cbegin() const noexcept { return this->data(); }
+		[[nodiscard]] constexpr const_iterator  begin() const noexcept { return this->data(); }
+		[[nodiscard]] constexpr       iterator  begin()       noexcept { return this->data(); }
+		[[nodiscard]] constexpr const_iterator cend  () const noexcept { return this->data()+size(); }
+		[[nodiscard]] constexpr const_iterator  end  () const noexcept { return this->data()+size(); }
+		[[nodiscard]] constexpr       iterator  end  ()       noexcept { return this->data()+size(); }
+
+		constexpr size_type length() const noexcept
+		{
+			return static_cast<_TypeParent const*>(this)->size() - 1;
+		}
+		constexpr size_type size  () const noexcept { return length(); }
+		constexpr size_type max_size() const noexcept { return std::numeric_limits<difference_type>::max()-1; }
+		//template< class Op >
+		//constexpr void resize_and_overwrite( size_type size, Op op );
+		[[nodiscard]] constexpr bool empty() const noexcept { return length() == 0; }
+
+		constexpr void clear() noexcept
+		{
+			static_cast<_TypeParent*>(this)->resize(1);
+			static_cast<_TypeParent*>(this)->data()[0] = '\0';
+		}
+
+		// modifiers
+		constexpr basic_string& operator+=( basic_string const& str ) { return append( str ); }
+		template< class StrI >
+		constexpr basic_string& operator+=( StrI const& str )
+		{
+			return append( str.cbegin(), str.cend() );
+		}
+		constexpr basic_string& operator+=( CharT const* str ) { return append(str); }
+		constexpr basic_string& operator+=( CharT ch ) { emplace_back( ch ); return *this; }
+		constexpr basic_string& operator+=( initializer_list<CharT> ilist )
+		{
+			return append( ilist.begin(), ilist.end() );
+		}
+		constexpr basic_string& append( basic_string const& str                                 )
+		{
+			if ( this->data() == str.data() )
+			{
+				basic_string cpy(str);
+				return append(cpy);
+			}
+			this->insert( end(), str.cbegin(),str.cend() );
+			return *this;
+		}
+		constexpr basic_string& append( basic_string const& str, size_type pos,size_type n=npos )
+		{
+			size_type end = n==npos ? str.size() : pos+n;
+			__moss_assert( end<str.size(), "Index %zu out of bounds!", end );
+			__moss_assert( pos<str.size(), "Index %zu out of bounds!", pos );
+			return append( str.cbegin()+pos, str.cbegin()+end );
+		}
+		template< class StrI >
+		constexpr basic_string& append( StrI const& str )
+		{
+			return append( str.cbegin(), str.cend() );
+		}
+		template< class StrI >
+		constexpr basic_string& append( StrI const& str, size_type pos,size_type n=npos )
+		{
+			size_type end = n==npos ? str.size() : pos+n;
+			__moss_assert( end<str.size(), "Index %zu out of bounds!", end );
+			__moss_assert( pos<str.size(), "Index %zu out of bounds!", pos );
+			return append( str.cbegin()+pos, str.cbegin()+end );
+		}
+		constexpr basic_string& append( CharT const* str )
+		{
+			this->insert( end(), str,str+strlen(str) );
+			return *this;
+		}
+		constexpr basic_string& append( CharT const* str, size_type count ) //Note can contain '\0' `char`s
+		{
+			for ( size_t i=0; i<count; ++i ) this->push_back( str[i] );
+			return *this;
+		}
+		constexpr basic_string& append( size_type count, CharT ch )
+		{
+			for ( size_t i=0; i<count; ++i ) this->push_back( ch );
+			return *this;
+		}
+		template< class InpIter >
+		constexpr basic_string& append( InpIter first, InpIter last )
+		{
+			for ( InpIter iter=first; iter!=last; ++iter ) push_back( *iter );
+			return *this;
+		}
+		//template <__container_compatible_range<CharT> R>
+		//constexpr basic_string& append_range( R&& rng );
+		constexpr basic_string& append( initializer_list<CharT> ilist )
+		{
+			return append( ilist.begin(), ilist.end() );
+		}
+
+		//Note null terminator and `size()` in child less than in parent
+		constexpr void push_back( CharT const& val )
+		{
+			static_cast<_TypeParent*>(this)->back() = val;
+			static_cast<_TypeParent*>(this)->push_back('\0');
+		}
+		constexpr void push_back( CharT&&      val )
+		{
+			static_cast<_TypeParent*>(this)->back() = val;
+			static_cast<_TypeParent*>(this)->push_back('\0');
+		}
+		template< class... Args >
+		constexpr void emplace_back( Args&&... args )
+		{
+			static_cast<_TypeParent*>(this)->pop_back();
+			static_cast<_TypeParent*>(this)->emplace_back( std::forward<Args>(args)... );
+			static_cast<_TypeParent*>(this)->emplace_back( '\0' );
+		}
+		constexpr void pop_back()
+		{
+			this->data()[ size() - 1 ] = '\0';
+			static_cast<_TypeParent*>(this)->pop_back();
+		}
+
+		#if 0
+		//constexpr basic_string& assign( basic_string const& str );
+		//constexpr basic_string& assign( basic_string&& str ) noexcept(
+		//	allocator_traits<Alloc>::propagate_on_container_move_assignment::value ||
+		//	allocator_traits<Alloc>::is_always_equal::value
+		//);
+		constexpr basic_string& assign( basic_string const& str, size_type pos,size_type n=npos );
+		template< class StrI >
+		constexpr basic_string& assign( StrI const& str );
+		template< class StrI >
+		constexpr basic_string& assign( StrI const& str, size_type pos,size_type n=npos );
+		constexpr basic_string& assign( CharT const* str, size_type n );
+		constexpr basic_string& assign( CharT const* str              );
+		//template <__container_compatible_range<CharT> R>
+		//constexpr basic_string& assign_range( R&& rng );
+		constexpr basic_string& assign( initializer_list<CharT> ilist )
+		{
+			assign( ilist.begin(), ilist.end() );
+			return *this;
+		}
+		#endif
+
+		#if 0
+		constexpr basic_string& insert( size_type pos , basic_string const& str                                 );
+		constexpr basic_string& insert( size_type pos1, basic_string const& str,size_type pos2,size_type n=npos );
+		template< class StrI >
+		constexpr basic_string& insert( size_type pos, StrI const& str );
+		template< class StrI >
+		constexpr basic_string& insert( size_type pos1, StrI const& str,size_type pos2,size_type n=npos );
+		constexpr basic_string& insert( size_type pos, CharT const* str,size_type n );
+		constexpr basic_string& insert( size_type pos, CharT const* str             );
+		constexpr basic_string& insert( size_type pos, size_type count,CharT ch );
+		//template <__container_compatible_range<CharT> R>
+		//constexpr iterator insert_range( const_iterator p, R&& rng );
+		#endif
+
+		using _TypeParent::erase;
+		constexpr basic_string& erase( size_type pos=0, size_type n=npos )
+		{
+			const_iterator iter_start = begin() + pos;
+			const_iterator iter_end = n==npos ? end() : begin()+n;
+			this->erase( iter_start, iter_end );
+			return *this;
+		}
+
+		#if 0
+		constexpr basic_string& replace( size_type pos1, size_type n1, basic_string const& str );
+		constexpr basic_string& replace( size_type pos1, size_type n1, basic_string const& str, size_type pos2, size_type n2=npos );
+		template< class StrI >
+		constexpr basic_string& replace( size_type pos1, size_type n1, StrI const& str );
+		template< class StrI >
+		constexpr basic_string& replace( size_type pos1, size_type n1, StrI const& str, size_type pos2, size_type n2=npos );
+		constexpr basic_string& replace( size_type pos, size_type n1, CharT const* str, size_type n2 );
+		constexpr basic_string& replace( size_type pos, size_type n1, CharT const* str );
+		constexpr basic_string& replace( size_type pos, size_type n1, size_type n2, CharT ch );
+		constexpr basic_string& replace( const_iterator i1, const_iterator i2, basic_string const& str );
+		template< class StrI >
+		constexpr basic_string& replace( const_iterator i1, const_iterator i2, StrI const& str );
+		constexpr basic_string& replace( const_iterator i1, const_iterator i2, CharT const* str, size_type n );
+		constexpr basic_string& replace( const_iterator i1, const_iterator i2, CharT const* str );
+		constexpr basic_string& replace( const_iterator i1, const_iterator i2, size_type n, CharT ch );
+		template< class InpIter >
+		constexpr basic_string& replace( const_iterator i1, const_iterator i2, InpIter j1, InpIter j2 );
+		//template <__container_compatible_range<CharT> R>
+		//constexpr basic_string& replace_with_range( const_iterator i1, const_iterator i2, R&& rng );
+		constexpr basic_string& replace( const_iterator, const_iterator, initializer_list<CharT> );
+		#endif
+
+		//constexpr size_type copy( CharT* s, size_type n, size_type pos=0 ) const;
+
+		//constexpr void swap( basic_string& str ) noexcept(
+		//	allocator_traits<Alloc>::propagate_on_container_swap::value ||
+		//	allocator_traits<Alloc>::is_always_equal::value
+		//);
+
+		constexpr CharT const* c_str() const noexcept { return this->data(); }
+		//constexpr operator basic_string_view<CharT,Traits>() const noexcept;
+
+		#if 0
+		template< class StrI >
+		constexpr size_type find( StrI const& str, size_type pos=0 ) const noexcept(/* see description */);
+		constexpr size_type find( basic_string const& str, size_type pos=0 ) const noexcept;
+		constexpr size_type find( CharT const* str, size_type pos, size_type n ) const;
+		constexpr size_type find( CharT const* str, size_type pos=0 ) const;
+		constexpr size_type find( CharT ch, size_type pos=0 ) const noexcept;
+		template< class StrI >
+		constexpr size_type rfind( StrI const& str, size_type pos=npos )
+			const noexcept(/* see description */);
+		constexpr size_type rfind( basic_string const& str, size_type pos=npos ) const noexcept;
+		constexpr size_type rfind( CharT const* str, size_type pos, size_type n ) const;
+		constexpr size_type rfind( CharT const* str, size_type pos=npos ) const;
+		constexpr size_type rfind( CharT ch, size_type pos=npos ) const noexcept;
+
+		template< class StrI >
+		constexpr size_type find_first_of( StrI const& str, size_type pos=0 )
+			const noexcept(/* see description */);
+		constexpr size_type find_first_of( basic_string const& str, size_type pos=0 ) const noexcept;
+		constexpr size_type find_first_of( CharT const* str, size_type pos, size_type n ) const;
+		constexpr size_type find_first_of( CharT const* str, size_type pos=0 ) const;
+		constexpr size_type find_first_of( CharT ch, size_type pos=0 ) const noexcept;
+		template< class StrI >
+		constexpr size_type find_last_of( StrI const& str, size_type pos=npos )
+			const noexcept(/* see description */);
+		constexpr size_type find_last_of( basic_string const& str, size_type pos=npos ) const noexcept;
+		constexpr size_type find_last_of( CharT const* str, size_type pos, size_type n ) const;
+		constexpr size_type find_last_of( CharT const* str, size_type pos=npos ) const;
+		constexpr size_type find_last_of( CharT ch, size_type pos=npos ) const noexcept;
+
+		template< class StrI >
+		constexpr size_type find_first_not_of( StrI const& str, size_type pos=0 )
+			const noexcept(/* see description */);
+		constexpr size_type find_first_not_of( basic_string const& str, size_type pos=0 ) const noexcept;
+		constexpr size_type find_first_not_of( CharT const* str, size_type pos, size_type n ) const;
+		constexpr size_type find_first_not_of( CharT const* str, size_type pos=0 ) const;
+		constexpr size_type find_first_not_of( CharT ch, size_type pos=0 ) const noexcept;
+		template< class StrI >
+		constexpr size_type find_last_not_of( StrI const& str, size_type pos=npos )
+			const noexcept(/* see description */);
+		constexpr size_type find_last_not_of( basic_string const& str, size_type pos=npos ) const noexcept;
+		constexpr size_type find_last_not_of( CharT const* str, size_type pos, size_type n ) const;
+		constexpr size_type find_last_not_of( CharT const* str, size_type pos=npos ) const;
+		constexpr size_type find_last_not_of( CharT ch, size_type pos=npos ) const noexcept;
+
+		constexpr basic_string substr( size_type pos=0, size_type n=npos ) const&;
+		constexpr basic_string substr( size_type pos=0, size_type n=npos ) &&;
+
+		template< class StrI >
+		constexpr int compare( StrI const& str ) const noexcept(/* see description */);
+		template< class StrI >
+		constexpr int compare( size_type pos1, size_type n1, StrI const& str ) const;
+		template< class StrI >
+		constexpr int compare( size_type pos1, size_type n1, StrI const& str, size_type pos2, size_type n2=npos ) const;
+		constexpr int compare( basic_string const& str ) const noexcept;
+		constexpr int compare( size_type pos1, size_type n1, basic_string const& str ) const;
+		constexpr int compare( size_type pos1, size_type n1, basic_string const& str, size_type pos2, size_type n2=npos ) const;
+		constexpr int compare( CharT const* str ) const;
+		constexpr int compare( size_type pos1, size_type n1, CharT const* str ) const;
+		constexpr int compare( size_type pos1, size_type n1, CharT const* str, size_type n2 ) const;
+
+		constexpr bool starts_with( basic_string_view<CharT,Traits> ch ) const noexcept;
+		constexpr bool starts_with( CharT ch ) const noexcept;
+		constexpr bool starts_with( CharT const* ch ) const;
+		constexpr bool ends_with( basic_string_view<CharT,Traits> str ) const noexcept;
+		constexpr bool ends_with( CharT ch ) const noexcept;
+		constexpr bool ends_with( CharT const* ch ) const;
+
+		constexpr bool contains( basic_string_view<CharT,Traits> str ) const noexcept;
+		constexpr bool contains( CharT ch ) const noexcept;
+		constexpr bool contains( CharT const* ch ) const;
+		#endif
+};
+
+
+
+#define MOSS_STR basic_string< CharT, Traits, Alloc >
+
+
+
+#if 0
+
+template< class InpIter, class Alloc=allocator<typename iterator_traits<InpIter>::value_type> >
+basic_string( InpIter, InpIter, Alloc=Alloc() )
+	-> basic_string< typename iterator_traits<InpIter>::value_type, char_traits<typename iterator_traits<InpIter>::value_type>, Alloc >;
+
+template< ranges::input_range R, class Alloc=allocator<ranges::range_value_t<R>> >
+basic_string( from_range_t, R&&, Alloc=Alloc() )
+	-> basic_string< ranges::range_value_t<R>, char_traits<ranges::range_value_t<R>>, Alloc >;
+
+template< class CharT, class Traits, class Alloc=allocator<CharT> >
+explicit basic_string( basic_string_view<CharT,Traits>, Alloc const&=Alloc() )
+	-> MOSS_STR;
+
+template< class CharT, class Traits, class Alloc=allocator<CharT> >
+basic_string(
+	basic_string_view< CharT, Traits >,
+	typename /* see description */ ::size_type,
+	typename /* see description */ ::size_type,
+	Alloc const&=Alloc()
+) -> MOSS_STR;
+
+#endif
+
+
+
+template< class CharT, class Traits, class Alloc > constexpr
+MOSS_STR operator+( MOSS_STR const& lhs, MOSS_STR const& rhs )
+{
+	MOSS_STR ret( lhs );
+	ret.append( rhs );
+	return ret;
+}
+
+template< class CharT, class Traits, class Alloc > constexpr
+MOSS_STR operator+( MOSS_STR&& lhs, MOSS_STR const& rhs )
+{
+	MOSS_STR ret( std::move(lhs) );
+	ret.append( rhs );
+	return ret;
+}
+
+template< class CharT, class Traits, class Alloc > constexpr
+MOSS_STR operator+( MOSS_STR const& lhs, MOSS_STR&& rhs )
+{
+	MOSS_STR ret( lhs );
+	ret.append( std::move(rhs) );
+	return ret;
+}
+
+template< class CharT, class Traits, class Alloc > constexpr
+MOSS_STR operator+( MOSS_STR&& lhs, MOSS_STR&& rhs )
+{
+	MOSS_STR ret( std::move(lhs) );
+	ret.append( std::move(rhs) );
+	return ret;
+}
+
+template< class CharT, class Traits, class Alloc > constexpr
+MOSS_STR operator+( CharT const* lhs, MOSS_STR const& rhs )
+{
+	MOSS_STR ret( lhs );
+	ret.append( rhs );
+	return ret;
+}
+
+template< class CharT, class Traits, class Alloc > constexpr
+MOSS_STR operator+( CharT const* lhs, MOSS_STR&& rhs )
+{
+	MOSS_STR ret( lhs );
+	ret.append( std::move(rhs) );
+	return ret;
+}
+
+template< class CharT, class Traits, class Alloc > constexpr
+MOSS_STR operator+( CharT lhs, MOSS_STR const& rhs )
+{
+	MOSS_STR ret( lhs );
+	ret.append( rhs );
+	return ret;
+}
+
+template< class CharT, class Traits, class Alloc > constexpr
+MOSS_STR operator+( CharT lhs, MOSS_STR&& rhs )
+{
+	MOSS_STR ret( lhs );
+	ret.append( std::move(rhs) );
+	return ret;
+}
+
+template< class CharT, class Traits, class Alloc > constexpr
+MOSS_STR operator+( MOSS_STR const& lhs, CharT const* rhs )
+{
+	MOSS_STR ret( lhs );
+	ret.append( rhs );
+	return ret;
+}
+
+template< class CharT, class Traits, class Alloc > constexpr
+MOSS_STR operator+( MOSS_STR&& lhs, CharT const* rhs )
+{
+	MOSS_STR ret( std::move(lhs) );
+	ret.append( rhs );
+	return ret;
+}
+
+template< class CharT, class Traits, class Alloc > constexpr
+MOSS_STR operator+( MOSS_STR const& lhs, CharT rhs )
+{
+	MOSS_STR ret( lhs );
+	ret.append( rhs );
+	return ret;
+}
+
+template< class CharT, class Traits, class Alloc > constexpr
+MOSS_STR operator+( MOSS_STR&& lhs, CharT rhs )
+{
+	MOSS_STR ret( std::move(lhs) );
+	ret.append( rhs );
+	return ret;
+}
+
+
+template< class CharT, class Traits, class Alloc > constexpr
+bool operator==( MOSS_STR const& lhs, MOSS_STR const& rhs ) noexcept
+{
+	if ( lhs.size() != rhs.size() ) return false;
+	for ( size_t i=0; i<lhs.size(); ++i ) if ( lhs[i] != rhs[i] ) return false;
+	return true;
+}
+template< class CharT, class Traits, class Alloc > constexpr
+bool operator==( MOSS_STR const& lhs, CharT    const* rhs )
+{
+	for ( size_t i=0; i<lhs.size(); ++i )
+	{
+		if ( lhs[i] != rhs[i] ) return false;
+		if ( lhs[i] == '\0' ) break;
+	}
+	return true;
+}
+
+#if 0
+template< class CharT, class Traits, class Alloc > constexpr
+/* see description */ operator<=>( MOSS_STR const& lhs, MOSS_STR const& rhs ) noexcept;
+template< class CharT, class Traits, class Alloc > constexpr
+/* see description */ operator<=>( MOSS_STR const& lhs, CharT    const* rhs );
+#endif
+
+template< class CharT, class Traits, class Alloc > constexpr
+void swap( MOSS_STR& lhs, MOSS_STR& rhs ) noexcept( noexcept(lhs.swap(rhs)) )
+{
+	lhs.swap( rhs );
+}
+
+#if 0
+template< class CharT, class Traits, class Alloc >
+basic_istream<CharT,Traits>& operator>>( basic_istream<CharT,Traits>& is, MOSS_STR& str );
+template< class CharT, class Traits, class Alloc >
+basic_ostream<CharT,Traits>& operator<<( basic_ostream<CharT,Traits>& os, MOSS_STR const& str );
+template< class CharT, class Traits, class Alloc >
+basic_istream<CharT,Traits>& getline( basic_istream<CharT,Traits>& is, MOSS_STR& str, CharT delim );
+template< class CharT, class Traits, class Alloc >
+basic_istream<CharT,Traits>& getline( basic_istream<CharT,Traits>&& is, MOSS_STR& str, CharT delim );
+template< class CharT, class Traits, class Alloc >
+basic_istream<CharT,Traits>& getline( basic_istream<CharT,Traits>& is, MOSS_STR& str );
+template< class CharT, class Traits, class Alloc >
+basic_istream<CharT,Traits>& getline( basic_istream<CharT,Traits>&& is, MOSS_STR& str );
+#endif
+
+#if 0
+template< class CharT, class Traits, class Alloc, class U > constexpr
+typename MOSS_STR::size_type erase( MOSS_STR& c, U const& value );
+template< class CharT, class Traits, class Alloc, class Pred > constexpr
+typename MOSS_STR::size_type erase_if( MOSS_STR& c, Pred pred );
+#endif
+
+// basic_string typedef-names
+using string    = basic_string<char>;
+#if 0
+using u8string  = basic_string<char8_t>;
+using u16string = basic_string<char16_t>;
+using u32string = basic_string<char32_t>;
+using wstring   = basic_string<wchar_t>;
+#endif
+
+#if 0
+int stoi( string const& str, size_t* idx=nullptr, int base=10 );
+long stol( string const& str, size_t* idx=nullptr, int base=10 );
+unsigned long stoul( string const& str, size_t* idx=nullptr, int base=10 );
+long long stoll( string const& str, size_t* idx=nullptr, int base=10 );
+unsigned long long stoull( string const& str, size_t* idx=nullptr, int base=10 );
+float stof( string const& str, size_t* idx=nullptr );
+double stod( string const& str, size_t* idx=nullptr );
+long double stold( string const& str, size_t* idx=nullptr );
+string to_string( int val );
+string to_string( unsigned val );
+string to_string( long val );
+string to_string( unsigned long val );
+string to_string( long long val );
+string to_string( unsigned long long val );
+string to_string( float val );
+string to_string( double val );
+string to_string( long double val );
+
+int stoi( wstring const& str, size_t* idx=nullptr, int base=10 );
+long stol( wstring const& str, size_t* idx=nullptr, int base=10 );
+unsigned long stoul( wstring const& str, size_t* idx=nullptr, int base=10 );
+long long stoll( wstring const& str, size_t* idx=nullptr, int base=10 );
+unsigned long long stoull( wstring const& str, size_t* idx=nullptr, int base=10 );
+float stof( wstring const& str, size_t* idx=nullptr );
+double stod( wstring const& str, size_t* idx=nullptr );
+long double stold( wstring const& str, size_t* idx=nullptr );
+wstring to_wstring( int val );
+wstring to_wstring( unsigned val );
+wstring to_wstring( long val );
+wstring to_wstring( unsigned long val );
+wstring to_wstring( long long val );
+wstring to_wstring( unsigned long long val );
+wstring to_wstring( float val );
+wstring to_wstring( double val );
+wstring to_wstring( long double val );
+#endif
+
+#if 0
+namespace pmr
+{
+	template< class CharT, class Traits=char_traits<CharT> >
+	using basic_string = std::basic_string< CharT, Traits, polymorphic_allocator<CharT> >;
+
+	using string    = basic_string<char>;
+	using u8string  = basic_string<char8_t>;
+	using u16string = basic_string<char16_t>;
+	using u32string = basic_string<char32_t>;
+	using wstring   = basic_string<wchar_t>;
+}
+
+// hash support
+template< class T > struct hash;
+template< class A > struct hash<basic_string<char, char_traits<char>, A>>;
+template< class A > struct hash<basic_string<char8_t, char_traits<char8_t>, A>>;
+template< class A > struct hash<basic_string<char16_t, char_traits<char16_t>, A>>;
+template< class A > struct hash<basic_string<char32_t, char_traits<char32_t>, A>>;
+template< class A > struct hash<basic_string<wchar_t, char_traits<wchar_t>, A>>;
+#endif
+
+
+
+inline namespace literals
+{
+	inline namespace string_literals
+	{
+		#ifdef __MOSS_CLANG__
+			#pragma clang diagnostic push
+			#pragma clang diagnostic ignored "-Wuser-defined-literals"
+		#endif
+	
+		// suffix for basic_string literals
+		constexpr string operator""s( char const* str, size_t len )
+		{
+			return string( str, str+len );
+		}
+		#if 0
+		constexpr u8string operator""s( char8_t const* str, size_t len );
+		constexpr u16string operator""s( char16_t const* str, size_t len );
+		constexpr u32string operator""s( char32_t const* str, size_t len );
+		constexpr wstring operator""s( wchar_t const* str, size_t len );
+		#endif
+
+		#ifdef __MOSS_CLANG__
+			#pragma clang diagnostic pop
+		#endif
+	}
+}
+
+
+
+#undef MOSS_STR
+
+
+
+}

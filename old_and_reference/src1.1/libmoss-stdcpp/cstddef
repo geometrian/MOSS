@@ -1,0 +1,67 @@
+#pragma once
+
+/*
+https://en.cppreference.com/w/cpp/header/cstddef
+*/
+
+
+
+#include "../libmoss-stdc/stddef.h"
+
+#include "bit"
+
+
+
+namespace std
+{
+
+
+
+#if __MOSS_CPP__ >= 2017
+
+enum class byte : unsigned char {};
+
+constexpr byte operator~( byte val ) noexcept
+{
+	return bit_cast<byte>((uint8_t)( ~bit_cast<uint8_t>(val) ));
+}
+
+template< class IntType >
+constexpr byte  operator<< ( byte  val, IntType shift ) noexcept
+{
+	return bit_cast<byte>((uint8_t)( bit_cast<uint8_t>(val) << shift ));
+}
+template< class IntType >
+constexpr byte& operator<<=( byte& val, IntType shift ) noexcept { return val=val<<shift; }
+template< class IntType >
+constexpr byte  operator>> ( byte  val, IntType shift ) noexcept
+{
+	return bit_cast<byte>((uint8_t)( bit_cast<uint8_t>(val) << shift ));
+}
+template< class IntType >
+constexpr byte& operator>>=( byte& val, IntType shift ) noexcept { return val=val>>shift; }
+
+constexpr byte  operator| ( byte  lhs, byte rhs ) noexcept
+{
+	return bit_cast<byte>((uint8_t)( bit_cast<uint8_t>(lhs) | bit_cast<uint8_t>(rhs) ));
+}
+constexpr byte& operator|=( byte& lhs, byte rhs ) noexcept { return lhs=lhs|rhs; }
+constexpr byte  operator& ( byte  lhs, byte rhs ) noexcept
+{
+	return bit_cast<byte>((uint8_t)( bit_cast<uint8_t>(lhs) & bit_cast<uint8_t>(rhs) ));
+}
+constexpr byte& operator&=( byte& lhs, byte rhs ) noexcept { return lhs=lhs&rhs; }
+constexpr byte  operator^ ( byte  lhs, byte rhs ) noexcept
+{
+	return bit_cast<byte>((uint8_t)( bit_cast<uint8_t>(lhs) ^ bit_cast<uint8_t>(rhs) ));
+}
+constexpr byte& operator^=( byte& lhs, byte rhs ) noexcept { return lhs=lhs^rhs; }
+
+template< class IntType >
+constexpr IntType to_integer( byte val ) noexcept { return (IntType)bit_cast<uint8_t>(val); }
+
+#endif
+
+
+
+}
